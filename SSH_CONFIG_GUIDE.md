@@ -18,9 +18,9 @@ PraisonAIWP now supports `~/.ssh/config` for simplified SSH connection managemen
 Edit `~/.ssh/config`:
 
 ```ssh-config
-Host peterborough
-    HostName 82.165.193.19
-    User peterboroughtamilchu_h37zaw7ihpk
+Host myserver
+    HostName 203.0.113.10
+    User wordpress_user
     IdentityFile ~/.ssh/id_ed25519
     Port 22
 
@@ -39,7 +39,7 @@ When running `praisonaiwp init`, just enter the host alias:
 praisonaiwp init
 
 # Prompts:
-Server hostname: peterborough  # Just the alias!
+Server hostname: myserver  # Just the alias!
 # Username, key, port automatically loaded from SSH config
 ```
 
@@ -49,7 +49,7 @@ Server hostname: peterborough  # Just the alias!
 from praisonaiwp.core.ssh_manager import SSHManager
 
 # Just specify the host alias - everything else loaded from SSH config
-with SSHManager('peterborough') as ssh:
+with SSHManager('myserver') as ssh:
     stdout, stderr = ssh.execute('wp --info')
     print(stdout)
 ```
@@ -92,7 +92,7 @@ SSHManager('myserver', username='root', port=22)
 # Production WordPress Server
 Host wp-prod
     HostName 82.165.193.19
-    User peterboroughtamilchu_h37zaw7ihpk
+    User wordpress_user
     IdentityFile ~/.ssh/id_ed25519
     Port 22
 
@@ -120,7 +120,7 @@ default_server: production
 servers:
   production:
     hostname: wp-prod  # SSH config alias!
-    wp_path: /var/www/vhosts/peterboroughchurch.com/httpdocs
+    wp_path: /var/www/vhosts/example.com/httpdocs
     php_bin: /opt/plesk/php/8.3/bin/php
     wp_cli: /usr/local/bin/wp
   
@@ -320,7 +320,7 @@ ssh = SSHManager('wp-prod')
 servers:
   production:
     hostname: 82.165.193.19
-    username: peterboroughtamilchu_h37zaw7ihpk
+    username: wordpress_user
     key_file: ~/.ssh/id_ed25519
     port: 22
     wp_path: /var/www/html
@@ -332,7 +332,7 @@ servers:
 ```ssh-config
 Host wp-prod
     HostName 82.165.193.19
-    User peterboroughtamilchu_h37zaw7ihpk
+    User wordpress_user
     IdentityFile ~/.ssh/id_ed25519
     Port 22
 ```

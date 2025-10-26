@@ -304,7 +304,7 @@ When the same text appears multiple times but you only want to replace it at a s
 
 ```bash
 # Replace only at line 10
-praisonaiwp update 123 "Welcome" "Peterborough Church" --line 10
+praisonaiwp update 123 "Welcome" "My Website" --line 10
 ```
 
 ### Occurrence-Specific Replacement
@@ -313,7 +313,7 @@ Replace only the 1st, 2nd, or nth occurrence:
 
 ```bash
 # Replace only the 2nd occurrence
-praisonaiwp update 123 "Welcome" "Peterborough Church" --nth 2
+praisonaiwp update 123 "Welcome" "My Website" --nth 2
 ```
 
 ### Bulk Operations

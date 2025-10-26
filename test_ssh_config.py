@@ -9,10 +9,10 @@ console = Console()
 console.print("\n[bold cyan]Testing SSH Config Integration[/bold cyan]\n")
 
 # Test 1: Using SSH config alias
-console.print("[yellow]Test 1: Connecting using SSH config alias 'peterborough'...[/yellow]")
+console.print("[yellow]Test 1: Connecting using SSH config alias 'myserver'...[/yellow]")
 
 try:
-    with SSHManager('peterborough') as ssh:
+    with SSHManager('myserver') as ssh:
         console.print(f"[green]✓ Connected successfully![/green]")
         console.print(f"[dim]  Hostname: {ssh.hostname}[/dim]")
         console.print(f"[dim]  Username: {ssh.username}[/dim]")
@@ -26,7 +26,7 @@ try:
         # Test WP-CLI
         console.print("\n[yellow]Test 3: Testing WP-CLI access...[/yellow]")
         stdout, stderr = ssh.execute(
-            'cd /var/www/vhosts/peterboroughchurch.com/httpdocs && '
+            'cd /var/www/vhosts/example.com/httpdocs && '
             '/opt/plesk/php/8.3/bin/php /usr/local/bin/wp --info'
         )
         

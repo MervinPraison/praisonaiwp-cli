@@ -72,7 +72,7 @@ praisonaiwp update 123 "old heading" "new heading" --line 10
 
 ```bash
 # Replace only the 2nd occurrence
-praisonaiwp update 123 "Welcome" "Peterborough Church" --nth 2
+praisonaiwp update 123 "Welcome" "My Website" --nth 2
 ```
 
 ### 5. Preview Changes Before Applying
@@ -85,13 +85,13 @@ praisonaiwp update 123 "old" "new" --preview
 
 ```bash
 # Find in specific post
-praisonaiwp find "church" 123
+praisonaiwp find "example" 123
 
 # Find across all posts
-praisonaiwp find "church"
+praisonaiwp find "example"
 
 # Find in pages only
-praisonaiwp find "church" --type page
+praisonaiwp find "example" --type page
 ```
 
 ### 7. List Posts
@@ -114,17 +114,17 @@ praisonaiwp list --limit 10
 
 ```bash
 # Create updates file
-cat > language_updates.json << 'EOF'
+cat > bulk_updates.json << 'EOF'
 [
-  {"post_id": 116, "line": 10, "find": "Old Heading", "replace": "Peterborough Tamil Church"},
-  {"post_id": 117, "line": 10, "find": "Old Heading", "replace": "Peterborough Hindi Church"},
-  {"post_id": 118, "line": 10, "find": "Old Heading", "replace": "Peterborough Malayalam Church"},
-  {"post_id": 119, "line": 10, "find": "Old Heading", "replace": "Peterborough Telugu Church"},
-  {"post_id": 120, "line": 10, "find": "Old Heading", "replace": "Peterborough Sinhala Church"},
-  {"post_id": 121, "line": 10, "find": "Old Heading", "replace": "Peterborough Kannada Church"},
-  {"post_id": 122, "line": 10, "find": "Old Heading", "replace": "Peterborough Gujarati Church"},
-  {"post_id": 139, "line": 10, "find": "Old Heading", "replace": "Peterborough Asian Church"},
-  {"post_id": 140, "line": 10, "find": "Old Heading", "replace": "Peterborough English Church"}
+  {"post_id": 116, "line": 10, "find": "Old Heading", "replace": "New Title for Page 1"},
+  {"post_id": 117, "line": 10, "find": "Old Heading", "replace": "New Title for Page 2"},
+  {"post_id": 118, "line": 10, "find": "Old Heading", "replace": "New Title for Page 3"},
+  {"post_id": 119, "line": 10, "find": "Old Heading", "replace": "New Title for Page 4"},
+  {"post_id": 120, "line": 10, "find": "Old Heading", "replace": "New Title for Page 5"},
+  {"post_id": 121, "line": 10, "find": "Old Heading", "replace": "New Title for Page 6"},
+  {"post_id": 122, "line": 10, "find": "Old Heading", "replace": "New Title for Page 7"},
+  {"post_id": 139, "line": 10, "find": "Old Heading", "replace": "New Title for Page 8"},
+  {"post_id": 140, "line": 10, "find": "Old Heading", "replace": "New Title for Page 9"}
 ]
 EOF
 

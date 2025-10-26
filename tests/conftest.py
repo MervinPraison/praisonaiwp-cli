@@ -37,7 +37,7 @@ def sample_config(temp_config_dir):
 def sample_post_content():
     """Sample WordPress post content"""
     return """<!-- wp:heading -->
-<h2>Welcome to Our Church</h2>
+<h2>Welcome to Our Site</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
@@ -45,7 +45,7 @@ def sample_post_content():
 <!-- /wp:paragraph -->
 
 <!-- wp:heading -->
-<h2>Welcome to Our Church</h2>
+<h2>Welcome to Our Site</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->

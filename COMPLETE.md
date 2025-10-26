@@ -115,10 +115,10 @@ Follow the interactive prompts to configure your WordPress server.
 
 ```bash
 # Replace text ONLY at line 10
-praisonaiwp update 123 "Welcome to Our Church" "Peterborough Tamil Church" --line 10
+praisonaiwp update 123 "Welcome to Our Site" "My Website Title" --line 10
 
 # Preview first
-praisonaiwp update 123 "Welcome to Our Church" "Peterborough Tamil Church" --line 10 --preview
+praisonaiwp update 123 "Welcome to Our Site" "My Website Title" --line 10 --preview
 ```
 
 ### Using Python Script
@@ -128,7 +128,7 @@ cd examples
 python update_specific_line.py
 ```
 
-### Using Bulk Update (9 Language Pages)
+### Using Bulk Update (9 Pages)
 
 ```bash
 cd examples
@@ -225,10 +225,10 @@ praisonaiwp create "My Post" --content "Hello World"
 
 ```bash
 # Find where text appears
-praisonaiwp find "Welcome to Our Church" 123
+praisonaiwp find "Welcome to Our Site" 123
 
 # Update only line 10
-praisonaiwp update 123 "Welcome to Our Church" "Peterborough Church" --line 10
+praisonaiwp update 123 "Welcome to Our Site" "My Website" --line 10
 ```
 
 ### Workflow 3: Bulk Create 100 Posts
@@ -239,7 +239,7 @@ praisonaiwp create posts.json
 # Automatically uses parallel mode - completes in ~8 seconds!
 ```
 
-### Workflow 4: Update 9 Language Pages
+### Workflow 4: Update 9 Pages
 
 ```bash
 cd examples
@@ -258,11 +258,11 @@ default_server: production
 
 servers:
   production:
-    hostname: peterboroughchurch.com
+    hostname: example.com
     username: your_username
     key_file: ~/.ssh/id_ed25519
     port: 22
-    wp_path: /var/www/vhosts/peterboroughchurch.com/httpdocs
+    wp_path: /var/www/vhosts/example.com/httpdocs
     php_bin: /opt/plesk/php/8.3/bin/php
     wp_cli: /usr/local/bin/wp
 
@@ -315,7 +315,7 @@ praisonaiwp create "Test Post" --content "Hello from PraisonAIWP"
 
 ```bash
 # Update line 10 in post 116
-praisonaiwp update 116 "Old Heading" "Peterborough Tamil Church" --line 10 --preview
+praisonaiwp update 116 "Old Heading" "New Title for Page 1" --line 10 --preview
 ```
 
 ### 3. Run Tests

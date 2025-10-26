@@ -148,7 +148,7 @@ echo $WP_SSH_USER
 
 # Set them if missing
 export WP_HOSTNAME=82.165.193.19
-export WP_SSH_USER=peterboroughtamilchu_h37zaw7ihpk
+export WP_SSH_USER=wordpress_user
 ```
 
 ---

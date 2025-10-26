@@ -209,7 +209,7 @@ This project demonstrates:
 ## 📝 Real-World Use Case
 
 This framework was built to solve the real problem of:
-- Managing 9 multilingual church pages
+- Managing 9 multilingual pages
 - Updating specific lines without affecting others
 - Bulk operations on 100+ posts
 - Safe, preview-able changes

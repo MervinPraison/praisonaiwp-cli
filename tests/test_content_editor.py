@@ -15,13 +15,13 @@ class TestContentEditor:
         result = editor.replace_at_line(
             sample_post_content,
             2,
-            "Welcome to Our Church",
-            "Peterborough Church"
+            "Welcome to Our Site",
+            "My Website Title"
         )
         
         lines = result.split('\n')
-        assert "Peterborough Church" in lines[1]
-        assert "Welcome to Our Church" in lines[7]  # Line 8 unchanged
+        assert "My Website Title" in lines[1]
+        assert "Welcome to Our Site" in lines[7]  # Line 8 unchanged
     
     def test_replace_nth_occurrence(self, sample_post_content):
         """Test replacing nth occurrence"""
@@ -30,24 +30,24 @@ class TestContentEditor:
         # Replace 1st occurrence
         result = editor.replace_nth_occurrence(
             sample_post_content,
-            "Welcome to Our Church",
-            "First Church",
+            "Welcome to Our Site",
+            "First Site",
             1
         )
         
-        assert result.count("First Church") == 1
-        assert result.count("Welcome to Our Church") == 1
+        assert result.count("First Site") == 1
+        assert result.count("Welcome to Our Site") == 1
         
         # Replace 2nd occurrence
         result = editor.replace_nth_occurrence(
             sample_post_content,
-            "Welcome to Our Church",
-            "Second Church",
+            "Welcome to Our Site",
+            "Second Site",
             2
         )
         
-        assert result.count("Second Church") == 1
-        assert result.count("Welcome to Our Church") == 1
+        assert result.count("Second Site") == 1
+        assert result.count("Welcome to Our Site") == 1
     
     def test_replace_in_range(self):
         """Test replacing in line range"""
@@ -92,7 +92,7 @@ after2"""
         
         occurrences = editor.find_occurrences(
             sample_post_content,
-            "Welcome to Our Church"
+            "Welcome to Our Site"
         )
         
         assert len(occurrences) == 2

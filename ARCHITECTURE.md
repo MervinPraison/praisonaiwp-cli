@@ -122,7 +122,7 @@ class SSHManager:
 
 **Testing:**
 - ✅ Tested with real server (82.165.193.19)
-- ✅ SSH config alias 'peterborough' working
+- ✅ SSH config alias 'myserver' working
 - ✅ Connection details loaded automatically
 - ✅ Command execution verified
 - ✅ WP-CLI access confirmed (v2.12.0)
@@ -518,7 +518,7 @@ praisonaiwp list
 praisonaiwp list --type page
 
 # List with search
-praisonaiwp list --search "church"
+praisonaiwp list --search "example"
 🎯 EVEN SIMPLER: Natural Language Style
 bash
 # Create
@@ -530,8 +530,8 @@ praisonaiwp "update post 123 replace 'old' with 'new' on line 10"
 praisonaiwp "update post 123 change the 2nd occurrence of 'old' to 'new'"
 
 # Find
-praisonaiwp "find 'church' in post 123"
-praisonaiwp "show me all posts with 'church'"
+praisonaiwp "find 'example' in post 123"
+praisonaiwp "show me all posts with 'example'"
 
 # List
 praisonaiwp "list all pages"
@@ -571,7 +571,7 @@ praisonaiwp update 123 "old" "new" --line 10
 #         Apply? [Y/n]
 
 # Find text
-praisonaiwp find "church"
+praisonaiwp find "example"
 # Output: Found in 9 posts:
 #         - Post 116 (line 10, 55)
 #         - Post 117 (line 10)
@@ -595,11 +595,11 @@ posts.json
 json
 [
   {
-    "title": "Tamil Church in Peterborough",
+    "title": "Example Page 1",
     "content": "<p>Welcome...</p>"
   },
   {
-    "title": "Hindi Church in Peterborough",
+    "title": "Example Page 2",
     "content": "<p>Welcome...</p>"
   }
 ]
