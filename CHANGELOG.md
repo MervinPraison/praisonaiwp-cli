@@ -5,6 +5,24 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] - 2025-11-17
+
+### Added
+- **User CRUD Operations**: Complete user management
+  - create_user() - Create users with role and custom fields
+  - update_user() - Update user fields
+  - delete_user() - Delete users with post reassignment option
+- **Plugin Management**: list_plugins() with status filters
+- **Theme Management**: list_themes() with status filters
+
+### Changed
+- Updated WPCLI.md with comprehensive user/plugin/theme support
+- Enhanced summary section with all management features
+
+### Testing
+- Added 5 new unit tests
+- All 36/37 tests passing
+
 ## [1.0.7] - 2025-11-17
 
 ### Added
