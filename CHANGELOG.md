@@ -5,6 +5,25 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.10] - 2025-11-17
+
+### Added
+- **Plugin Activation**: activate_plugin(), deactivate_plugin()
+- **Theme Activation**: activate_theme()
+- **User Meta Management**: Complete CRUD operations
+  - get_user_meta() - Get single or all meta values
+  - set_user_meta() - Set meta value
+  - update_user_meta() - Update existing meta
+  - delete_user_meta() - Remove meta field
+
+### Changed
+- Updated WPCLI.md with plugin/theme activation and user meta support
+- Enhanced summary with all activation features
+
+### Testing
+- Added 7 new unit tests
+- All 50/51 tests passing (98% pass rate)
+
 ## [1.0.9] - 2025-11-17
 
 ### Added
