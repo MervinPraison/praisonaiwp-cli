@@ -5,6 +5,26 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2025-11-17
+
+### Added
+- **Media Management**: import_media() with metadata and post attachment
+- **Comment Management**: Complete CRUD operations
+  - list_comments() - List comments with filters
+  - get_comment() - Get comment details
+  - create_comment() - Create comment on post
+  - update_comment() - Update comment fields
+  - delete_comment() - Delete with force option
+  - approve_comment() - Approve comment
+
+### Changed
+- Updated WPCLI.md with media and comment support
+- Enhanced summary with all management features
+
+### Testing
+- Added 8 new unit tests
+- All 43/44 tests passing (98% pass rate)
+
 ## [1.0.8] - 2025-11-17
 
 ### Added
