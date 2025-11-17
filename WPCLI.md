@@ -101,8 +101,8 @@
 |---|---|---|
 | **wp plugin list** | ✅ | List plugins with filters |
 | **wp plugin install** | ❌ | Install plugin |
-| **wp plugin activate** | ❌ | Activate plugin |
-| **wp plugin deactivate** | ❌ | Deactivate plugin |
+| **wp plugin activate** | ✅ | Activate plugin |
+| **wp plugin deactivate** | ✅ | Deactivate plugin |
 | **wp plugin delete** | ❌ | Delete plugin |
 | **wp plugin update** | ❌ | Update plugin |
 
@@ -112,7 +112,7 @@
 |---|---|---|
 | **wp theme list** | ✅ | List themes with filters |
 | **wp theme install** | ❌ | Install theme |
-| **wp theme activate** | ❌ | Activate theme |
+| **wp theme activate** | ✅ | Activate theme |
 | **wp theme delete** | ❌ | Delete theme |
 | **wp theme update** | ❌ | Update theme |
 
@@ -124,7 +124,7 @@
 | **wp user create** | ✅ | Create user with role and fields |
 | **wp user update** | ✅ | Update user fields |
 | **wp user delete** | ✅ | Delete user with reassign option |
-| **wp user meta** | ❌ | Manage user meta |
+| **wp user meta** | ✅ | Manage user meta (get, set, update, delete, list) |
 
 ## Option Commands
 
@@ -200,9 +200,10 @@
 - **Post Search**: WP_Query 's' parameter (server-side)
 - **Category/Term Management**: set, add, remove, list, search
 - **User Management**: list, get, create, update, delete (with reassign)
+- **User Meta**: get, set, update, delete, list
 - **Option Management**: get, set, delete
-- **Plugin Management**: list plugins with filters
-- **Theme Management**: list themes with filters
+- **Plugin Management**: list, activate, deactivate
+- **Theme Management**: list, activate
 - **Media Management**: import with metadata and post attachment
 - **Comment Management**: list, get, create, update, delete, approve
 - **Database**: queries, search-replace
@@ -212,9 +213,8 @@
 - Post edit (launch editor)
 - Post generate (dummy posts)
 - Post url-to-id
-- User meta
-- Plugin install/activate/deactivate/delete/update
-- Theme install/activate/delete/update
+- Plugin install/delete/update
+- Theme install/delete/update
 - Core WordPress management
 - Media regenerate thumbnails
 - Comment unapprove/spam/trash

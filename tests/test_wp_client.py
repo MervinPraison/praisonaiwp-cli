@@ -384,6 +384,76 @@ class TestWPClient:
         call_args = mock_ssh.execute.call_args[0][0]
         assert "comment approve 1" in call_args
     
+    def test_activate_plugin(self, wp_client, mock_ssh):
+        """Test activate plugin"""
+        mock_ssh.execute.return_value = ("Success: Activated plugin", "")
+        
+        result = wp_client.activate_plugin("akismet")
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "plugin activate akismet" in call_args
+    
+    def test_deactivate_plugin(self, wp_client, mock_ssh):
+        """Test deactivate plugin"""
+        mock_ssh.execute.return_value = ("Success: Deactivated plugin", "")
+        
+        result = wp_client.deactivate_plugin("akismet")
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "plugin deactivate akismet" in call_args
+    
+    def test_activate_theme(self, wp_client, mock_ssh):
+        """Test activate theme"""
+        mock_ssh.execute.return_value = ("Success: Activated theme", "")
+        
+        result = wp_client.activate_theme("twentytwentyfour")
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "theme activate twentytwentyfour" in call_args
+    
+    def test_get_user_meta(self, wp_client, mock_ssh):
+        """Test get user meta"""
+        mock_ssh.execute.return_value = ("meta_value", "")
+        
+        result = wp_client.get_user_meta(1, "nickname")
+        
+        assert result == "meta_value"
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "user meta get 1 nickname" in call_args
+    
+    def test_set_user_meta(self, wp_client, mock_ssh):
+        """Test set user meta"""
+        mock_ssh.execute.return_value = ("Success: Added meta", "")
+        
+        result = wp_client.set_user_meta(1, "custom_key", "value")
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "user meta add 1 custom_key" in call_args
+    
+    def test_update_user_meta(self, wp_client, mock_ssh):
+        """Test update user meta"""
+        mock_ssh.execute.return_value = ("Success: Updated meta", "")
+        
+        result = wp_client.update_user_meta(1, "custom_key", "new_value")
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "user meta update 1 custom_key" in call_args
+    
+    def test_delete_user_meta(self, wp_client, mock_ssh):
+        """Test delete user meta"""
+        mock_ssh.execute.return_value = ("Success: Deleted meta", "")
+        
+        result = wp_client.delete_user_meta(1, "custom_key")
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "user meta delete 1 custom_key" in call_args
+    
     def test_search_replace(self, wp_client, mock_ssh):
         """Test search and replace"""
         mock_ssh.execute.return_value = ("Replaced 5 occurrences", "")

@@ -521,6 +521,123 @@ class WPClient:
         
         return json.loads(result)
     
+    def activate_plugin(self, plugin: str) -> bool:
+        """
+        Activate a plugin
+        
+        Args:
+            plugin: Plugin slug or path
+            
+        Returns:
+            True if successful
+        """
+        cmd = f"plugin activate {plugin}"
+        self._execute_wp(cmd)
+        logger.info(f"Activated plugin {plugin}")
+        return True
+    
+    def deactivate_plugin(self, plugin: str) -> bool:
+        """
+        Deactivate a plugin
+        
+        Args:
+            plugin: Plugin slug or path
+            
+        Returns:
+            True if successful
+        """
+        cmd = f"plugin deactivate {plugin}"
+        self._execute_wp(cmd)
+        logger.info(f"Deactivated plugin {plugin}")
+        return True
+    
+    def activate_theme(self, theme: str) -> bool:
+        """
+        Activate a theme
+        
+        Args:
+            theme: Theme slug
+            
+        Returns:
+            True if successful
+        """
+        cmd = f"theme activate {theme}"
+        self._execute_wp(cmd)
+        logger.info(f"Activated theme {theme}")
+        return True
+    
+    def get_user_meta(self, user_id: int, key: str = None) -> Any:
+        """
+        Get user meta value(s)
+        
+        Args:
+            user_id: User ID
+            key: Meta key (optional, returns all if not specified)
+            
+        Returns:
+            Meta value or list of all meta
+        """
+        if key:
+            cmd = f"user meta get {user_id} {key}"
+            result = self._execute_wp(cmd)
+            return result.strip()
+        else:
+            cmd = f"user meta list {user_id} --format=json"
+            result = self._execute_wp(cmd)
+            return json.loads(result)
+    
+    def set_user_meta(self, user_id: int, key: str, value: str) -> bool:
+        """
+        Set user meta value
+        
+        Args:
+            user_id: User ID
+            key: Meta key
+            value: Meta value
+            
+        Returns:
+            True if successful
+        """
+        escaped_value = str(value).replace("'", "'\\''")
+        cmd = f"user meta add {user_id} {key} '{escaped_value}'"
+        self._execute_wp(cmd)
+        logger.info(f"Set meta {key} for user {user_id}")
+        return True
+    
+    def update_user_meta(self, user_id: int, key: str, value: str) -> bool:
+        """
+        Update user meta value
+        
+        Args:
+            user_id: User ID
+            key: Meta key
+            value: Meta value
+            
+        Returns:
+            True if successful
+        """
+        escaped_value = str(value).replace("'", "'\\''")
+        cmd = f"user meta update {user_id} {key} '{escaped_value}'"
+        self._execute_wp(cmd)
+        logger.info(f"Updated meta {key} for user {user_id}")
+        return True
+    
+    def delete_user_meta(self, user_id: int, key: str) -> bool:
+        """
+        Delete user meta
+        
+        Args:
+            user_id: User ID
+            key: Meta key
+            
+        Returns:
+            True if successful
+        """
+        cmd = f"user meta delete {user_id} {key}"
+        self._execute_wp(cmd)
+        logger.info(f"Deleted meta {key} for user {user_id}")
+        return True
+    
     def import_media(self, file_path: str, post_id: int = None, **kwargs) -> int:
         """
         Import media file to WordPress
