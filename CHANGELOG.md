@@ -5,6 +5,25 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.12] - 2025-11-17
+
+### Added
+- **Term Management**: Complete CRUD operations
+  - create_term() - Create new term with options
+  - delete_term() - Delete term from taxonomy
+  - update_term() - Update term fields
+- **Core Commands**: WordPress core information
+  - get_core_version() - Get WordPress version
+  - core_is_installed() - Check installation status
+
+### Changed
+- Updated WPCLI.md with term and core command support
+- Enhanced category/term management documentation
+
+### Testing
+- Added 5 new unit tests
+- All 64/65 tests passing (98% pass rate)
+
 ## [1.0.11] - 2025-11-17
 
 ### Added
