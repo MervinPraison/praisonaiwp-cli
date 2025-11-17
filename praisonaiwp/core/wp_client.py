@@ -223,6 +223,43 @@ class WPClient:
         logger.info(f"Updated post ID: {post_id}")
         return True
     
+    def delete_post(self, post_id: int, force: bool = False) -> bool:
+        """
+        Delete a post
+        
+        Args:
+            post_id: Post ID to delete
+            force: Skip trash and force deletion
+            
+        Returns:
+            True if successful
+        """
+        force_flag = '--force' if force else ''
+        cmd = f"post delete {post_id} {force_flag}"
+        self._execute_wp(cmd)
+        
+        logger.info(f"Deleted post ID: {post_id}")
+        return True
+    
+    def post_exists(self, post_id: int) -> bool:
+        """
+        Check if a post exists
+        
+        Args:
+            post_id: Post ID to check
+            
+        Returns:
+            True if post exists, False otherwise
+        """
+        try:
+            cmd = f"post exists {post_id}"
+            self._execute_wp(cmd)
+            logger.debug(f"Post {post_id} exists")
+            return True
+        except WPCLIError:
+            logger.debug(f"Post {post_id} does not exist")
+            return False
+    
     def list_posts(
         self,
         post_type: str = 'post',

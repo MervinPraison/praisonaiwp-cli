@@ -113,6 +113,45 @@ class TestWPClient:
         call_args = mock_ssh.execute.call_args[0][0]
         assert "db query" in call_args
     
+    def test_delete_post(self, wp_client, mock_ssh):
+        """Test delete post"""
+        mock_ssh.execute.return_value = ("Success: Trashed post 123.", "")
+        
+        result = wp_client.delete_post(123)
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "post delete 123" in call_args
+    
+    def test_delete_post_force(self, wp_client, mock_ssh):
+        """Test force delete post"""
+        mock_ssh.execute.return_value = ("Success: Deleted post 123.", "")
+        
+        result = wp_client.delete_post(123, force=True)
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "post delete 123 --force" in call_args
+    
+    def test_post_exists_true(self, wp_client, mock_ssh):
+        """Test post exists returns True"""
+        mock_ssh.execute.return_value = ("", "")
+        
+        result = wp_client.post_exists(123)
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "post exists 123" in call_args
+    
+    def test_post_exists_false(self, wp_client, mock_ssh):
+        """Test post exists returns False"""
+        from praisonaiwp.utils.exceptions import WPCLIError
+        mock_ssh.execute.side_effect = WPCLIError("Post does not exist")
+        
+        result = wp_client.post_exists(999)
+        
+        assert result is False
+    
     def test_search_replace(self, wp_client, mock_ssh):
         """Test search and replace"""
         mock_ssh.execute.return_value = ("Replaced 5 occurrences", "")

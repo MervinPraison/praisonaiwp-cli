@@ -8,9 +8,9 @@
 | **wp post update** | ✅ | Update existing posts |
 | **wp post list** | ✅ | List posts with filters |
 | **wp post get** | ✅ | Get post details |
-| **wp post delete** | ❌ | Delete posts |
+| **wp post delete** | ✅ | Delete posts (trash or force) |
 | **wp post edit** | ❌ | Launch editor for post |
-| **wp post exists** | ❌ | Check if post exists |
+| **wp post exists** | ✅ | Check if post exists |
 | **wp post generate** | ❌ | Generate dummy posts |
 | **wp post meta** | ❌ | Manage post meta |
 | **wp post term** | ✅ | Manage post terms/categories |
