@@ -12,7 +12,12 @@ AI-powered WordPress CLI tool for content management with precision editing capa
 - 🌐 **Multi-Server** - Manage multiple WordPress installations
 - 📝 **Smart** - Auto-detects file formats and optimal settings
 
-### New in v1.0.2 🎉
+### New in v1.0.5 🎉
+- 📂 **Category Management** - Full category support: set, add, remove, list, and search post categories
+- 🔗 **SSH Config Integration** - Use `ssh_host` to reference `~/.ssh/config` hosts directly in config.yaml
+- ✨ **Enhanced Create/Update** - Add `--category` and `--category-id` options to create and update commands
+
+### Previous Updates (v1.0.2)
 - 🔑 **SSH Config Support** - Use `~/.ssh/config` host aliases for simplified connection management
 - 🔧 **WP-CLI Auto-Installer** - One-command WP-CLI installation with automatic OS detection (Ubuntu, Debian, CentOS, RHEL, Fedora, Alpine, macOS)
 - 🔍 **WordPress Auto-Detection** - Automatically find WordPress installations on your server with multiple search strategies
@@ -97,12 +102,16 @@ Just enter the host alias (e.g., `wp-prod`, `wp-staging`, or `wp-dev`) when prom
   ```yaml
   servers:
     production:
-      hostname: wp-prod  # SSH config alias
+      ssh_host: wp-prod  # Reference SSH config host
       wp_path: /var/www/html
+      wp_cli: /usr/local/bin/wp
     staging:
-      hostname: wp-staging  # SSH config alias
+      ssh_host: wp-staging  # Reference SSH config host
       wp_path: /var/www/staging
+      wp_cli: /usr/local/bin/wp
   ```
+  
+  **New in v1.0.5:** Use `ssh_host` to reference SSH config hosts! Connection details (hostname, username, key_file, port) are automatically loaded from `~/.ssh/config`, so you only need to specify WordPress-specific settings.
 
 This will prompt you for:
 - **Server hostname** - Can be IP, hostname, or SSH config alias (e.g., `wp-prod`)

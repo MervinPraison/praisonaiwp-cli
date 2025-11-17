@@ -110,3 +110,41 @@ class TestConfig:
         import stat
         mode = config_path.stat().st_mode
         assert stat.S_IMODE(mode) == 0o600
+    
+    def test_ssh_host_config(self, temp_config_dir, monkeypatch):
+        """Test loading SSH config host"""
+        import subprocess
+        
+        # Mock ssh -G output
+        mock_ssh_output = """hostname christsong.in
+user praison
+port 22
+identityfile ~/.ssh/id_ed25519
+"""
+        
+        def mock_run(*args, **kwargs):
+            class MockResult:
+                stdout = mock_ssh_output
+                returncode = 0
+            return MockResult()
+        
+        monkeypatch.setattr(subprocess, 'run', mock_run)
+        
+        config = Config(str(temp_config_dir / "config.yaml"))
+        config.initialize_default_config()
+        
+        # Add server with ssh_host
+        config.add_server('test_ssh', {
+            'ssh_host': 'ionos',
+            'wp_path': '/var/www/html',
+            'wp_cli': '/usr/local/bin/wp'
+        })
+        
+        # Get server config - should merge SSH config
+        server = config.get_server('test_ssh')
+        
+        assert server['hostname'] == 'christsong.in'
+        assert server['username'] == 'praison'
+        assert server['port'] == 22
+        assert 'id_ed25519' in server['key_file']
+        assert server['wp_path'] == '/var/www/html'

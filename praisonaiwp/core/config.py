@@ -87,7 +87,64 @@ class Config:
         if name not in servers:
             raise ConfigNotFoundError(f"Server '{name}' not found in configuration")
         
-        return servers[name]
+        server_config = servers[name].copy()
+        
+        # If ssh_host is specified, load SSH config and merge
+        if 'ssh_host' in server_config:
+            ssh_config = self._load_ssh_config(server_config['ssh_host'])
+            # SSH config values take precedence if not already set
+            for key in ['hostname', 'username', 'key_file', 'port']:
+                if key not in server_config and key in ssh_config:
+                    server_config[key] = ssh_config[key]
+        
+        return server_config
+    
+    def _load_ssh_config(self, host: str) -> Dict[str, Any]:
+        """
+        Load configuration from SSH config file
+        
+        Args:
+            host: SSH config host name
+            
+        Returns:
+            Dictionary with hostname, username, key_file, port
+        """
+        import subprocess
+        import os
+        
+        try:
+            # Use ssh -G to get the effective configuration for the host
+            result = subprocess.run(
+                ['ssh', '-G', host],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            config = {}
+            for line in result.stdout.splitlines():
+                parts = line.split(None, 1)
+                if len(parts) == 2:
+                    key, value = parts
+                    if key == 'hostname':
+                        config['hostname'] = value
+                    elif key == 'user':
+                        config['username'] = value
+                    elif key == 'identityfile':
+                        # Expand ~ to home directory
+                        config['key_file'] = os.path.expanduser(value)
+                    elif key == 'port':
+                        config['port'] = int(value)
+            
+            logger.info(f"Loaded SSH config for host: {host}")
+            return config
+            
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Failed to load SSH config for host '{host}': {e}")
+            return {}
+        except Exception as e:
+            logger.warning(f"Error parsing SSH config for host '{host}': {e}")
+            return {}
     
     def add_server(self, name: str, config: Dict[str, Any]):
         """
