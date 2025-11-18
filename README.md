@@ -345,6 +345,13 @@ praisonaiwp find-wordpress --server staging
 # Single post
 praisonaiwp create "My Post Title" --content "Post content here"
 
+# With author (NEW in v1.0.14)
+praisonaiwp create "My Post" --content "Content" --author praison
+praisonaiwp create "My Post" --content "Content" --author 1  # By user ID
+
+# With categories
+praisonaiwp create "My Post" --content "Hello" --category "Tech,AI"
+
 # From file (auto-detects JSON/YAML/CSV)
 praisonaiwp create posts.json
 
@@ -355,7 +362,7 @@ praisonaiwp create 100_posts.json
 ### 5. Update Posts
 
 ```bash
-# Update all occurrences
+# Find and replace text
 praisonaiwp update 123 "old text" "new text"
 
 # Update specific line only
@@ -366,6 +373,14 @@ praisonaiwp update 123 "old text" "new text" --nth 2
 
 # Preview changes first
 praisonaiwp update 123 "old text" "new text" --preview
+
+# Update post fields directly (NEW in v1.0.14)
+praisonaiwp update 123 --post-content "Full new content"
+praisonaiwp update 123 --post-title "New Title"
+praisonaiwp update 123 --post-status draft
+
+# Update categories
+praisonaiwp update 123 --category "Tech,AI"
 ```
 
 ### 6. Find Text
@@ -387,11 +402,18 @@ praisonaiwp find "search text" --type page
 # List all posts
 praisonaiwp list
 
+# Search posts (NEW in v1.0.14)
+praisonaiwp list --search "Pricing"
+praisonaiwp list -s "keyword"
+
 # List pages
 praisonaiwp list --type page
 
 # List drafts
 praisonaiwp list --status draft
+
+# Limit results
+praisonaiwp list --limit 10
 ```
 
 ### 8. Manage Categories
