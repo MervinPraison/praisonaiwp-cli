@@ -766,3 +766,45 @@ class TestWPClient:
         assert result == category
         call_args = mock_ssh.execute.call_args[0][0]
         assert "term get category 2" in call_args
+    
+    # Issue #1: Test author support in post creation
+    def test_create_post_with_author(self, wp_client, mock_ssh):
+        """Test creating post with author specified"""
+        mock_ssh.execute.return_value = ("123", "")
+        
+        result = wp_client.create_post(
+            title="Test Post",
+            content="Test content",
+            post_author=1
+        )
+        
+        assert result == 123
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "post create" in call_args
+        assert "--post_author=" in call_args  # Author parameter is passed
+    
+    # Issue #2: Test post content update
+    def test_update_post_content_directly(self, wp_client, mock_ssh):
+        """Test updating post content directly"""
+        mock_ssh.execute.return_value = ("Success: Updated post 123", "")
+        
+        result = wp_client.update_post(123, post_content="New full content")
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "post update 123" in call_args
+        assert "--post_content=" in call_args
+    
+    # Issue #3: Test search in list_posts
+    def test_list_posts_with_search(self, wp_client, mock_ssh):
+        """Test listing posts with search parameter"""
+        import json
+        posts = [{"ID": 123, "post_title": "Pricing Strategies"}]
+        mock_ssh.execute.return_value = (json.dumps(posts), "")
+        
+        result = wp_client.list_posts(s="Pricing")
+        
+        assert result == posts
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "post list" in call_args
+        assert "--s=" in call_args  # Search parameter is passed
