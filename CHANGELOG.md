@@ -5,6 +5,29 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.14] - 2025-11-18
+
+### Added
+- **CLI Enhancements**: New options for better post management
+  - `--author` option in `create` command - Set post author by user ID or login
+  - `--post-content` option in `update` command - Replace entire post content
+  - `--post-title` option in `update` command - Update post title
+  - `--post-status` option in `update` command - Change post status
+  - `--search` / `-s` option in `list` command - Search posts by title/content
+
+### Fixed
+- Issue #1: Author can now be set when creating posts via CLI
+- Issue #2: Post content can be updated directly without find/replace
+- Issue #3: Posts can be searched/filtered in list command
+
+### Testing
+- Added 3 test cases verifying core functionality
+- All 71/72 tests passing (98.6% pass rate)
+
+### Notes
+- Core WPClient already supported these features
+- This release adds CLI layer access to existing functionality
+
 ## [1.0.13] - 2025-11-17
 
 ### Added

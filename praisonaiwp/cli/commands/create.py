@@ -57,8 +57,9 @@ def _parse_category_input(category_str, category_id_str, wp):
 @click.option('--type', 'post_type', default='post', help='Post type (post, page)')
 @click.option('--category', help='Comma-separated category names/slugs')
 @click.option('--category-id', help='Comma-separated category IDs')
+@click.option('--author', help='Post author (user ID or login)')
 @click.option('--server', default=None, help='Server name from config')
-def create_command(title_or_file, content, status, post_type, category, category_id, server):
+def create_command(title_or_file, content, status, post_type, category, category_id, author, server):
     """
     Create WordPress posts
     
@@ -105,6 +106,7 @@ def create_command(title_or_file, content, status, post_type, category, category
                 post_type,
                 category,
                 category_id,
+                author,
                 server_config
             )
     
@@ -114,7 +116,7 @@ def create_command(title_or_file, content, status, post_type, category, category
         raise click.Abort()
 
 
-def _create_single_post(title, content, status, post_type, category, category_id, server_config):
+def _create_single_post(title, content, status, post_type, category, category_id, author, server_config):
     """Create a single post"""
     
     if not content:
@@ -137,12 +139,28 @@ def _create_single_post(title, content, status, post_type, category, category_id
             server_config.get('wp_cli', '/usr/local/bin/wp')
         )
         
-        post_id = wp.create_post(
-            post_title=title,
-            post_content=content,
-            post_status=status,
-            post_type=post_type
-        )
+        # Build post arguments
+        post_args = {
+            'post_title': title,
+            'post_content': content,
+            'post_status': status,
+            'post_type': post_type
+        }
+        
+        # Add author if specified
+        if author:
+            # Check if author is numeric (user ID) or string (login)
+            if author.isdigit():
+                post_args['post_author'] = int(author)
+            else:
+                # Look up user by login
+                user = wp.get_user(author)
+                if user:
+                    post_args['post_author'] = int(user['ID'])
+                else:
+                    console.print(f"[yellow]Warning: User '{author}' not found, using default author[/yellow]")
+        
+        post_id = wp.create_post(**post_args)
         
         # Set categories if provided
         if category or category_id:

@@ -56,8 +56,12 @@ def _parse_category_input(category_str, category_id_str, wp):
 @click.option('--preview', is_flag=True, help='Preview changes without applying')
 @click.option('--category', help='Comma-separated category names/slugs')
 @click.option('--category-id', help='Comma-separated category IDs')
+@click.option('--post-content', help='Replace entire post content')
+@click.option('--post-title', help='Update post title')
+@click.option('--post-status', help='Update post status (publish, draft, private)')
 @click.option('--server', default=None, help='Server name from config')
-def update_command(post_id, find_text, replace_text, line, nth, preview, category, category_id, server):
+def update_command(post_id, find_text, replace_text, line, nth, preview, category, category_id, 
+                   post_content, post_title, post_status, server):
     """
     Update WordPress post content
     
@@ -84,9 +88,10 @@ def update_command(post_id, find_text, replace_text, line, nth, preview, categor
         config = Config()
         server_config = config.get_server(server)
         
-        # Validate inputs - either content update or category update
-        if not (find_text and replace_text) and not (category or category_id):
-            console.print("[red]Error: Either (find_text and replace_text) or (--category/--category-id) is required[/red]")
+        # Validate inputs - need at least one update operation
+        if not (find_text and replace_text) and not (category or category_id) and not post_content and not post_title and not post_status:
+            console.print("[red]Error: At least one update operation is required[/red]")
+            console.print("Options: find/replace text, --post-content, --post-title, --post-status, --category")
             raise click.Abort()
         
         console.print(f"\n[yellow]Fetching post {post_id}...[/yellow]")
@@ -111,6 +116,22 @@ def update_command(post_id, find_text, replace_text, line, nth, preview, categor
             except Exception:
                 console.print(f"[red]Error: Post {post_id} not found[/red]")
                 raise click.Abort()
+            
+            # Handle direct field updates first
+            update_fields = {}
+            if post_content:
+                update_fields['post_content'] = post_content
+                console.print("[cyan]Updating post content...[/cyan]")
+            if post_title:
+                update_fields['post_title'] = post_title
+                console.print(f"[cyan]Updating post title to: {post_title}[/cyan]")
+            if post_status:
+                update_fields['post_status'] = post_status
+                console.print(f"[cyan]Updating post status to: {post_status}[/cyan]")
+            
+            if update_fields:
+                wp.update_post(post_id, **update_fields)
+                console.print("[green]✓ Post fields updated successfully[/green]")
             
             # Handle content update if find/replace provided
             if find_text and replace_text:

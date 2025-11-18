@@ -16,8 +16,9 @@ logger = get_logger(__name__)
 @click.option('--type', 'post_type', default='post', help='Post type (post, page, all)')
 @click.option('--status', default='publish', help='Post status (publish, draft, all)')
 @click.option('--limit', type=int, help='Limit number of results')
+@click.option('--search', '-s', help='Search posts by title/content')
 @click.option('--server', default=None, help='Server name from config')
-def list_command(post_type, status, limit, server):
+def list_command(post_type, status, limit, search, server):
     """
     List WordPress posts
     
@@ -63,6 +64,9 @@ def list_command(post_type, status, limit, server):
                 filters['post_status'] = status
             if limit:
                 filters['posts_per_page'] = limit
+            if search:
+                filters['s'] = search
+                console.print(f"[cyan]Searching for: {search}[/cyan]\n")
             
             # Get posts
             posts = wp.list_posts(post_type=post_type, **filters)
