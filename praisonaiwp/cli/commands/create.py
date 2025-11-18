@@ -58,8 +58,14 @@ def _parse_category_input(category_str, category_id_str, wp):
 @click.option('--category', help='Comma-separated category names/slugs')
 @click.option('--category-id', help='Comma-separated category IDs')
 @click.option('--author', help='Post author (user ID or login)')
+@click.option('--excerpt', help='Post excerpt')
+@click.option('--date', help='Post date (YYYY-MM-DD HH:MM:SS)')
+@click.option('--tags', help='Comma-separated tag names or IDs')
+@click.option('--meta', help='Post meta in JSON format: {"key":"value"}')
+@click.option('--comment-status', help='Comment status (open, closed)')
 @click.option('--server', default=None, help='Server name from config')
-def create_command(title_or_file, content, status, post_type, category, category_id, author, server):
+def create_command(title_or_file, content, status, post_type, category, category_id, author, 
+                   excerpt, date, tags, meta, comment_status, server):
     """
     Create WordPress posts
     
@@ -107,6 +113,11 @@ def create_command(title_or_file, content, status, post_type, category, category
                 category,
                 category_id,
                 author,
+                excerpt,
+                date,
+                tags,
+                meta,
+                comment_status,
                 server_config
             )
     
@@ -116,7 +127,8 @@ def create_command(title_or_file, content, status, post_type, category, category
         raise click.Abort()
 
 
-def _create_single_post(title, content, status, post_type, category, category_id, author, server_config):
+def _create_single_post(title, content, status, post_type, category, category_id, author,
+                        excerpt, date, tags, meta, comment_status, server_config):
     """Create a single post"""
     
     if not content:
@@ -159,6 +171,19 @@ def _create_single_post(title, content, status, post_type, category, category_id
                     post_args['post_author'] = int(user['ID'])
                 else:
                     console.print(f"[yellow]Warning: User '{author}' not found, using default author[/yellow]")
+        
+        # Add optional fields
+        if excerpt:
+            post_args['post_excerpt'] = excerpt
+        if date:
+            post_args['post_date'] = date
+        if comment_status:
+            post_args['comment_status'] = comment_status
+        if tags:
+            post_args['tags_input'] = tags
+        if meta:
+            # meta should be JSON string like '{"key":"value"}'
+            post_args['meta_input'] = meta
         
         post_id = wp.create_post(**post_args)
         

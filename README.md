@@ -453,13 +453,18 @@ praisonaiwp update 123 --category "Tech,Python"
 praisonaiwp create [TITLE_OR_FILE] [OPTIONS]
 
 Options:
-  --content TEXT       Post content
-  --status TEXT        Post status (publish, draft, private)
-  --type TEXT          Post type (post, page)
-  --category TEXT      Comma-separated category names/slugs
-  --category-id TEXT   Comma-separated category IDs
-  --author TEXT        Post author (user ID or login)
-  --server TEXT        Server name from config
+  --content TEXT          Post content
+  --status TEXT           Post status (publish, draft, private)
+  --type TEXT             Post type (post, page)
+  --category TEXT         Comma-separated category names/slugs
+  --category-id TEXT      Comma-separated category IDs
+  --author TEXT           Post author (user ID or login)
+  --excerpt TEXT          Post excerpt
+  --date TEXT             Post date (YYYY-MM-DD HH:MM:SS)
+  --tags TEXT             Comma-separated tag names or IDs
+  --meta TEXT             Post meta in JSON format: {"key":"value"}
+  --comment-status TEXT   Comment status (open, closed)
+  --server TEXT           Server name from config
 ```
 
 **Examples:**
@@ -467,13 +472,42 @@ Options:
 # Basic post
 praisonaiwp create "My Post" --content "Content here"
 
-# With all options
+# With author and categories
+praisonaiwp create "My Post" \
+  --content "Full content" \
+  --status publish \
+  --author praison \
+  --category "Tech,AI"
+
+# With custom meta data (NEW in v1.0.15)
+praisonaiwp create "My Post" \
+  --content "Content" \
+  --meta '{"custom_field":"value","price":"99.99"}'
+
+# With excerpt and tags
+praisonaiwp create "My Post" \
+  --content "Full content" \
+  --excerpt "Short summary" \
+  --tags "python,wordpress,automation"
+
+# With custom date and comment status
+praisonaiwp create "My Post" \
+  --content "Content" \
+  --date "2024-01-15 10:30:00" \
+  --comment-status closed
+
+# All options combined
 praisonaiwp create "My Post" \
   --content "Full content" \
   --status publish \
   --type post \
   --category "Tech,AI" \
   --author praison \
+  --excerpt "Summary" \
+  --date "2024-01-15 10:00:00" \
+  --tags "python,ai" \
+  --meta '{"views":"0","featured":"yes"}' \
+  --comment-status open \
   --server production
 
 # From file
@@ -648,7 +682,7 @@ praisonaiwp create My Title --content My content  # ERROR: Ambiguous
 
 | Command | Key Options |
 |---------|-------------|
-| `create` | `--content`, `--status`, `--type`, `--category`, `--category-id`, `--author`, `--server` |
+| `create` | `--content`, `--status`, `--type`, `--category`, `--category-id`, `--author`, `--excerpt`, `--date`, `--tags`, `--meta`, `--comment-status`, `--server` |
 | `update` | `--line`, `--nth`, `--preview`, `--category`, `--category-id`, `--post-content`, `--post-title`, `--post-status`, `--server` |
 | `list` | `--type`, `--status`, `--limit`, `-s/--search`, `--server` |
 | `find` | `--type`, `--server` |

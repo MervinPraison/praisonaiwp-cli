@@ -5,6 +5,28 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.15] - 2025-11-18
+
+### Added
+- **Advanced Post Creation Options**: Full WP-CLI post create support
+  - `--excerpt` - Add post excerpt/summary
+  - `--date` - Set custom post date (YYYY-MM-DD HH:MM:SS)
+  - `--tags` - Add tags (comma-separated names or IDs)
+  - `--meta` - Add custom post meta in JSON format `{"key":"value"}`
+  - `--comment-status` - Control comments (open/closed)
+
+### Documentation
+- Added comprehensive CLI reference section for AI agents
+- Documented all available options for each command
+- Added proper quoting examples for multi-word arguments
+- Added options summary table
+- Included examples for custom meta data, tags, excerpt, and dates
+
+### Notes
+- Core `WPClient.create_post()` accepts any WP-CLI parameter via **kwargs
+- CLI now exposes the most commonly used advanced options
+- Custom taxonomies can be added via `--meta` in JSON format
+
 ## [1.0.14] - 2025-11-18
 
 ### Added
