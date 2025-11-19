@@ -11,8 +11,8 @@ from praisonaiwp.core.wp_client import WPClient
 
 @pytest.mark.integration
 @pytest.mark.skipif(
-    not os.path.exists(os.path.expanduser("~/.praisonaiwp/config.yaml")),
-    reason="Config file not found - skip real integration tests"
+    os.getenv("CI") == "true" or not os.path.exists(os.path.expanduser("~/.praisonaiwp/config.yaml")),
+    reason="Skip real integration tests in CI/CD or if config not found"
 )
 class TestRealIntegration:
     """Real integration tests without mocks"""
