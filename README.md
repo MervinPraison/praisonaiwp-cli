@@ -464,6 +464,7 @@ Options:
   --tags TEXT             Comma-separated tag names or IDs
   --meta TEXT             Post meta in JSON format: {"key":"value"}
   --comment-status TEXT   Comment status (open, closed)
+  --convert-to-blocks     Auto-convert HTML to Gutenberg blocks (NEW in v1.0.17)
   --server TEXT           Server name from config
 ```
 
@@ -512,6 +513,11 @@ praisonaiwp create "My Post" \
 
 # From file
 praisonaiwp create posts.json
+
+# Auto-convert HTML to Gutenberg blocks (NEW in v1.0.17)
+praisonaiwp create "My Post" \
+  --content "<h2>Title</h2><p>Content with <strong>HTML</strong></p>" \
+  --convert-to-blocks
 ```
 
 ---
@@ -537,6 +543,7 @@ Options:
   --tags TEXT            Update tags (comma-separated)
   --meta TEXT            Update post meta in JSON format
   --comment-status TEXT  Update comment status (open, closed)
+  --convert-to-blocks    Auto-convert HTML to Gutenberg blocks (NEW in v1.0.17)
   --server TEXT          Server name from config
 ```
 
@@ -583,6 +590,11 @@ praisonaiwp update 123 \
   --tags "python,ai" \
   --meta '{"updated":"yes"}' \
   --comment-status open
+
+# Update content with HTML to blocks conversion (NEW in v1.0.17)
+praisonaiwp update 123 \
+  --post-content "<h2>New Title</h2><p>Updated content</p>" \
+  --convert-to-blocks
 ```
 
 ---
@@ -710,8 +722,8 @@ praisonaiwp create My Title --content My content  # ERROR: Ambiguous
 
 | Command | Key Options |
 |---------|-------------|
-| `create` | `--content`, `--status`, `--type`, `--category`, `--category-id`, `--author`, `--excerpt`, `--date`, `--tags`, `--meta`, `--comment-status`, `--server` |
-| `update` | `--line`, `--nth`, `--preview`, `--category`, `--category-id`, `--post-content`, `--post-title`, `--post-status`, `--post-excerpt`, `--post-author`, `--post-date`, `--tags`, `--meta`, `--comment-status`, `--server` |
+| `create` | `--content`, `--status`, `--type`, `--category`, `--category-id`, `--author`, `--excerpt`, `--date`, `--tags`, `--meta`, `--comment-status`, `--convert-to-blocks`, `--server` |
+| `update` | `--line`, `--nth`, `--preview`, `--category`, `--category-id`, `--post-content`, `--post-title`, `--post-status`, `--post-excerpt`, `--post-author`, `--post-date`, `--tags`, `--meta`, `--comment-status`, `--convert-to-blocks`, `--server` |
 | `list` | `--type`, `--status`, `--limit`, `-s/--search`, `--server` |
 | `find` | `--type`, `--server` |
 | `category` | Subcommands: `list`, `search`, `set`, `add`, `remove` with `--category`, `--category-id` |

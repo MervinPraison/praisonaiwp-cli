@@ -5,6 +5,39 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.17] - 2025-11-19
+
+### Added
+- **HTML to Gutenberg Blocks Converter**: Automatic conversion of HTML to WordPress blocks
+  - `--convert-to-blocks` flag for both `create` and `update` commands
+  - Safe, conservative conversion approach - only converts well-known patterns
+  - Wraps complex HTML in `<!-- wp:html -->` blocks to prevent content loss
+  - Auto-detects if content already has blocks (idempotent)
+  - Preserves custom HTML, CSS, JavaScript, inline styles, and complex structures
+
+### Features
+- Converts: Headings (H1-H6), simple paragraphs, code blocks, simple lists
+- Preserves: Custom HTML, nested structures, tables, forms, scripts, styles, iframes
+- Handles: Empty content, malformed HTML, special characters, Unicode, HTML entities
+- User-friendly: Handles common mistakes (unclosed tags, mixed case, extra whitespace)
+
+### Test Coverage
+- 58 comprehensive test cases covering all edge cases
+- Tests for basic conversions, edge cases, complex structures, custom HTML preservation
+- Real-world scenarios: blog posts, documentation, landing pages
+- Safety & robustness tests: long content, deep nesting, empty tags
+- Integration tests: full article conversion, idempotent conversion
+
+### Documentation
+- Complete inline documentation in block_converter.py
+- Comprehensive test documentation with use case descriptions
+
+### Design Philosophy
+- **Safety First**: Never break content - use wp:html blocks for uncertain cases
+- **WordPress-Native**: Uses official WordPress block format
+- **Extensible**: Easy to add more conversions in the future
+- **Well-Tested**: 156 total tests passing (58 new + 98 existing)
+
 ## [1.0.16] - 2025-11-18
 
 ### Added
