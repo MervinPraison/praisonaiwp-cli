@@ -161,25 +161,41 @@ class TestUtilsImports:
 class TestNewFeatures:
     """Test new features are accessible"""
     
-    def test_convert_to_blocks_flag_in_create(self):
-        """Test --convert-to-blocks flag exists in create command"""
+    def test_no_block_conversion_flag_in_create(self):
+        """Test --no-block-conversion flag exists in create command"""
         result = subprocess.run(
             [sys.executable, '-m', 'praisonaiwp.cli.main', 'create', '--help'],
             capture_output=True,
             text=True
         )
         assert result.returncode == 0
-        assert '--convert-to-blocks' in result.stdout
+        assert '--no-block-conversion' in result.stdout
+        assert 'Disable automatic HTML to Gutenberg blocks conversion' in result.stdout
     
-    def test_convert_to_blocks_flag_in_update(self):
-        """Test --convert-to-blocks flag exists in update command"""
+    def test_no_block_conversion_flag_in_update(self):
+        """Test --no-block-conversion flag exists in update command"""
         result = subprocess.run(
             [sys.executable, '-m', 'praisonaiwp.cli.main', 'update', '--help'],
             capture_output=True,
             text=True
         )
         assert result.returncode == 0
-        assert '--convert-to-blocks' in result.stdout
+        assert '--no-block-conversion' in result.stdout
+        assert 'Disable automatic HTML to Gutenberg blocks conversion' in result.stdout
+    
+    def test_block_conversion_enabled_by_default(self):
+        """Test that block conversion is enabled by default (opt-out design)"""
+        # This is a design test - the flag is --no-block-conversion (opt-out)
+        # not --convert-to-blocks (opt-in)
+        result = subprocess.run(
+            [sys.executable, '-m', 'praisonaiwp.cli.main', 'create', '--help'],
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0
+        # Should have --no-block-conversion (opt-out), not --convert-to-blocks (opt-in)
+        assert '--no-block-conversion' in result.stdout
+        assert '--convert-to-blocks' not in result.stdout
 
 
 class TestVersionInfo:

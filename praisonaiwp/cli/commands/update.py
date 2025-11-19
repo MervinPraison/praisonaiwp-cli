@@ -66,11 +66,11 @@ def _parse_category_input(category_str, category_id_str, wp):
 @click.option('--tags', help='Update tags (comma-separated)')
 @click.option('--meta', help='Update post meta in JSON format')
 @click.option('--comment-status', help='Update comment status (open, closed)')
-@click.option('--convert-to-blocks', is_flag=True, help='Auto-convert HTML to Gutenberg blocks')
+@click.option('--no-block-conversion', is_flag=True, help='Disable automatic HTML to Gutenberg blocks conversion')
 @click.option('--server', default=None, help='Server name from config')
 def update_command(post_id, find_text, replace_text, line, nth, preview, category, category_id, 
                    post_content, post_title, post_status, post_excerpt, post_author, post_date,
-                   tags, meta, comment_status, convert_to_blocks, server):
+                   tags, meta, comment_status, no_block_conversion, server):
     """
     Update WordPress post content
     
@@ -133,11 +133,13 @@ def update_command(post_id, find_text, replace_text, line, nth, preview, categor
             # Handle direct field updates first
             update_fields = {}
             if post_content:
-                # Convert to blocks if requested
-                if convert_to_blocks and not has_blocks(post_content):
-                    console.print("[cyan]Converting HTML to Gutenberg blocks...[/cyan]")
+                # Auto-convert HTML to blocks (unless disabled)
+                if not no_block_conversion and not has_blocks(post_content):
+                    console.print("[cyan]Auto-converting HTML to Gutenberg blocks...[/cyan]")
                     post_content = html_to_blocks(post_content)
                     console.print("[green]✓ Content converted to blocks[/green]")
+                elif no_block_conversion:
+                    console.print("[yellow]Block conversion disabled - using raw HTML[/yellow]")
                 update_fields['post_content'] = post_content
                 console.print("[cyan]Updating post content...[/cyan]")
             if post_title:

@@ -64,10 +64,10 @@ def _parse_category_input(category_str, category_id_str, wp):
 @click.option('--tags', help='Comma-separated tag names or IDs')
 @click.option('--meta', help='Post meta in JSON format: {"key":"value"}')
 @click.option('--comment-status', help='Comment status (open, closed)')
-@click.option('--convert-to-blocks', is_flag=True, help='Auto-convert HTML to Gutenberg blocks')
+@click.option('--no-block-conversion', is_flag=True, help='Disable automatic HTML to Gutenberg blocks conversion')
 @click.option('--server', default=None, help='Server name from config')
 def create_command(title_or_file, content, status, post_type, category, category_id, author, 
-                   excerpt, date, tags, meta, comment_status, convert_to_blocks, server):
+                   excerpt, date, tags, meta, comment_status, no_block_conversion, server):
     """
     Create WordPress posts
     
@@ -120,7 +120,7 @@ def create_command(title_or_file, content, status, post_type, category, category
                 tags,
                 meta,
                 comment_status,
-                convert_to_blocks,
+                no_block_conversion,
                 server_config
             )
     
@@ -131,7 +131,7 @@ def create_command(title_or_file, content, status, post_type, category, category
 
 
 def _create_single_post(title, content, status, post_type, category, category_id, author,
-                        excerpt, date, tags, meta, comment_status, convert_to_blocks_flag, server_config):
+                        excerpt, date, tags, meta, comment_status, no_block_conversion, server_config):
     """Create a single post"""
     
     if not content:
@@ -154,11 +154,13 @@ def _create_single_post(title, content, status, post_type, category, category_id
             server_config.get('wp_cli', '/usr/local/bin/wp')
         )
         
-        # Convert HTML to blocks if requested
-        if convert_to_blocks_flag and content and not has_blocks(content):
-            console.print("[cyan]Converting HTML to Gutenberg blocks...[/cyan]")
+        # Auto-convert HTML to blocks (unless disabled)
+        if not no_block_conversion and content and not has_blocks(content):
+            console.print("[cyan]Auto-converting HTML to Gutenberg blocks...[/cyan]")
             content = html_to_blocks(content)
             console.print("[green]✓ Content converted to blocks[/green]")
+        elif no_block_conversion and content:
+            console.print("[yellow]Block conversion disabled - using raw HTML[/yellow]")
         
         # Prepare post arguments
         post_args = {

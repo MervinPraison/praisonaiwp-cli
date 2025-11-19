@@ -5,6 +5,45 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.19] - 2025-11-19
+
+### Changed
+- **BREAKING**: Block conversion is now **enabled by default** (opt-out instead of opt-in)
+  - Changed `--convert-to-blocks` flag → `--no-block-conversion` flag
+  - HTML content automatically converts to Gutenberg blocks
+  - Use `--no-block-conversion` to disable if you want raw HTML
+  
+### Improved
+- **Better Default Behavior**: Most users want blocks, so it's now automatic
+- **Cleaner API**: Opt-out design is more intuitive
+- **Zero Configuration**: Works out of the box with best practices
+- **Smart Detection**: Auto-detects existing blocks, won't double-convert
+
+### Added
+- Auto-conversion messages show when converting or skipping
+- Integration tests for opt-out design (3 new tests)
+- Comprehensive CI/CD pipeline with multi-OS and multi-Python testing
+
+### Migration from v1.0.18
+**Old (v1.0.18):**
+```bash
+praisonaiwp create "Post" --content "<h2>Title</h2>" --convert-to-blocks
+```
+
+**New (v1.0.19):**
+```bash
+# Auto-converts by default - just remove the flag!
+praisonaiwp create "Post" --content "<h2>Title</h2>"
+
+# Disable if you want raw HTML
+praisonaiwp create "Post" --content "<h2>Title</h2>" --no-block-conversion
+```
+
+### Testing
+- 193 total tests passing (35 integration + 58 block converter + 100 existing)
+- CI/CD pipeline tests across Ubuntu, macOS, Windows
+- Python 3.8, 3.9, 3.10, 3.11, 3.12 compatibility
+
 ## [1.0.18] - 2025-11-19
 
 ### Fixed
