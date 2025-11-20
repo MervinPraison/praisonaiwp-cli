@@ -105,8 +105,8 @@ class SSHManager:
                 key_filename=self.key_file,
                 port=self.port,
                 timeout=self.timeout,
-                look_for_keys=False,
-                allow_agent=False
+                look_for_keys=True,
+                allow_agent=True
             )
             
             logger.info("SSH connection established successfully")
