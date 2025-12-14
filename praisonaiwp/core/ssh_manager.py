@@ -157,6 +157,42 @@ class SSHManager:
             logger.error(f"Command execution failed: {e}")
             raise SSHConnectionError(f"Command execution failed: {e}")
     
+    def upload_file(self, local_path: str, remote_path: str) -> str:
+        """
+        Upload a local file to the remote server via SFTP
+        
+        Args:
+            local_path: Path to local file
+            remote_path: Path on remote server
+            
+        Returns:
+            Remote path where file was uploaded
+            
+        Raises:
+            SSHConnectionError: If not connected or upload fails
+        """
+        if not self.client:
+            raise SSHConnectionError("Not connected. Call connect() first.")
+        
+        try:
+            local_path = os.path.expanduser(local_path)
+            
+            if not os.path.exists(local_path):
+                raise SSHConnectionError(f"Local file not found: {local_path}")
+            
+            logger.info(f"Uploading {local_path} to {remote_path}")
+            
+            sftp = self.client.open_sftp()
+            sftp.put(local_path, remote_path)
+            sftp.close()
+            
+            logger.info(f"File uploaded successfully to {remote_path}")
+            return remote_path
+            
+        except Exception as e:
+            logger.error(f"File upload failed: {e}")
+            raise SSHConnectionError(f"File upload failed: {e}")
+    
     def close(self):
         """Close SSH connection"""
         if self.client:

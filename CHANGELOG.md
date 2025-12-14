@@ -5,6 +5,19 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.6] - 2025-12-14
+
+### Added
+- **Media CLI Command**: `praisonaiwp media` for uploading media files via WP-CLI
+  - Upload local files (auto-uploads via SFTP): `praisonaiwp media /path/to/image.jpg`
+  - Import from URL: `praisonaiwp media https://example.com/image.jpg`
+  - Attach to posts: `--post-id 123`
+  - Set metadata: `--title`, `--caption`, `--alt`, `--desc`
+- **SFTP Upload**: Added `upload_file()` method to SSHManager for file transfers
+
+### Fixed
+- Fixed media command failing with local files (now uploads via SFTP first)
+
 ## [1.1.0] - 2025-11-19
 
 ### 🎉 Major Release: Production-Ready AI Integration

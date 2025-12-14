@@ -114,8 +114,9 @@ See [GENERIC_WP_METHOD.md](GENERIC_WP_METHOD.md) for complete documentation.
 - `list_themes()` - List all themes
 - `activate_theme()` - Activate theme
 
-### 📷 Media Management (1 method)
+### 📷 Media Management (1 method + CLI)
 - `import_media()` - Import media with metadata
+- **CLI**: `praisonaiwp media` - Upload media files
 
 ### 💬 Comment Management (6 methods)
 - `list_comments()` - List comments
@@ -917,6 +918,48 @@ praisonaiwp category remove 123 --category "Uncategorized"
 
 ---
 
+### `praisonaiwp media` - Upload Media (NEW in v1.0.23)
+
+**All Options:**
+```bash
+praisonaiwp media FILE_PATH [OPTIONS]
+
+Options:
+  --post-id INTEGER  Post ID to attach media to
+  --title TEXT       Media title
+  --caption TEXT     Media caption
+  --alt TEXT         Alt text for images
+  --desc TEXT        Media description
+  --server TEXT      Server name from config
+```
+
+**Examples:**
+```bash
+# Upload a local file
+praisonaiwp media /path/to/image.jpg
+
+# Upload from URL
+praisonaiwp media https://example.com/image.jpg
+
+# Upload and attach to a post
+praisonaiwp media /path/to/image.jpg --post-id 123
+
+# Upload with metadata
+praisonaiwp media /path/to/image.jpg \
+  --title "My Image" \
+  --alt "Description of image" \
+  --caption "Image caption"
+
+# Upload with all options
+praisonaiwp media /path/to/image.jpg \
+  --post-id 123 \
+  --title "Featured Image" \
+  --alt "Alt text for SEO" \
+  --caption "Photo caption" \
+  --desc "Full description" \
+  --server production
+```
+
 ---
 
 ### `praisonaiwp ai` - AI Content Generation (NEW in v1.1.0)
@@ -1050,6 +1093,7 @@ praisonaiwp ai generate AI Trends --title The Future  # ERROR: Needs quotes
 | `list` | `--type`, `--status`, `--limit`, `-s/--search`, `--server` |
 | `find` | `--type`, `--server` |
 | `category` | Subcommands: `list`, `search`, `set`, `add`, `remove` with `--category`, `--category-id` |
+| `media` | `--post-id`, `--title`, `--caption`, `--alt`, `--desc`, `--server` |
 | `ai generate` | `--title`, `--status`, `--type`, `--category`, `--category-id`, `--author`, `--excerpt`, `--date`, `--tags`, `--meta`, `--comment-status`, `--auto-publish`, `--verbose`, `--server` |
 
 ---

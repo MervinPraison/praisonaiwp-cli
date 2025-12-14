@@ -46,6 +46,11 @@ class TestCLIImports:
         from praisonaiwp.cli.commands.category import category_command
         assert category_command is not None
     
+    def test_media_command_import(self):
+        """Test media command can be imported"""
+        from praisonaiwp.cli.commands.media import media_command
+        assert media_command is not None
+    
     def test_init_command_import(self):
         """Test init command can be imported"""
         from praisonaiwp.cli.commands.init import init_command
@@ -104,6 +109,19 @@ class TestCLIHelp:
         )
         assert result.returncode == 0
         assert 'find' in result.stdout.lower()
+    
+    def test_media_help(self):
+        """Test media --help works"""
+        result = subprocess.run(
+            [sys.executable, '-m', 'praisonaiwp.cli.main', 'media', '--help'],
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0
+        assert 'media' in result.stdout.lower()
+        assert '--post-id' in result.stdout
+        assert '--title' in result.stdout
+        assert '--alt' in result.stdout
 
 
 class TestCoreImports:
@@ -280,11 +298,12 @@ class TestCriticalPaths:
         from praisonaiwp.cli.commands.find import find_command
         from praisonaiwp.cli.commands.category import category_command
         from praisonaiwp.cli.commands.init import init_command
+        from praisonaiwp.cli.commands.media import media_command
         
         # All should be importable without errors
         assert all([
             cli, create_command, update_command, list_command,
-            find_command, category_command, init_command
+            find_command, category_command, init_command, media_command
         ])
 
 
