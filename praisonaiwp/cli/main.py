@@ -28,19 +28,74 @@ def cli():
     
     Simple, powerful WordPress automation via WP-CLI over SSH.
     
-    Examples:
+    \b
+    CONTENT FORMAT:
+    ---------------
+    Content should be HTML. By default, it auto-converts to Gutenberg blocks.
+    Use --no-block-conversion to send raw Gutenberg block markup directly.
+    
+    \b
+    GUTENBERG BLOCK FORMAT (use with --no-block-conversion):
+    --------------------------------------------------------
+    
+    \b
+    Paragraph:
+        <!-- wp:paragraph -->
+        <p>Your text here</p>
+        <!-- /wp:paragraph -->
+    
+    \b
+    Heading (h2):
+        <!-- wp:heading -->
+        <h2 class="wp-block-heading">Title</h2>
+        <!-- /wp:heading -->
+    
+    \b
+    Heading (h3):
+        <!-- wp:heading {"level":3} -->
+        <h3 class="wp-block-heading">Subtitle</h3>
+        <!-- /wp:heading -->
+    
+    \b
+    Code block:
+        <!-- wp:code -->
+        <pre class="wp-block-code"><code>your code here</code></pre>
+        <!-- /wp:code -->
+    
+    \b
+    Table:
+        <!-- wp:table -->
+        <figure class="wp-block-table"><table><thead><tr><th>Header</th></tr></thead>
+        <tbody><tr><td>Cell</td></tr></tbody></table></figure>
+        <!-- /wp:table -->
+    
+    \b
+    Separator (horizontal rule):
+        <!-- wp:separator -->
+        <hr class="wp-block-separator has-alpha-channel-opacity"/>
+        <!-- /wp:separator -->
+    
+    \b
+    List:
+        <!-- wp:list -->
+        <ul class="wp-block-list"><li>Item 1</li><li>Item 2</li></ul>
+        <!-- /wp:list -->
+    
+    \b
+    EXAMPLES:
+    ---------
     
         # Initialize configuration
         praisonaiwp init
         
-        # Create a post
-        praisonaiwp create "My Post" --content "Hello World"
+        # Create post with HTML (auto-converts to blocks)
+        praisonaiwp create "My Post" --content "<h2>Title</h2><p>Content</p>"
         
-        # Update specific line
+        # Create post with raw Gutenberg blocks
+        praisonaiwp create "My Post" --no-block-conversion --content "<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->"
+        
+        # Update post
         praisonaiwp update 123 "old" "new" --line 10
-        
-        # Find text
-        praisonaiwp find "search text"
         
         # List posts
         praisonaiwp list --type page

@@ -74,7 +74,13 @@ def update_command(post_id, find_text, replace_text, line, nth, preview, categor
     """
     Update WordPress post content
     
-    Examples:
+    \b
+    CONTENT FORMAT:
+    Content should be HTML. By default, it auto-converts to Gutenberg blocks.
+    Use --no-block-conversion to send raw Gutenberg block markup directly.
+    
+    \b
+    EXAMPLES:
     
         # Update all occurrences
         praisonaiwp update 123 "old text" "new text"
@@ -82,14 +88,24 @@ def update_command(post_id, find_text, replace_text, line, nth, preview, categor
         # Update specific line
         praisonaiwp update 123 "old text" "new text" --line 10
         
-        # Update 2nd occurrence
-        praisonaiwp update 123 "old text" "new text" --nth 2
+        # Replace entire content with HTML
+        praisonaiwp update 123 --post-content "<h2>New</h2><p>Content</p>"
+        
+        # Replace with raw Gutenberg blocks
+        praisonaiwp update 123 --no-block-conversion --post-content "<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->"
         
         # Update categories only
         praisonaiwp update 123 --category "RAG,AI"
-        
-        # Preview changes
-        praisonaiwp update 123 "old text" "new text" --preview
+    
+    \b
+    GUTENBERG BLOCKS (use with --no-block-conversion):
+    
+    \b
+        <!-- wp:paragraph --><p>Text</p><!-- /wp:paragraph -->
+        <!-- wp:heading --><h2 class="wp-block-heading">Title</h2><!-- /wp:heading -->
+        <!-- wp:code --><pre class="wp-block-code"><code>code</code></pre><!-- /wp:code -->
+        <!-- wp:table --><figure class="wp-block-table"><table>...</table></figure><!-- /wp:table -->
+        <!-- wp:separator --><hr class="wp-block-separator has-alpha-channel-opacity"/><!-- /wp:separator -->
     """
     
     try:

@@ -71,25 +71,58 @@ def create_command(title_or_file, content, status, post_type, category, category
     """
     Create WordPress posts
     
-    Examples:
+    \b
+    CONTENT FORMAT:
+    Content should be HTML. By default, it auto-converts to Gutenberg blocks.
+    Use --no-block-conversion to send raw Gutenberg block markup directly.
     
-        # Interactive mode
-        praisonaiwp create
-        
-        # Single post with HTML content (recommended)
-        praisonaiwp create "My Post" --content "<h2>Title</h2><p>Content here</p>"
+    \b
+    EXAMPLES:
+    
+        # Single post with HTML (auto-converts to blocks)
+        praisonaiwp create "My Post" --content "<h2>Title</h2><p>Content</p>"
         
         # With categories
         praisonaiwp create "My Post" --content "<p>Hello</p>" --category "RAG,AI"
         
-        # From file (auto-detects format)
+        # From file (auto-detects JSON/YAML/CSV)
         praisonaiwp create posts.json
         
         # Create page
-        praisonaiwp create "About Us" --content "<p>About content</p>" --type page
+        praisonaiwp create "About Us" --content "<p>About</p>" --type page
     
-    Note: Content should be HTML. It auto-converts to Gutenberg blocks.
-    Use --no-block-conversion to disable this.
+    \b
+    GUTENBERG BLOCKS (use with --no-block-conversion):
+    
+    \b
+        Paragraph:
+            <!-- wp:paragraph -->
+            <p>Text</p>
+            <!-- /wp:paragraph -->
+    
+    \b
+        Heading:
+            <!-- wp:heading -->
+            <h2 class="wp-block-heading">Title</h2>
+            <!-- /wp:heading -->
+    
+    \b
+        Code:
+            <!-- wp:code -->
+            <pre class="wp-block-code"><code>code</code></pre>
+            <!-- /wp:code -->
+    
+    \b
+        Table:
+            <!-- wp:table -->
+            <figure class="wp-block-table"><table>...</table></figure>
+            <!-- /wp:table -->
+    
+    \b
+        Separator:
+            <!-- wp:separator -->
+            <hr class="wp-block-separator has-alpha-channel-opacity"/>
+            <!-- /wp:separator -->
     """
     
     try:
