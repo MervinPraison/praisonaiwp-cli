@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "praisonaiwp"
-version = "1.1.6"
+dynamic = ["version"]
 description = "AI-powered WordPress content management with PraisonAI integration and production-ready features"
 readme = "README.md"
 requires-python = ">=3.8.1"
@@ -133,3 +133,6 @@ no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
+
+[tool.hatch.version]
+path = "praisonaiwp/__version__.py"
