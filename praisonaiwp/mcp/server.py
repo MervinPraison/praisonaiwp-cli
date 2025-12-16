@@ -52,6 +52,7 @@ def get_wp_client(server_name: Optional[str] = None) -> WPClient:
         key_file=server_config.get('key_file'),
         port=server_config.get('port', 22)
     )
+    _ssh_manager.connect()  # Establish SSH connection
     
     # Create WP client
     _wp_client = WPClient(
@@ -210,11 +211,28 @@ def run_server(transport: str = "stdio"):
     Args:
         transport: Transport type ("stdio" or "streamable-http")
     """
+    import logging
+    import sys
+
     if not MCP_AVAILABLE:
         raise ImportError(
             "MCP SDK is not installed. Install it with: pip install praisonaiwp[mcp]"
         )
-    
+
+    # For stdio transport, redirect ALL logging to stderr to avoid interfering with JSON-RPC
+    if transport == "stdio":
+        # Suppress all logging to stdout - redirect to stderr with higher threshold
+        logging.basicConfig(
+            level=logging.WARNING,
+            stream=sys.stderr,
+            format='%(message)s',
+            force=True
+        )
+        # Disable all praisonaiwp loggers
+        for name in list(logging.Logger.manager.loggerDict.keys()):
+            if 'praisonaiwp' in name or 'paramiko' in name:
+                logging.getLogger(name).disabled = True
+
     try:
         mcp.run(transport=transport)
     finally:

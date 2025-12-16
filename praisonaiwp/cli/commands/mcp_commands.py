@@ -36,6 +36,7 @@ def run(transport, host, port, server):
     """
     import sys
     import shutil
+    from rich.console import Console
 
     try:
         from praisonaiwp.mcp.server import run_server, MCP_AVAILABLE
@@ -54,22 +55,28 @@ def run(transport, host, port, server):
         if not praisonaiwp_path:
             praisonaiwp_path = sys.executable
 
-        console.print("\n[bold green]═══ PraisonAIWP MCP Server ═══[/bold green]\n")
+        # For stdio transport, print to stderr so it doesn't interfere with JSON-RPC
+        # For HTTP transport, print to stdout
+        if transport == 'stdio':
+            out = Console(stderr=True)
+        else:
+            out = console
 
-        # Show available tools summary
-        console.print("[bold]Available:[/bold] 23 Tools | 8 Resources | 4 Prompts")
-        console.print(f"[bold]Transport:[/bold] [cyan]{transport}[/cyan]")
+        out.print("\n[bold green]═══ PraisonAIWP MCP Server ═══[/bold green]\n")
+        out.print("[bold]Available:[/bold] 23 Tools | 8 Resources | 4 Prompts")
+        out.print(f"[bold]Transport:[/bold] [cyan]{transport}[/cyan]")
 
         if transport == 'streamable-http':
-            console.print(f"[bold]URL:[/bold] [cyan]http://{host}:{port}/mcp[/cyan]")
+            out.print(f"[bold]URL:[/bold] [cyan]http://{host}:{port}/mcp[/cyan]")
 
-        console.print("\n[bold yellow]═══ MCP Client Configurations ═══[/bold yellow]\n")
+        out.print("\n[bold yellow]═══ MCP Client Configurations ═══[/bold yellow]\n")
 
         # Claude Desktop
-        console.print("[bold]Claude Desktop[/bold] (macOS: ~/Library/Application Support/Claude/claude_desktop_config.json)")
-        console.print("[bold]Claude Desktop[/bold] (Windows: %APPDATA%/Claude/claude_desktop_config.json)")
-        console.print("[bold]Claude Desktop[/bold] (Linux: ~/.config/claude/claude_desktop_config.json)")
-        claude_config = {
+        out.print("[bold]Claude Desktop[/bold]")
+        out.print("[dim]  macOS: ~/Library/Application Support/Claude/claude_desktop_config.json[/dim]")
+        out.print("[dim]  Windows: %APPDATA%/Claude/claude_desktop_config.json[/dim]")
+        out.print("[dim]  Linux: ~/.config/claude/claude_desktop_config.json[/dim]")
+        mcp_config = {
             "mcpServers": {
                 "praisonaiwp": {
                     "command": praisonaiwp_path,
@@ -77,29 +84,14 @@ def run(transport, host, port, server):
                 }
             }
         }
-        console.print(f"[dim]{json.dumps(claude_config, indent=2)}[/dim]\n")
+        out.print(f"[dim]{json.dumps(mcp_config, indent=2)}[/dim]\n")
 
-        # Cursor
-        console.print("[bold]Cursor[/bold] (.cursor/mcp.json in project root)")
-        cursor_config = {
-            "mcpServers": {
-                "praisonaiwp": {
-                    "command": praisonaiwp_path,
-                    "args": ["mcp", "run"] if shutil.which('praisonaiwp') else ["-m", "praisonaiwp", "mcp", "run"]
-                }
-            }
-        }
-        console.print(f"[dim]{json.dumps(cursor_config, indent=2)}[/dim]\n")
+        out.print("[bold]Cursor[/bold] [dim](.cursor/mcp.json)[/dim]")
+        out.print("[bold]VS Code[/bold] [dim](.vscode/mcp.json)[/dim]")
+        out.print("[bold]Windsurf[/bold] [dim](~/.codeium/windsurf/mcp_config.json)[/dim]")
+        out.print("[dim]Use same config format as above[/dim]\n")
 
-        # VS Code
-        console.print("[bold]VS Code[/bold] (.vscode/mcp.json in project root)")
-        console.print(f"[dim]{json.dumps(cursor_config, indent=2)}[/dim]\n")
-
-        # Windsurf
-        console.print("[bold]Windsurf[/bold] (~/.codeium/windsurf/mcp_config.json)")
-        console.print(f"[dim]{json.dumps(cursor_config, indent=2)}[/dim]\n")
-
-        console.print("[bold yellow]═══ Available Tools ═══[/bold yellow]")
+        out.print("[bold yellow]═══ Available Tools ═══[/bold yellow]")
         tools = [
             "create_post", "update_post", "delete_post", "get_post", "list_posts", "find_text",
             "list_categories", "set_post_categories", "create_term",
@@ -108,22 +100,22 @@ def run(transport, host, port, server):
             "list_themes", "activate_theme", "import_media",
             "flush_cache", "get_core_version", "db_query", "search_replace", "wp_cli"
         ]
-        console.print(f"[dim]{', '.join(tools)}[/dim]\n")
+        out.print(f"[dim]{', '.join(tools)}[/dim]\n")
 
-        console.print("[bold yellow]═══ Available Resources ═══[/bold yellow]")
+        out.print("[bold yellow]═══ Available Resources ═══[/bold yellow]")
         resources = [
             "wordpress://info", "wordpress://posts/{post_id}", "wordpress://posts",
             "wordpress://categories", "wordpress://users", "wordpress://plugins",
             "wordpress://themes", "wordpress://config"
         ]
-        console.print(f"[dim]{', '.join(resources)}[/dim]\n")
+        out.print(f"[dim]{', '.join(resources)}[/dim]\n")
 
-        console.print("[bold yellow]═══ Available Prompts ═══[/bold yellow]")
+        out.print("[bold yellow]═══ Available Prompts ═══[/bold yellow]")
         prompts = ["create_blog_post_prompt", "update_content_prompt", "bulk_update_prompt", "seo_optimize_prompt"]
-        console.print(f"[dim]{', '.join(prompts)}[/dim]\n")
+        out.print(f"[dim]{', '.join(prompts)}[/dim]\n")
 
-        console.print("[bold green]═══ Server Starting ═══[/bold green]")
-        console.print("[dim]Press Ctrl+C to stop[/dim]\n")
+        out.print("[bold green]═══ Server Starting ═══[/bold green]")
+        out.print("[dim]Press Ctrl+C to stop[/dim]\n")
 
         run_server(transport=transport)
 
