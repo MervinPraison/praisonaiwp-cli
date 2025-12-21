@@ -408,6 +408,37 @@ class TestWPClient:
         call_args = mock_ssh.execute.call_args[0][0]
         assert "plugin deactivate akismet" in call_args
     
+    def test_update_plugin_single(self, wp_client, mock_ssh):
+        """Test update single plugin"""
+        mock_ssh.execute.return_value = ("Success: Updated 1 plugin", "")
+        
+        result = wp_client.update_plugin("akismet")
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "plugin update akismet" in call_args
+        assert "--all" not in call_args
+    
+    def test_update_plugin_all(self, wp_client, mock_ssh):
+        """Test update all plugins"""
+        mock_ssh.execute.return_value = ("Success: Updated 5 plugins", "")
+        
+        result = wp_client.update_plugin("all")
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "plugin update --all" in call_args
+    
+    def test_update_plugin_default(self, wp_client, mock_ssh):
+        """Test update plugin with default parameter"""
+        mock_ssh.execute.return_value = ("Success: Updated 5 plugins", "")
+        
+        result = wp_client.update_plugin()
+        
+        assert result is True
+        call_args = mock_ssh.execute.call_args[0][0]
+        assert "plugin update --all" in call_args
+    
     def test_activate_theme(self, wp_client, mock_ssh):
         """Test activate theme"""
         mock_ssh.execute.return_value = ("Success: Activated theme", "")

@@ -666,7 +666,10 @@ class WPClient:
         Returns:
             True if successful
         """
-        cmd = f"plugin update {plugin}"
+        if plugin == "all":
+            cmd = "plugin update --all"
+        else:
+            cmd = f"plugin update {plugin}"
         self._execute_wp(cmd)
         logger.info(f"Updated plugin(s): {plugin}")
         return True

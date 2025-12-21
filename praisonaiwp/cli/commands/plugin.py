@@ -101,9 +101,22 @@ def update_plugin(plugin, server):
         config = Config()
         server_config = config.get_server(server)
         
-        with WPClient(server_config) as client:
+        with SSHManager(
+            server_config['hostname'],
+            server_config['username'],
+            server_config['key_file'],
+            server_config.get('port', 22)
+        ) as ssh:
+            
+            wp = WPClient(
+                ssh,
+                server_config['wp_path'],
+                server_config.get('php_bin', 'php'),
+                server_config.get('wp_cli', '/usr/local/bin/wp')
+            )
+            
             click.echo(f"Updating plugin(s): {plugin}...")
-            client.update_plugin(plugin)
+            wp.update_plugin(plugin)
             click.echo(f"✓ Successfully updated plugin(s): {plugin}")
     
     except Exception as e:
@@ -126,9 +139,22 @@ def activate_plugin(plugin, server):
         config = Config()
         server_config = config.get_server(server)
         
-        with WPClient(server_config) as client:
+        with SSHManager(
+            server_config['hostname'],
+            server_config['username'],
+            server_config['key_file'],
+            server_config.get('port', 22)
+        ) as ssh:
+            
+            wp = WPClient(
+                ssh,
+                server_config['wp_path'],
+                server_config.get('php_bin', 'php'),
+                server_config.get('wp_cli', '/usr/local/bin/wp')
+            )
+            
             click.echo(f"Activating plugin: {plugin}...")
-            client.activate_plugin(plugin)
+            wp.activate_plugin(plugin)
             click.echo(f"✓ Successfully activated plugin: {plugin}")
     
     except Exception as e:
@@ -151,9 +177,22 @@ def deactivate_plugin(plugin, server):
         config = Config()
         server_config = config.get_server(server)
         
-        with WPClient(server_config) as client:
+        with SSHManager(
+            server_config['hostname'],
+            server_config['username'],
+            server_config['key_file'],
+            server_config.get('port', 22)
+        ) as ssh:
+            
+            wp = WPClient(
+                ssh,
+                server_config['wp_path'],
+                server_config.get('php_bin', 'php'),
+                server_config.get('wp_cli', '/usr/local/bin/wp')
+            )
+            
             click.echo(f"Deactivating plugin: {plugin}...")
-            client.deactivate_plugin(plugin)
+            wp.deactivate_plugin(plugin)
             click.echo(f"✓ Successfully deactivated plugin: {plugin}")
     
     except Exception as e:

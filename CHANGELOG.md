@@ -5,6 +5,30 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2025-12-21
+
+### Added
+- **SmartContentAgent**: AI agent with intelligent server routing
+  - `detect_server_from_context()`: Auto-detect server from title, content, or tags
+  - `suggest_server()`: Suggest server with confidence score
+  - `create_post_with_routing()`: Create posts with automatic routing
+  - `generate_content()`: AI content generation with server context
+  - Tag-based server matching for AI content classification
+  - Applies server-specific defaults (author, category)
+  - Respects `auto_route` setting
+
+- **Test Coverage**: 10 new tests for SmartContentAgent (34 total, 100% passing)
+  - Server detection from title/content
+  - Tag-based matching
+  - Explicit server override
+  - Confidence scoring
+  - WordPress integration
+
+### Enhanced
+- **AI Integration**: Seamless integration with ServerRouter
+- **Context-Aware**: AI considers server description and tags when generating
+- **Intelligent Defaults**: Auto-applies server-specific author and category
+
 ## [1.4.0] - 2025-12-21
 
 ### 🎉 Major Release: Configuration v2.0 with Auto-Routing
