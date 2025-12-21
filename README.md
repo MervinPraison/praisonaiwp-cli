@@ -4,6 +4,102 @@ AI-powered WordPress CLI tool for content management with precision editing capa
 
 ## Features
 
+### 🎉 NEW in v1.4.1: SmartContentAgent with Intelligent Auto-Routing!
+**AI agent that automatically detects the correct website for your content!**
+
+```python
+from praisonaiwp.ai.smart_agent import SmartContentAgent
+from praisonaiwp import WPClient, SSHManager, Config
+
+# Initialize
+config = Config()
+ssh = SSHManager.from_config(config, 'biblerevelation')
+client = WPClient(ssh, config.get_server('biblerevelation')['wp_path'])
+
+# Create smart agent
+agent = SmartContentAgent(client, config.data)
+
+# Auto-detect server from content
+result = agent.create_post_with_routing(
+    title="Immanuel — God With Us",
+    content="<p>Bible teaching for biblerevelation.org</p>",
+    status='publish'
+)
+# → Automatically routes to biblerevelation server
+# → Applies author='praison', category='AI'
+
+# Get server suggestion with confidence
+suggestion = agent.suggest_server({
+    'title': 'Bible Study',
+    'tags': ['bible', 'teaching']
+})
+# → {'server': 'biblerevelation', 'confidence': 0.9, 'reason': 'Matching tags: bible, teaching'}
+```
+
+**SmartContentAgent Features:**
+- ✅ **Auto-Detection** - Detects server from title, content, or tags
+- ✅ **Confidence Scoring** - Provides confidence level for suggestions
+- ✅ **Tag Matching** - Matches content tags with server tags
+- ✅ **Server Defaults** - Auto-applies author, category per server
+- ✅ **Context-Aware AI** - Considers server description when generating
+- ✅ **10 Tests** - 100% passing, fully tested
+
+---
+
+### 🚀 NEW in v1.4.0: Configuration v2.0 with Auto-Routing!
+**Enhanced server configuration with website URLs and intelligent routing!**
+
+```yaml
+# ~/.praisonaiwp/config.yaml (v2.0)
+version: '2.0'
+servers:
+  biblerevelation:
+    website: https://biblerevelation.org      # NEW: Primary URL
+    aliases:                                   # NEW: Alternative domains
+      - https://www.biblerevelation.org
+    description: "Bible revelation website"   # NEW: Human-readable
+    tags: [bible, christian, teaching]        # NEW: For AI matching
+    author: praison                            # NEW: Default author
+    category: AI                               # NEW: Default category
+    hostname: christsong.in
+    username: biblerevelation
+    # ... other settings
+
+settings:
+  auto_route: true  # NEW: Enable automatic server selection
+```
+
+**Configuration v2.0 Features:**
+- ✅ **Website URLs** - Clear mapping of servers to websites
+- ✅ **Aliases** - Support multiple domains per server
+- ✅ **Descriptions** - Human-readable server information
+- ✅ **Tags** - AI-friendly content classification
+- ✅ **Server Defaults** - Per-server author and category
+- ✅ **Auto-Migration** - Automatic upgrade from v1.0
+- ✅ **Backward Compatible** - v1.0 configs still work
+- ✅ **24 Tests** - Comprehensive test coverage
+
+**ServerRouter API:**
+```python
+from praisonaiwp.core.router import ServerRouter
+
+router = ServerRouter(config)
+
+# Find server by website URL
+server, config = router.find_server_by_website('biblerevelation.org')
+
+# Find server by keywords in content
+server, config = router.find_server_by_keywords(
+    "Post for biblerevelation.org about Immanuel"
+)
+
+# Get server information
+info = router.get_server_info('biblerevelation')
+# → {'name': 'biblerevelation', 'website': 'https://biblerevelation.org', ...}
+```
+
+---
+
 ### 🎉 NEW in v1.1.0: Production-Ready AI Integration!
 **AI-powered content generation with PraisonAI framework!**
 
@@ -155,8 +251,9 @@ See [GENERIC_WP_METHOD.md](GENERIC_WP_METHOD.md) for complete documentation.
 - `set_option()` - Set option value
 - `delete_option()` - Delete option
 
-### 🔌 Plugin Management (3 methods)
+### 🔌 Plugin Management (4 methods)
 - `list_plugins()` - List all plugins
+- `update_plugin()` - Update plugin(s)
 - `activate_plugin()` - Activate plugin
 - `deactivate_plugin()` - Deactivate plugin
 
@@ -1116,6 +1213,174 @@ praisonaiwp media /path/to/image.jpg \
 
 ---
 
+### `praisonaiwp plugin` - Manage Plugins (NEW in v1.4.0)
+
+**Subcommands:**
+```bash
+praisonaiwp plugin list      # List installed plugins
+praisonaiwp plugin update    # Update plugins
+praisonaiwp plugin activate  # Activate a plugin
+praisonaiwp plugin deactivate # Deactivate a plugin
+```
+
+**List Options:**
+```bash
+Options:
+  --status [all|active|inactive]  Filter plugins by status (default: all)
+  --server TEXT                   Server name from config
+```
+
+**Update Options:**
+```bash
+praisonaiwp plugin update [PLUGIN] [OPTIONS]
+
+Arguments:
+  PLUGIN  Plugin slug/path or "all" to update all plugins (default: all)
+
+Options:
+  --server TEXT  Server name from config
+```
+
+**Activate/Deactivate Options:**
+```bash
+praisonaiwp plugin activate PLUGIN [OPTIONS]
+praisonaiwp plugin deactivate PLUGIN [OPTIONS]
+
+Arguments:
+  PLUGIN  Plugin slug or path (e.g., 'akismet' or 'akismet/akismet.php')
+
+Options:
+  --server TEXT  Server name from config
+```
+
+**Examples:**
+```bash
+# List all plugins
+praisonaiwp plugin list
+
+# List only active plugins
+praisonaiwp plugin list --status active
+
+# List inactive plugins
+praisonaiwp plugin list --status inactive
+
+# Update all plugins
+praisonaiwp plugin update
+praisonaiwp plugin update all
+
+# Update specific plugin
+praisonaiwp plugin update akismet
+praisonaiwp plugin update woocommerce
+
+# Activate a plugin
+praisonaiwp plugin activate akismet
+praisonaiwp plugin activate jetpack
+
+# Deactivate a plugin
+praisonaiwp plugin deactivate akismet
+praisonaiwp plugin deactivate hello
+
+# Use specific server
+praisonaiwp plugin list --server production
+praisonaiwp plugin update all --server staging
+```
+
+**Features:**
+- List plugins with status and version information
+- Show available updates
+- Update single or all plugins
+- Activate/deactivate plugins
+- Multi-server support
+
+---
+
+### `praisonaiwp init` - Initialize Configuration
+
+**Options:**
+```bash
+Options:
+  --help  Show this message and exit.
+```
+
+**Examples:**
+```bash
+# Interactive configuration setup
+praisonaiwp init
+```
+
+**What it does:**
+- Prompts for server hostname (or SSH config alias)
+- Prompts for SSH username
+- Prompts for SSH key path
+- Auto-detects WordPress installation path
+- Auto-detects PHP binary
+- Auto-detects WP-CLI path
+- Creates `~/.praisonaiwp/config.yaml`
+
+---
+
+### `praisonaiwp install-wp-cli` - Install WP-CLI
+
+**Options:**
+```bash
+Options:
+  -y, --yes              Skip confirmation prompts
+  --install-deps         Install dependencies (curl, php)
+  --install-path TEXT    Custom installation path (default: /usr/local/bin/wp)
+  --php-bin TEXT         Custom PHP binary path
+  --server TEXT          Server name from config
+```
+
+**Examples:**
+```bash
+# Auto-install with confirmation
+praisonaiwp install-wp-cli
+
+# Auto-install without prompts
+praisonaiwp install-wp-cli -y
+
+# Install with dependencies
+praisonaiwp install-wp-cli --install-deps -y
+
+# Custom installation path
+praisonaiwp install-wp-cli --install-path /usr/bin/wp -y
+
+# For Plesk servers
+praisonaiwp install-wp-cli --php-bin /opt/plesk/php/8.3/bin/php -y
+
+# Install on specific server
+praisonaiwp install-wp-cli --server production -y
+```
+
+---
+
+### `praisonaiwp find-wordpress` - Find WordPress Installations
+
+**Options:**
+```bash
+Options:
+  --interactive      Interactive selection from multiple installations
+  --update-config    Automatically update config with selected installation
+  --server TEXT      Server name from config
+```
+
+**Examples:**
+```bash
+# Find all WordPress installations
+praisonaiwp find-wordpress
+
+# Interactive selection
+praisonaiwp find-wordpress --interactive
+
+# Find and update config automatically
+praisonaiwp find-wordpress --update-config
+
+# Find on specific server
+praisonaiwp find-wordpress --server staging
+```
+
+---
+
 ### `praisonaiwp ai` - AI Content Generation (NEW in v1.1.0)
 
 **Subcommand:**
@@ -1353,12 +1618,19 @@ praisonaiwp ai generate AI Trends --title The Future  # ERROR: Needs quotes
 
 | Command | Key Options |
 |---------|-------------|
+| `init` | Interactive configuration setup |
+| `install-wp-cli` | `-y/--yes`, `--install-deps`, `--install-path`, `--php-bin`, `--server` |
+| `find-wordpress` | `--interactive`, `--update-config`, `--server` |
 | `create` | `--content`, `--status`, `--type`, `--category`, `--category-id`, `--author`, `--excerpt`, `--date`, `--tags`, `--meta`, `--comment-status`, `--convert-to-blocks`, `--server` |
 | `update` | `--line`, `--nth`, `--preview`, `--category`, `--category-id`, `--post-content`, `--post-title`, `--post-status`, `--post-excerpt`, `--post-author`, `--post-date`, `--tags`, `--meta`, `--comment-status`, `--convert-to-blocks`, `--server` |
 | `list` | `--type`, `--status`, `--limit`, `-s/--search`, `--server` |
 | `find` | `--type`, `--server` |
 | `category` | Subcommands: `list`, `search`, `set`, `add`, `remove` with `--category`, `--category-id` |
 | `media` | `--post-id`, `--title`, `--caption`, `--alt`, `--desc`, `--server` |
+| `plugin list` | `--status`, `--server` |
+| `plugin update` | `[PLUGIN]` (default: all), `--server` |
+| `plugin activate` | `PLUGIN`, `--server` |
+| `plugin deactivate` | `PLUGIN`, `--server` |
 | `ai generate` | `--title`, `--status`, `--type`, `--category`, `--category-id`, `--author`, `--excerpt`, `--date`, `--tags`, `--meta`, `--comment-status`, `--auto-publish`, `--verbose`, `--server` |
 | `mcp run` | `-t/--transport`, `--host`, `--port`, `-s/--server` |
 | `mcp install` | `-n/--name`, `-s/--server` |
