@@ -45,7 +45,7 @@ def flush_cache(ctx, cache_type, server, json_output):
 
         if not server_config:
             error_msg = f"Server '{server}' not found in configuration"
-            if json_output or ctx.obj.get('json_output'):
+            if json_output or (ctx.obj and (ctx.obj and ctx.obj.get('json_output')):
                 response = AIFormatter.error_response(error_msg, "cache flush", "NOT_FOUND")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -60,7 +60,7 @@ def flush_cache(ctx, cache_type, server, json_output):
 
         if not success:
             error_msg = "Failed to flush cache"
-            if json_output or ctx.obj.get('json_output'):
+            if json_output or (ctx.obj and (ctx.obj and ctx.obj.get('json_output')):
                 response = AIFormatter.error_response(error_msg, "cache flush", "CACHE_FLUSH_ERROR")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -68,7 +68,7 @@ def flush_cache(ctx, cache_type, server, json_output):
             return
 
         # Output results
-        if json_output or ctx.obj.get('json_output'):
+        if json_output or (ctx.obj and ctx.obj.get('json_output'):
             response = AIFormatter.create_response(
                 {"flushed": True, "type": cache_type or "all"},
                 "cache flush",
@@ -81,7 +81,7 @@ def flush_cache(ctx, cache_type, server, json_output):
 
     except Exception as e:
         error_msg = str(e)
-        if json_output or ctx.obj.get('json_output'):
+        if json_output or (ctx.obj and ctx.obj.get('json_output'):
             response = AIFormatter.error_response(error_msg, "cache flush", "CONNECTION_ERROR")
             click.echo(AIFormatter.format_output(response))
         else:
@@ -115,7 +115,7 @@ def add_cache(ctx, key, value, group, expire, server, json_output):
 
         if not server_config:
             error_msg = f"Server '{server}' not found in configuration"
-            if json_output or ctx.obj.get('json_output'):
+            if json_output or (ctx.obj and ctx.obj.get('json_output'):
                 response = AIFormatter.error_response(error_msg, "cache add", "NOT_FOUND")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -130,7 +130,7 @@ def add_cache(ctx, key, value, group, expire, server, json_output):
 
         if not success:
             error_msg = "Failed to add cache item"
-            if json_output or ctx.obj.get('json_output'):
+            if json_output or (ctx.obj and ctx.obj.get('json_output'):
                 response = AIFormatter.error_response(error_msg, "cache add", "CACHE_ADD_ERROR")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -138,7 +138,7 @@ def add_cache(ctx, key, value, group, expire, server, json_output):
             return
 
         # Output results
-        if json_output or ctx.obj.get('json_output'):
+        if json_output or (ctx.obj and ctx.obj.get('json_output'):
             response = AIFormatter.create_response(
                 {"key": key, "group": group, "expire": expire},
                 "cache add",
@@ -154,7 +154,7 @@ def add_cache(ctx, key, value, group, expire, server, json_output):
 
     except Exception as e:
         error_msg = str(e)
-        if json_output or ctx.obj.get('json_output'):
+        if json_output or (ctx.obj and ctx.obj.get('json_output'):
             response = AIFormatter.error_response(error_msg, "cache add", "CONNECTION_ERROR")
             click.echo(AIFormatter.format_output(response))
         else:
@@ -186,7 +186,7 @@ def get_cache(ctx, key, group, server, json_output):
 
         if not server_config:
             error_msg = f"Server '{server}' not found in configuration"
-            if json_output or ctx.obj.get('json_output'):
+            if json_output or (ctx.obj and ctx.obj.get('json_output'):
                 response = AIFormatter.error_response(error_msg, "cache get", "NOT_FOUND")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -201,7 +201,7 @@ def get_cache(ctx, key, group, server, json_output):
 
         if value is None:
             error_msg = f"Cache item '{key}' not found"
-            if json_output or ctx.obj.get('json_output'):
+            if json_output or (ctx.obj and ctx.obj.get('json_output'):
                 response = AIFormatter.error_response(error_msg, "cache get", "NOT_FOUND")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -209,7 +209,7 @@ def get_cache(ctx, key, group, server, json_output):
             return
 
         # Output results
-        if json_output or ctx.obj.get('json_output'):
+        if json_output or (ctx.obj and ctx.obj.get('json_output'):
             response = AIFormatter.create_response(
                 {"key": key, "value": value, "group": group},
                 "cache get",
@@ -230,7 +230,7 @@ def get_cache(ctx, key, group, server, json_output):
 
     except Exception as e:
         error_msg = str(e)
-        if json_output or ctx.obj.get('json_output'):
+        if json_output or (ctx.obj and ctx.obj.get('json_output'):
             response = AIFormatter.error_response(error_msg, "cache get", "CONNECTION_ERROR")
             click.echo(AIFormatter.format_output(response))
         else:
@@ -262,7 +262,7 @@ def delete_cache(ctx, key, group, server, json_output):
 
         if not server_config:
             error_msg = f"Server '{server}' not found in configuration"
-            if json_output or ctx.obj.get('json_output'):
+            if json_output or (ctx.obj and ctx.obj.get('json_output'):
                 response = AIFormatter.error_response(error_msg, "cache delete", "NOT_FOUND")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -277,7 +277,7 @@ def delete_cache(ctx, key, group, server, json_output):
 
         if not success:
             error_msg = "Failed to delete cache item"
-            if json_output or ctx.obj.get('json_output'):
+            if json_output or (ctx.obj and ctx.obj.get('json_output'):
                 response = AIFormatter.error_response(error_msg, "cache delete", "CACHE_DELETE_ERROR")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -285,7 +285,7 @@ def delete_cache(ctx, key, group, server, json_output):
             return
 
         # Output results
-        if json_output or ctx.obj.get('json_output'):
+        if json_output or (ctx.obj and ctx.obj.get('json_output'):
             response = AIFormatter.create_response(
                 {"key": key, "group": group, "deleted": True},
                 "cache delete",
@@ -298,7 +298,7 @@ def delete_cache(ctx, key, group, server, json_output):
 
     except Exception as e:
         error_msg = str(e)
-        if json_output or ctx.obj.get('json_output'):
+        if json_output or (ctx.obj and ctx.obj.get('json_output'):
             response = AIFormatter.error_response(error_msg, "cache delete", "CONNECTION_ERROR")
             click.echo(AIFormatter.format_output(response))
         else:
@@ -329,7 +329,7 @@ def list_cache(ctx, group, server, json_output):
 
         if not server_config:
             error_msg = f"Server '{server}' not found in configuration"
-            if json_output or ctx.obj.get('json_output'):
+            if json_output or (ctx.obj and ctx.obj.get('json_output'):
                 response = AIFormatter.error_response(error_msg, "cache list", "NOT_FOUND")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -344,7 +344,7 @@ def list_cache(ctx, group, server, json_output):
 
         if "error" in result:
             error_msg = result["error"]
-            if json_output or ctx.obj.get('json_output'):
+            if json_output or (ctx.obj and ctx.obj.get('json_output'):
                 response = AIFormatter.error_response(error_msg, "cache list", "CACHE_LIST_ERROR")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -352,7 +352,7 @@ def list_cache(ctx, group, server, json_output):
             return
 
         # Output results
-        if json_output or ctx.obj.get('json_output'):
+        if json_output or (ctx.obj and ctx.obj.get('json_output'):
             response = AIFormatter.create_response(result, "cache list", "cache list")
             click.echo(AIFormatter.format_output(response))
         else:
@@ -379,7 +379,7 @@ def list_cache(ctx, group, server, json_output):
 
     except Exception as e:
         error_msg = str(e)
-        if json_output or ctx.obj.get('json_output'):
+        if json_output or (ctx.obj and ctx.obj.get('json_output'):
             response = AIFormatter.error_response(error_msg, "cache list", "CONNECTION_ERROR")
             click.echo(AIFormatter.format_output(response))
         else:
