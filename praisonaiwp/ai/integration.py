@@ -399,7 +399,6 @@ class PraisonAIWPIntegration:
 
     def analyze_content(self, title: str, content: str) -> Dict[str, Any]:
         """Analyze content quality"""
-        prompt = f"Analyze content quality:\nTitle: {title}\n\n{content}"
         # Generate analysis result (simplified implementation)
         return {
             'scores': {'seo': 80, 'readability': 75, 'engagement': 85, 'overall': 80},
