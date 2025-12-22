@@ -49,32 +49,32 @@ except ImportError:
 
 @click.group()
 @click.option('--version', is_flag=True, help='Show version and exit.')
-@click.option('--ai', 'ai_mode', is_flag=True, help='Enable AI-friendly JSON output for machine parsing')
+@click.option('--json', 'json_output', is_flag=True, help='Output in JSON format for scripting and automation')
 @click.pass_context
-def cli(ctx, version, ai_mode):
+def cli(ctx, version, json_output):
     """
     PraisonAIWP - AI-powered WordPress content management
 
     Simple, powerful WordPress automation via WP-CLI over SSH.
 
     \b
-    AI-FRIENDLY USAGE:
-    ------------------
-    Use --ai flag for machine-readable JSON output:
-    praisonaiwp --ai create "Post Title" --content "<p>Content</p>"
+    CONTENT FORMAT:
+    ---------------
+    Content should be HTML. By default, it auto-converts to Gutenberg blocks.
+    Use --no-block-conversion to send raw Gutenberg block markup directly.
+
+    \b
+    AUTOMATION & SCRIPTING:
+    -----------------------
+    For scripting and automation, use --json flag:
+    praisonaiwp --json create "Post Title" --content "<p>Content</p>"
     
-    AI output includes structured data, error codes, and suggestions.
+    JSON output includes structured data and error information for programmatic use.
 
     \b
     PREFERRED CONTENT STRUCTURE:
     ----------------------------
     WordPress-based HTML structure is preferred for best compatibility.
-
-    \b
-    CONTENT FORMAT:
-    ---------------
-    Content should be HTML. By default, it auto-converts to Gutenberg blocks.
-    Use --no-block-conversion to send raw Gutenberg block markup directly.
 
     \b
     GUTENBERG BLOCK FORMAT (use with --no-block-conversion):
@@ -187,10 +187,10 @@ def cli(ctx, version, ai_mode):
         click.echo(__version__)
         return
     
-    # Ensure context object exists and pass AI mode
+    # Ensure context object exists and pass JSON output preference
     if ctx.obj is None:
         ctx.obj = {}
-    ctx.obj['ai_mode'] = ai_mode
+    ctx.obj['json_output'] = json_output
 
 
 # Register commands

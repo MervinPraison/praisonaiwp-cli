@@ -22,9 +22,9 @@ def role_command():
 
 @role_command.command("list")
 @click.option("--server", default=None, help="Server name from config")
-@click.option("--ai", "ai_output", is_flag=True, help="Output in AI-friendly JSON format")
+@click.option("--json", "json_output", is_flag=True, help="Output in JSON format for scripting")
 @click.pass_context
-def list_roles(ctx, server, ai_output):
+def list_roles(ctx, server, json_output):
     """
     List WordPress user roles
 
@@ -41,7 +41,7 @@ def list_roles(ctx, server, ai_output):
 
         if not server_config:
             error_msg = f"Server '{server}' not found in configuration"
-            if ai_output or ctx.obj.get('ai_mode'):
+            if json_output or ctx.obj.get('json_output'):
                 response = AIFormatter.error_response(error_msg, "role list", "NOT_FOUND")
                 click.echo(AIFormatter.format_output(response))
             else:
@@ -55,19 +55,19 @@ def list_roles(ctx, server, ai_output):
         
         if not roles:
             message = "No roles found"
-            if ai_output or ctx.obj.get('ai_mode'):
+            if json_output or ctx.obj.get('json_output'):
                 response = AIFormatter.list_response([], 0, "role list")
                 click.echo(AIFormatter.format_output(response))
             else:
                 console.print(f"[yellow]{message}[/yellow]")
             return
 
-        # AI output
-        if ai_output or ctx.obj.get('ai_mode'):
+        # JSON output for scripting
+        if json_output or ctx.obj.get('json_output'):
             response = AIFormatter.list_response(roles, len(roles), "role list")
             click.echo(AIFormatter.format_output(response))
         else:
-            # Create table
+            # Human-readable table output
             table = Table(title="WordPress User Roles")
             table.add_column("Name", style="cyan", no_wrap=True)
             table.add_column("Display Name", style="green")
@@ -82,7 +82,7 @@ def list_roles(ctx, server, ai_output):
 
     except Exception as e:
         error_msg = str(e)
-        if ai_output or ctx.obj.get('ai_mode'):
+        if json_output or ctx.obj.get('json_output'):
             response = AIFormatter.error_response(error_msg, "role list", "CONNECTION_ERROR")
             click.echo(AIFormatter.format_output(response))
         else:
