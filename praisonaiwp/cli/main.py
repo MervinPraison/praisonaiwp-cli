@@ -12,6 +12,7 @@ from praisonaiwp.cli.commands.media import media_command
 from praisonaiwp.cli.commands.plugin import plugin
 from praisonaiwp.cli.commands.install_wp_cli import install_wp_cli
 from praisonaiwp.cli.commands.find_wordpress import find_wordpress
+from praisonaiwp.cli.commands.user import user_command
 
 # Try to import AI commands (optional)
 try:
@@ -168,6 +169,7 @@ cli.add_command(list_command, name='list')
 cli.add_command(category_command, name='category')
 cli.add_command(media_command, name='media')
 cli.add_command(plugin, name='plugin')
+cli.add_command(user_command, name='user')
 
 # Register AI commands if available
 if AI_COMMANDS_AVAILABLE:
