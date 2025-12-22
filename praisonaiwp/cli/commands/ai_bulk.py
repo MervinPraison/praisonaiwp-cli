@@ -1,7 +1,5 @@
-"""AI Bulk Operations - Perform bulk AI operations on multiple posts"""
-
+"""AI-powered bulk operations for content management commands"""
 import click
-from typing import Dict, Any, List, Optional
 
 from praisonaiwp.ai import AI_AVAILABLE
 from praisonaiwp.core.config import Config
@@ -9,10 +7,8 @@ from praisonaiwp.core.ssh_manager import SSHManager
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.ai_formatter import AIFormatter
 
-
 @click.group()
 def bulk():
-    """AI-powered bulk operations for content management"""
     pass
 
 

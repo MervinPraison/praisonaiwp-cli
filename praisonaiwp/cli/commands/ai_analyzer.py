@@ -1,7 +1,5 @@
-"""AI Performance Analyzer - Analyze content performance and provide insights"""
-
+"""AI-powered content performance analysis and insights commands"""
 import click
-from typing import Dict, Any, List, Optional
 
 from praisonaiwp.ai import AI_AVAILABLE
 from praisonaiwp.core.config import Config

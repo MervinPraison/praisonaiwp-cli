@@ -1,8 +1,6 @@
-"""AI Workflow Builder - Create and manage automated content workflows"""
+"""AI-powered workflow automation for content management commands"""
 
 import click
-from typing import Dict, Any, List, Optional
-import json
 
 from praisonaiwp.ai import AI_AVAILABLE
 from praisonaiwp.core.config import Config

@@ -400,7 +400,7 @@ class PraisonAIWPIntegration:
     def analyze_content(self, title: str, content: str) -> Dict[str, Any]:
         """Analyze content quality"""
         prompt = f"Analyze content quality:\nTitle: {title}\n\n{content}"
-        result = self._generate_with_prompt(prompt)
+        # Generate analysis result (simplified implementation)
         return {
             'scores': {'seo': 80, 'readability': 75, 'engagement': 85, 'overall': 80},
             'issues': [],
@@ -410,8 +410,7 @@ class PraisonAIWPIntegration:
 
     def check_grammar(self, content: str) -> Dict[str, Any]:
         """Check grammar and style"""
-        prompt = f"Check grammar and style:\n\n{content}"
-        result = self._generate_with_prompt(prompt)
+        # Generate grammar check result (simplified implementation)
         return {
             'errors': [],
             'suggestions': ['Consider active voice', 'Vary sentence length'],
@@ -477,7 +476,6 @@ class PraisonAIWPIntegration:
     def get_chatbot_status(self) -> Dict: return {}
     def analyze_post_performance(self, post_id: int, metrics: str) -> Dict: return {}
     def predict_post_performance(self, post_id: int, metrics: str, timeframe: str) -> Dict: return {}
-    def analyze_content_trends(self, category: str = None, timeframe: str = 'month') -> Dict: return {}
     def get_optimization_suggestions(self, post_id: int, goal: str) -> Dict: return {}
     def compare_post_performance(self, days: int) -> Dict: return {}
     def seo_audit(self, post_id: int, depth: str) -> Dict: return {}

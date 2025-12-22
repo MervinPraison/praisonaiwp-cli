@@ -1,7 +1,6 @@
-"""AI SEO Auditor - Comprehensive SEO analysis and optimization recommendations"""
+"""AI-powered SEO analysis and optimization commands"""
 
 import click
-from typing import Dict, Any, List, Optional
 
 from praisonaiwp.ai import AI_AVAILABLE
 from praisonaiwp.core.config import Config
