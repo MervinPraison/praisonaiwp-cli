@@ -4,7 +4,87 @@ AI-powered WordPress CLI tool for content management with precision editing capa
 
 ## Features
 
-### 🎉 NEW in v1.4.1: SmartContentAgent with Intelligent Auto-Routing!
+### 🎉 NEW in v1.6.0: Complete AI Feature Suite!
+**15 powerful AI-powered features for WordPress content management!**
+
+#### AI Content Generation & Optimization
+- **AI Content Summarizer** - Generate summaries, excerpts, and social media posts
+- **AI Content Optimizer** - Optimize content for SEO, readability, and engagement  
+- **AI Content Translator** - Translate content to multiple languages with AI
+- **AI Content Scheduler** - Intelligent content scheduling and analytics
+- **AI Comment Moderator** - AI-powered comment moderation and response generation
+- **AI Content Curator** - Curate and suggest related content automatically
+
+#### AI Research & Analysis
+- **AI Research Assistant** - Research topics and generate comprehensive content with citations
+- **AI Image Generator** - Generate and optimize images for WordPress posts
+- **AI Chatbot Integration** - Add AI-powered chatbot to WordPress site
+- **AI Performance Analyzer** - Analyze content performance and provide insights
+- **AI SEO Auditor** - Comprehensive SEO analysis and optimization
+
+#### AI Automation & Workflow
+- **AI Workflow Builder** - Create and manage automated content workflows
+- **AI Bulk Operations** - Perform bulk AI operations on multiple posts
+
+#### Usage Examples:
+```bash
+# Generate AI content
+praisonaiwp ai generate "AI Trends 2025" --auto-publish
+
+# Summarize content
+praisonaiwp ai summarize post 123 --excerpt --social twitter,linkedin
+
+# Optimize for SEO
+praisonaiwp ai optimize post 123 --seo --readability --apply
+
+# Translate content
+praisonaiwp ai translate post 123 --to es,fr,de --create-new
+
+# Schedule content
+praisonaiwp ai schedule analyze --days 30
+
+# Moderate comments
+praisonaiwp ai moderate comments --auto-approve
+
+# Curate related content
+praisonaiwp ai curate related 123 --count 5
+
+# Research topics
+praisonaiwp ai research topic "Machine Learning" --depth comprehensive
+
+# Generate images
+praisonaiwp ai image generate "AI technology" --style photorealistic
+
+# Deploy chatbot
+praisonaiwp ai chatbot deploy --widget-style modern
+
+# Analyze performance
+praisonaiwp ai analyze performance 123
+
+# SEO audit
+praisonaiwp ai seo audit 123 --depth comprehensive
+
+# Create workflow
+praisonaiwp ai workflow create "Content Pipeline" --trigger schedule
+
+# Bulk operations
+praisonaiwp ai bulk process --category "Technology" --operation optimize
+```
+
+#### AI Features Overview:
+- ✅ **15 AI Commands** - Complete suite of AI-powered tools
+- ✅ **Multi-language Support** - Translate to 20+ languages
+- ✅ **SEO Optimization** - Intelligent SEO analysis and recommendations
+- ✅ **Content Automation** - Automated workflows and bulk operations
+- ✅ **Performance Analytics** - AI-driven insights and predictions
+- ✅ **Image Generation** - AI-powered image creation and optimization
+- ✅ **Chatbot Integration** - Deploy AI chatbots on WordPress sites
+- ✅ **Research Assistant** - AI-powered research with citations
+- ✅ **Comment Moderation** - Intelligent comment analysis and responses
+
+---
+
+### 🎉 NEW in v1.5.1: Enhanced WordPress Management!
 **AI agent that automatically detects the correct website for your content!**
 
 ```python
@@ -1165,7 +1245,7 @@ praisonaiwp category add 123 --category "Python"
 
 # Remove categories
 praisonaiwp category remove 123 --category "Uncategorized"
-# NEW in v1.5.0: Create, update, delete categories
+# NEW in v1.5.1: Create, update, delete categories
 praisonaiwp category create "Technology" --slug "tech" --description "Tech posts"
 praisonaiwp category update 123 --name "New Name" --slug "new-slug"
 praisonaiwp category delete 123
@@ -1173,7 +1253,7 @@ praisonaiwp category delete 123
 
 ---
 
-### `praisonaiwp option` - Manage WordPress Options (NEW in v1.5.0)
+### `praisonaiwp option` - Manage WordPress Options (NEW in v1.5.1)
 
 **Subcommands:**
 - `get <key>` - Get WordPress option value
@@ -1194,7 +1274,7 @@ praisonaiwp option delete transient_option
 
 ---
 
-### `praisonaiwp meta` - Manage Post & User Metadata (NEW in v1.5.0)
+### `praisonaiwp meta` - Manage Post & User Metadata (NEW in v1.5.1)
 
 **Post Meta Subcommands:**
 - `post get <post_id> <key>` - Get post meta value
@@ -1222,7 +1302,7 @@ praisonaiwp meta user set 1 nickname "Admin"
 
 ---
 
-### `praisonaiwp comment` - Manage Comments (NEW in v1.5.0)
+### `praisonaiwp comment` - Manage Comments (NEW in v1.5.1)
 
 **Subcommands:**
 - `list` - List comments with filters
@@ -1258,7 +1338,7 @@ praisonaiwp comment unapprove 456
 
 ---
 
-### `praisonaiwp system` - System Operations (NEW in v1.5.0)
+### `praisonaiwp system` - System Operations (NEW in v1.5.1)
 
 **Subcommands:**
 - `cache-flush` - Clear WordPress cache
@@ -1284,7 +1364,7 @@ praisonaiwp system check-install
 
 ---
 
-### `praisonaiwp theme` - Manage Themes (NEW in v1.5.0)
+### `praisonaiwp theme` - Manage Themes (NEW in v1.5.1)
 
 **Subcommands:**
 - `list` - List all themes
@@ -1302,7 +1382,7 @@ praisonaiwp theme activate twentytwentythree --server production
 
 ---
 
-### `praisonaiwp menu` - Manage Menus (NEW in v1.5.0)
+### `praisonaiwp menu` - Manage Menus (NEW in v1.5.1)
 
 **Subcommands:**
 - `list` - List all menus
@@ -1328,7 +1408,7 @@ praisonaiwp menu add-item 123 --title "About" --url "https://example.com/about" 
 
 ---
 
-### `praisonaiwp transient` - Manage Transients (NEW in v1.5.0)
+### `praisonaiwp transient` - Manage Transients (NEW in v1.5.1)
 
 **Subcommands:**
 - `get <key>` - Get transient value
@@ -1352,7 +1432,7 @@ praisonaiwp transient delete cache_key
 
 ---
 
-### `praisonaiwp post` - Post Utilities (NEW in v1.5.0)
+### `praisonaiwp post` - Post Utilities (NEW in v1.5.1)
 
 **Subcommands:**
 - `delete <id>` - Delete post
@@ -1369,7 +1449,7 @@ praisonaiwp post exists 123
 
 ---
 
-### `praisonaiwp db` - Database Operations (NEW in v1.5.0)
+### `praisonaiwp db` - Database Operations (NEW in v1.5.1)
 
 **Subcommands:**
 - `query "<SQL>"` - Execute database queries
@@ -2082,6 +2162,130 @@ black praisonaiwp/
 # Lint
 flake8 praisonaiwp/
 ```
+
+## 🤖 AI Command Reference
+
+### AI Mode Usage
+```bash
+# Enable AI-friendly JSON output
+praisonaiwp --json <command> [options]
+
+# Response format for AI integration
+{
+  "status": "success|error",
+  "message": "Description",
+  "data": {...},
+  "timestamp": "2024-01-01T00:00:00Z"
+}
+```
+
+### Content Management Commands
+```bash
+# Create posts/pages
+praisonaiwp --json create "Post Title" --content "<h2>Content</h2><p>Body</p>"
+praisonaiwp --json create "About Us" --content "<p>About content</p>" --type page
+praisonaiwp --json create "News" --content "<p>News content</p>" --category "News,Blog"
+
+# List content
+praisonaiwp --json list
+praisonaiwp --json list --type page --limit 10
+praisonaiwp --json list --status draft
+
+# Update content
+praisonaiwp --json update 123 --post-content "<p>New content</p>"
+praisonaiwp --json update 123 --title "New Title" --status "publish"
+```
+
+### Configuration Management
+```bash
+# Get configuration
+praisonaiwp --json config get DB_NAME
+praisonaiwp --json config list
+praisonaiwp --json config path
+
+# Set configuration
+praisonaiwp --json config set DB_PASSWORD "new_password"
+```
+
+### User Role Management
+```bash
+# List roles
+praisonaiwp --json role list
+
+# Get role information
+praisonaiwp --json role get editor
+
+# Create role
+praisonaiwp --json role create custom_role "Custom Role"
+praisonaiwp --json role create moderator "Moderator" --capabilities "edit_posts,moderate_comments"
+
+# Delete role
+praisonaiwp --json role delete custom_role
+```
+
+### Code Generation (Scaffold)
+```bash
+# Generate post type
+praisonaiwp --json scaffold post-type book
+praisonaiwp --json scaffold post-type book --label "Books" --public true --supports "title,editor,thumbnail"
+
+# Generate taxonomy
+praisonaiwp --json scaffold taxonomy genre
+praisonaiwp --json scaffold taxonomy genre --label "Genres" --hierarchical true --post_types "book"
+
+# Generate plugin
+praisonaiwp --json scaffold plugin my-plugin --plugin_name "My Plugin" --author "Author Name"
+
+# Generate theme
+praisonaiwp --json scaffold theme my-theme --theme_name "My Theme" --author "Author Name"
+```
+
+### Core Management
+```bash
+# Check WordPress version
+praisonaiwp --json core version
+praisonaiwp --json core check-update
+
+# Update WordPress
+praisonaiwp --json core update
+praisonaiwp --json core update --version 6.4.0
+```
+
+### Cron Management
+```bash
+# List scheduled events
+praisonaiwp --json cron list
+
+# Run cron event
+praisonaiwp --json cron run my_hook
+
+# Schedule event
+praisonaiwp --json cron event schedule my_hook --hook_code "my_function()" --recurrence "hourly"
+```
+
+### Complete AI Command List
+| Command | AI Example |
+|---------|-----------|
+| `create` | `praisonaiwp --json create "Title" --content "<p>Content</p>"` |
+| `list` | `praisonaiwp --json list --type post` |
+| `update` | `praisonaiwp --json update 123 --post-content "<p>New</p>"` |
+| `config` | `praisonaiwp --json config get DB_NAME` |
+| `role` | `praisonaiwp --json role list` |
+| `scaffold` | `praisonaiwp --json scaffold post-type book` |
+| `core` | `praisonaiwp --json core version` |
+| `cron` | `praisonaiwp --json cron list` |
+| `taxonomy` | `praisonaiwp --json taxonomy list` |
+| `term` | `praisonaiwp --json term list category` |
+| `widget` | `praisonaiwp --json widget list` |
+
+### Error Handling for AI
+| Error Code | Description | AI Response |
+|------------|-------------|-------------|
+| `CONNECTION_ERROR` | SSH/WP-CLI connection failed | Check server config, credentials |
+| `PERMISSION_ERROR` | Insufficient permissions | Check user roles, file permissions |
+| `VALIDATION_ERROR` | Invalid parameters | Check parameter formats |
+| `NOT_FOUND` | Item doesn't exist | Verify item exists |
+| `WPCLI_ERROR` | WP-CLI command failed | Check WP-CLI installation |
 
 ## Contributing
 

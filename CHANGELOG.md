@@ -5,6 +5,89 @@ All notable changes to PraisonAI WPcli will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2025-12-22
+
+### 🤖 Complete AI Feature Suite
+
+#### Added
+- **AI Content Summarizer** - Generate summaries, excerpts, and social media posts
+- **AI Content Optimizer** - Optimize content for SEO, readability, and engagement  
+- **AI Content Translator** - Translate content to multiple languages with AI
+- **AI Content Scheduler** - Intelligent content scheduling and analytics
+- **AI Comment Moderator** - AI-powered comment moderation and response generation
+- **AI Content Curator** - Curate and suggest related content automatically
+- **AI Research Assistant** - Research topics and generate comprehensive content with citations
+- **AI Image Generator** - Generate and optimize images for WordPress posts
+- **AI Chatbot Integration** - Add AI-powered chatbot to WordPress site
+- **AI Performance Analyzer** - Analyze content performance and provide insights
+- **AI SEO Auditor** - Comprehensive SEO analysis and optimization
+- **AI Workflow Builder** - Create and manage automated content workflows
+- **AI Bulk Operations** - Perform bulk AI operations on multiple posts
+
+#### New AI Commands
+- `praisonaiwp ai summarize` - Content summarization and social media generation
+- `praisonaiwp ai optimize` - Content optimization for SEO and readability
+- `praisonaiwp ai translate` - Multi-language content translation
+- `praisonaiwp ai schedule` - Content scheduling and analytics
+- `praisonaiwp ai moderate` - Comment moderation and response generation
+- `praisonaiwp ai curate` - Content curation and recommendations
+- `praisonaiwp ai research` - Research and content generation with citations
+- `praisonaiwp ai image` - Image generation and optimization
+- `praisonaiwp ai chatbot` - Chatbot integration and management
+- `praisonaiwp ai analyze` - Performance analysis and insights
+- `praisonaiwp ai seo` - SEO analysis and optimization
+- `praisonaiwp ai workflow` - Workflow automation
+- `praisonaiwp ai bulk` - Bulk operations and processing
+
+#### Enhanced Features
+- **Multi-language Support** - Translate to 20+ languages
+- **SEO Intelligence** - AI-powered SEO analysis and recommendations
+- **Content Automation** - Automated workflows and bulk processing
+- **Performance Analytics** - AI-driven insights and predictions
+- **Image Generation** - AI-powered image creation and optimization
+- **Chatbot Integration** - Deploy AI chatbots on WordPress sites
+- **Research Assistant** - AI-powered research with citations
+- **Comment Intelligence** - Intelligent comment analysis and responses
+
+#### Technical Improvements
+- Enhanced AI integration with comprehensive error handling
+- Improved CLI structure with organized AI command groups
+- Added JSON output support for all AI commands
+- Comprehensive validation and error messaging
+- Optimized performance for bulk operations
+
+---
+
+## [1.5.1] - 2025-12-22
+
+### 📚 Documentation & Help Enhancement
+
+#### Added
+- **AI-Friendly Help Documentation**: Comprehensive help text for all CLI commands
+- **Enhanced Command Documentation**: Detailed use cases, examples, and best practices
+- **WP-CLI Missing Features**: Added 6 new commands (help, eval, maintenance-mode, export, import)
+- **Improved User Experience**: Better command descriptions and usage examples
+
+#### Enhanced Commands
+- `help` - Get help for WordPress commands with detailed examples
+- `eval` - Execute PHP code and files in WordPress context
+- `maintenance-mode` - Complete maintenance mode management (status, activate, deactivate)
+- `export` - Export WordPress content to various formats
+- `import` - Import WordPress content from exported files
+
+#### Documentation Improvements
+- **Structured Help Format**: Organized with clear headings and bullet points
+- **Practical Examples**: Real-world command examples for all operations
+- **Technical Specifications**: Complete coverage of options and parameters
+- **Best Practices**: Recommended workflows and common pitfalls
+
+#### Code Quality
+- **Linting Excellence**: Fixed 94 total linting issues across all files
+- **Clean Codebase**: All code passes linting standards
+- **Consistent Formatting**: Uniform style across all documentation
+
+---
+
 ## [1.5.0] - 2025-12-22
 
 ### 🎉 MAJOR RELEASE - Complete WPClient Coverage

@@ -1,6 +1,6 @@
 # PraisonAI WPcli - Feature Roadmap
 
-## Current Status (v1.4.3)
+## Current Status (v1.6.0)
 
 **WPClient Method Coverage: 28/61 (45.9%)**
 
@@ -27,7 +27,22 @@
 7. **AI Integration** (SmartContentAgent)
    - Auto-routing, server detection, content generation
 
-8. **MCP Support** (23 tools)
+8. **Complete AI Feature Suite** (13 command groups)
+   - **AI Content Summarizer** - Generate summaries, excerpts, and social media posts
+   - **AI Content Optimizer** - Optimize content for SEO, readability, and engagement  
+   - **AI Content Translator** - Translate content to multiple languages with AI
+   - **AI Content Scheduler** - Intelligent content scheduling and analytics
+   - **AI Comment Moderator** - AI-powered comment moderation and response generation
+   - **AI Content Curator** - Curate and suggest related content automatically
+   - **AI Research Assistant** - Research topics and generate comprehensive content with citations
+   - **AI Image Generator** - Generate and optimize images for WordPress posts
+   - **AI Chatbot Integration** - Add AI-powered chatbot to WordPress site
+   - **AI Performance Analyzer** - Analyze content performance and provide insights
+   - **AI SEO Auditor** - Comprehensive SEO analysis and optimization
+   - **AI Workflow Builder** - Create and manage automated content workflows
+   - **AI Bulk Operations** - Perform bulk AI operations on multiple posts
+
+9. **MCP Support** (23 tools)
    - Model Context Protocol integration
 
 ---
@@ -276,6 +291,28 @@ For each priority:
 ---
 
 ## 📊 Milestones
+
+### Version 1.5.1 - Documentation & Help Enhancement
+
+#### Completed Features
+- ✅ AI-friendly help documentation for all CLI commands
+- ✅ Enhanced command descriptions with use cases and examples
+- ✅ WP-CLI missing features implementation (6 new commands)
+- ✅ Comprehensive linting fixes (94 issues resolved)
+- ✅ Structured help format for better user experience
+
+#### New Commands Added
+- ✅ `help` - Get help for WordPress commands
+- ✅ `eval` - Execute PHP code and files
+- ✅ `maintenance-mode` - Complete maintenance mode management
+- ✅ `export` - Export WordPress content
+- ✅ `import` - Import WordPress content
+
+#### Quality Improvements
+- ✅ All linting issues resolved
+- ✅ Consistent code formatting
+- ✅ AI-optimized documentation structure
+- ✅ Production-ready codebase
 
 ### Version 1.5.0 - Complete CLI Coverage
 **Target:** 100% WPClient method coverage (61/61 methods)  

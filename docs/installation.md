@@ -24,7 +24,7 @@ Follow these steps to install and set up PraisonAIWP on your system.
 pip install praisonaiwp
 
 # Or install a specific version
-pip install praisonaiwp==1.5.0
+pip install praisonaiwp==1.5.1
 ```
 
 ### Method 2: Install from Source
@@ -60,7 +60,7 @@ pipx install praisonaiwp
 # Check if praisonaiwp is installed
 praisonaiwp --version
 
-# Should output: PraisonAIWP v1.5.0
+# Should output: PraisonAIWP v1.5.1
 ```
 
 ### 2. Initialize Configuration

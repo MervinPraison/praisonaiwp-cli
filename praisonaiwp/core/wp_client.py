@@ -3559,7 +3559,7 @@ class WPClient:
         try:
             cmd = f"comment approve {comment_id}"
             self._execute_wp(cmd)
-            
+
             logger.info(f"Comment '{comment_id}' approved successfully")
             return True
         except WPCLIError as e:
@@ -3579,7 +3579,7 @@ class WPClient:
         try:
             cmd = f"comment unapprove {comment_id}"
             self._execute_wp(cmd)
-            
+
             logger.info(f"Comment '{comment_id}' unapproved successfully")
             return True
         except WPCLIError as e:
@@ -3599,7 +3599,7 @@ class WPClient:
         try:
             cmd = f"comment spam {comment_id}"
             self._execute_wp(cmd)
-            
+
             logger.info(f"Comment '{comment_id}' marked as spam successfully")
             return True
         except WPCLIError as e:
@@ -3619,7 +3619,7 @@ class WPClient:
         try:
             cmd = f"comment trash {comment_id}"
             self._execute_wp(cmd)
-            
+
             logger.info(f"Comment '{comment_id}' moved to trash successfully")
             return True
         except WPCLIError as e:
@@ -3647,14 +3647,14 @@ class WPClient:
                 cmd_parts.extend(["--caption", caption])
             if alt_text:
                 cmd_parts.extend(["--alt", alt_text])
-            
+
             cmd = " ".join(cmd_parts)
             result = self._execute_wp(cmd)
-            
+
             # Parse the result to get media info
             import json
             media_info = json.loads(result)
-            
+
             logger.info(f"Media uploaded successfully: {media_info.get('url', 'Unknown')}")
             return media_info
         except WPCLIError as e:
@@ -3674,7 +3674,7 @@ class WPClient:
         try:
             cmd = f"media delete {media_id} --yes"
             self._execute_wp(cmd)
-            
+
             logger.info(f"Media '{media_id}' deleted successfully")
             return True
         except WPCLIError as e:
@@ -3696,10 +3696,10 @@ class WPClient:
             cmd_parts = ["db", "export", file_path]
             if tables:
                 cmd_parts.extend(["--tables", tables])
-            
+
             cmd = " ".join(cmd_parts)
             self._execute_wp(cmd)
-            
+
             logger.info(f"Database exported successfully to: {file_path}")
             return True
         except WPCLIError as e:
@@ -3719,9 +3719,158 @@ class WPClient:
         try:
             cmd = f"db import {file_path}"
             self._execute_wp(cmd)
-            
+
             logger.info(f"Database imported successfully from: {file_path}")
             return True
         except WPCLIError as e:
             logger.error(f"Failed to import database: {e}")
+            return False
+
+    def get_help(self, command: str = None) -> Optional[str]:
+        """
+        Get help for WordPress commands
+
+        Args:
+            command: Specific command to get help for (optional)
+
+        Returns:
+            Help text or None if failed
+        """
+        try:
+            if command:
+                cmd = f"{command} --help"
+            else:
+                cmd = "--help"
+            result = self._execute_wp(cmd)
+            return result.strip()
+        except WPCLIError as e:
+            logger.error(f"Failed to get help: {e}")
+            return None
+
+    def eval_code(self, php_code: str) -> Optional[str]:
+        """
+        Execute PHP code in WordPress context
+
+        Args:
+            php_code: PHP code to execute
+
+        Returns:
+            Output or None if failed
+        """
+        try:
+            # Escape the PHP code properly
+            escaped_code = php_code.replace("'", "'\\''")
+            cmd = f"eval '{escaped_code}'"
+            result = self._execute_wp(cmd)
+            return result.strip()
+        except WPCLIError as e:
+            logger.error(f"Failed to eval code: {e}")
+            return None
+
+    def eval_file(self, file_path: str) -> Optional[str]:
+        """
+        Execute PHP file in WordPress context
+
+        Args:
+            file_path: Path to PHP file
+
+        Returns:
+            Output or None if failed
+        """
+        try:
+            cmd = f"eval-file {file_path}"
+            result = self._execute_wp(cmd)
+            return result.strip()
+        except WPCLIError as e:
+            logger.error(f"Failed to eval file: {e}")
+            return None
+
+    def maintenance_mode_status(self) -> Optional[bool]:
+        """
+        Check maintenance mode status
+
+        Returns:
+            True if active, False if not active, None if failed
+        """
+        try:
+            cmd = "maintenance-mode status"
+            result = self._execute_wp(cmd)
+            return "active" in result.lower()
+        except WPCLIError as e:
+            logger.error(f"Failed to check maintenance mode: {e}")
+            return None
+
+    def maintenance_mode_activate(self) -> bool:
+        """
+        Activate maintenance mode
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = "maintenance-mode activate"
+            self._execute_wp(cmd)
+            logger.info("Maintenance mode activated successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to activate maintenance mode: {e}")
+            return False
+
+    def maintenance_mode_deactivate(self) -> bool:
+        """
+        Deactivate maintenance mode
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = "maintenance-mode deactivate"
+            self._execute_wp(cmd)
+            logger.info("Maintenance mode deactivated successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to deactivate maintenance mode: {e}")
+            return False
+
+    def export_content(self, args: str = None) -> Optional[str]:
+        """
+        Export WordPress content
+
+        Args:
+            args: Additional export arguments
+
+        Returns:
+            Export result or None if failed
+        """
+        try:
+            cmd = "export"
+            if args:
+                cmd += f" {args}"
+            result = self._execute_wp(cmd)
+            return result.strip()
+        except WPCLIError as e:
+            logger.error(f"Failed to export content: {e}")
+            return None
+
+    def import_content(self, file_path: str, args: str = None) -> bool:
+        """
+        Import WordPress content
+
+        Args:
+            file_path: Path to import file
+            args: Additional import arguments
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["import", file_path]
+            if args:
+                cmd_parts.append(args)
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+            logger.info(f"Content imported successfully from: {file_path}")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to import content: {e}")
             return False

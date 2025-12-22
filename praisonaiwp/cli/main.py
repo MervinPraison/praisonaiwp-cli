@@ -3,6 +3,7 @@
 import click
 
 from praisonaiwp.__version__ import __version__
+from praisonaiwp.cli.commands.backup import backup
 from praisonaiwp.cli.commands.cache import cache_command
 from praisonaiwp.cli.commands.category import category_command
 from praisonaiwp.cli.commands.comment import comment_command
@@ -11,11 +12,15 @@ from praisonaiwp.cli.commands.core import core_command
 from praisonaiwp.cli.commands.create import create_command
 from praisonaiwp.cli.commands.cron import cron_command
 from praisonaiwp.cli.commands.db import db_command
+from praisonaiwp.cli.commands.eval import eval_command
 from praisonaiwp.cli.commands.find import find_command
 from praisonaiwp.cli.commands.find_wordpress import find_wordpress
+from praisonaiwp.cli.commands.help import help_command
+from praisonaiwp.cli.commands.import_export import export_command, import_command
 from praisonaiwp.cli.commands.init import init_command
 from praisonaiwp.cli.commands.install_wp_cli import install_wp_cli
 from praisonaiwp.cli.commands.list import list_command
+from praisonaiwp.cli.commands.maintenance_mode import maintenance_mode
 from praisonaiwp.cli.commands.media import media_command
 from praisonaiwp.cli.commands.menu import menu_command
 from praisonaiwp.cli.commands.meta import meta_command
@@ -40,7 +45,6 @@ from praisonaiwp.cli.commands.transient import transient_command
 from praisonaiwp.cli.commands.update import update_command
 from praisonaiwp.cli.commands.user import user_command
 from praisonaiwp.cli.commands.widget import widget_command
-from praisonaiwp.cli.commands.backup import backup
 
 # Try to import AI commands (optional)
 try:
@@ -57,11 +61,11 @@ except ImportError:
     MCP_COMMANDS_AVAILABLE = False
 
 
-@click.group()
-@click.option('--version', is_flag=True, help='Show version and exit.')
+@click.group(context_settings={'help_option_names': ['-h', '--help']})
+@click.version_option(__version__, '--version', message='PraisonAIWP v%(version)s')
 @click.option('--json', 'json_output', is_flag=True, help='Output in JSON format for scripting and automation')
 @click.pass_context
-def cli(ctx, version, json_output):
+def cli(ctx, json_output):
     """
     PraisonAIWP - AI-powered WordPress content management
 
@@ -193,9 +197,6 @@ def cli(ctx, version, json_output):
         # List posts
         praisonaiwp list --type page
     """
-    if version:
-        click.echo(__version__)
-        return
 
     # Ensure context object exists and pass JSON output preference
     if ctx.obj is None:
@@ -242,6 +243,11 @@ cli.add_command(network_command, name='network')
 cli.add_command(super_admin_command, name='super-admin')
 cli.add_command(server_command, name='server')
 cli.add_command(backup, name='backup')
+cli.add_command(help_command, name='help')
+cli.add_command(eval_command, name='eval')
+cli.add_command(maintenance_mode, name='maintenance-mode')
+cli.add_command(export_command, name='export')
+cli.add_command(import_command, name='import')
 
 # Register AI commands if available
 if AI_COMMANDS_AVAILABLE:

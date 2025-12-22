@@ -5,6 +5,21 @@ from praisonaiwp.ai import AI_AVAILABLE
 from praisonaiwp.core.config import Config
 from praisonaiwp.core.ssh_manager import SSHManager
 
+# Import all AI command modules
+from praisonaiwp.cli.commands.ai_summarizer import summarize
+from praisonaiwp.cli.commands.ai_optimizer import optimize
+from praisonaiwp.cli.commands.ai_translator import translate
+from praisonaiwp.cli.commands.ai_scheduler import schedule
+from praisonaiwp.cli.commands.ai_moderator import moderate
+from praisonaiwp.cli.commands.ai_curator import curate
+from praisonaiwp.cli.commands.ai_researcher import research
+from praisonaiwp.cli.commands.ai_image import image
+from praisonaiwp.cli.commands.ai_chatbot import chatbot
+from praisonaiwp.cli.commands.ai_analyzer import analyze
+from praisonaiwp.cli.commands.ai_seo import seo
+from praisonaiwp.cli.commands.ai_workflow import workflow
+from praisonaiwp.cli.commands.ai_bulk import bulk
+
 
 @click.group()
 def ai():
@@ -142,3 +157,19 @@ def generate(topic, title, status, post_type, category, category_id, author, exc
             import traceback
             traceback.print_exc()
         raise click.Abort() from e
+
+
+# Add all AI subcommand groups to the main AI command
+ai.add_command(summarize)
+ai.add_command(optimize)
+ai.add_command(translate)
+ai.add_command(schedule)
+ai.add_command(moderate)
+ai.add_command(curate)
+ai.add_command(research)
+ai.add_command(image)
+ai.add_command(chatbot)
+ai.add_command(analyze)
+ai.add_command(seo)
+ai.add_command(workflow)
+ai.add_command(bulk)
