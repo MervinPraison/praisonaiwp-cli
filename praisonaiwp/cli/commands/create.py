@@ -163,7 +163,7 @@ def create_command(title_or_file, content, status, post_type, category, category
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Create command failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 def _create_single_post(title, content, status, post_type, category, category_id, author,
@@ -172,7 +172,7 @@ def _create_single_post(title, content, status, post_type, category, category_id
     
     if not content:
         console.print("[red]Error: --content is required[/red]")
-        raise click.Abort()
+        raise click.Abort() from None
     
     console.print(f"\n[yellow]Creating {post_type}...[/yellow]")
     

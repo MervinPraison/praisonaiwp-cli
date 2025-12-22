@@ -121,7 +121,7 @@ def update_command(post_id, find_text, replace_text, line, nth, preview, categor
             console.print("[red]Error: At least one update operation is required[/red]")
             console.print("Options: find/replace text, --post-content, --post-title, --post-status, --post-excerpt,")
             console.print("         --post-author, --post-date, --tags, --meta, --comment-status, --category")
-            raise click.Abort()
+            raise click.Abort() from None
         
         console.print(f"\n[yellow]Fetching post {post_id}...[/yellow]")
         
@@ -144,7 +144,7 @@ def update_command(post_id, find_text, replace_text, line, nth, preview, categor
                 post_data = wp.get_post(post_id)
             except Exception:
                 console.print(f"[red]Error: Post {post_id} not found[/red]")
-                raise click.Abort()
+                raise click.Abort() from None
             
             # Handle direct field updates first
             update_fields = {}
@@ -259,7 +259,7 @@ def update_command(post_id, find_text, replace_text, line, nth, preview, categor
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Update command failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 def _show_preview(old_content, new_content):

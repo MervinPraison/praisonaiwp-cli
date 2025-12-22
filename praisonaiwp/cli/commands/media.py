@@ -112,7 +112,7 @@ def upload_media(file_path, post_id, title, caption, alt, desc, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Media upload failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @media_command.command('get')
@@ -162,7 +162,7 @@ def get_media(attachment_id, field, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Get media failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @media_command.command('url')
@@ -201,7 +201,7 @@ def get_url(attachment_id, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Get media URL failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @media_command.command('list')
@@ -272,4 +272,4 @@ def list_media(post_id, mime_type, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"List media failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None

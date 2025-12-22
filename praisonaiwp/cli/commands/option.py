@@ -56,7 +56,7 @@ def get_option(option_name, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Get option failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @option_command.command('set')
@@ -99,7 +99,7 @@ def set_option(option_name, value, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Set option failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @option_command.command('delete')
@@ -142,4 +142,4 @@ def delete_option(option_name, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Delete option failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None

@@ -76,7 +76,7 @@ def get_post_meta(post_id, key, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Get post meta failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @meta_command.command('post-set')
@@ -117,7 +117,7 @@ def set_post_meta(post_id, key, value, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Set post meta failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @meta_command.command('post-update')
@@ -158,7 +158,7 @@ def update_post_meta(post_id, key, value, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Update post meta failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @meta_command.command('post-delete')
@@ -198,7 +198,7 @@ def delete_post_meta(post_id, key, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Delete post meta failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 # User Meta Commands
@@ -258,7 +258,7 @@ def get_user_meta(user_id, key, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Get user meta failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @meta_command.command('user-set')
@@ -299,7 +299,7 @@ def set_user_meta(user_id, key, value, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Set user meta failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @meta_command.command('user-update')
@@ -340,7 +340,7 @@ def update_user_meta(user_id, key, value, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Update user meta failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @meta_command.command('user-delete')
@@ -380,4 +380,4 @@ def delete_user_meta(user_id, key, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Delete user meta failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None

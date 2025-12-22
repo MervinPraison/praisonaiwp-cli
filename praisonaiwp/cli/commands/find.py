@@ -67,7 +67,7 @@ def find_command(pattern, post_id, post_type, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Find command failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 def _search_in_post(wp, editor, post_id, pattern):

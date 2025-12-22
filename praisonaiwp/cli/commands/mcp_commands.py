@@ -44,7 +44,7 @@ def run(transport, host, port, server):
         if not MCP_AVAILABLE:
             console.print("[red]Error:[/red] MCP SDK is not installed.")
             console.print("Install it with: [cyan]pip install praisonaiwp[mcp][/cyan]")
-            raise click.Abort()
+            raise click.Abort() from None
 
         # Set server environment variable if specified
         if server:
@@ -122,10 +122,10 @@ def run(transport, host, port, server):
     except ImportError as e:
         console.print(f"[red]Error:[/red] {e}")
         console.print("Install MCP with: [cyan]pip install praisonaiwp[mcp][/cyan]")
-        raise click.Abort()
+        raise click.Abort() from None
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @mcp.command()
@@ -220,7 +220,7 @@ def dev(server):
         if not MCP_AVAILABLE:
             console.print("[red]Error:[/red] MCP SDK is not installed.")
             console.print("Install it with: [cyan]pip install praisonaiwp[mcp][/cyan]")
-            raise click.Abort()
+            raise click.Abort() from None
 
         console.print("[green]Starting MCP development server with inspector...[/green]")
         console.print("Open the inspector at: [cyan]http://localhost:5173[/cyan]")
@@ -236,11 +236,11 @@ def dev(server):
 
     except ImportError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise click.Abort()
+        raise click.Abort() from None
     except FileNotFoundError:
         console.print("[red]Error:[/red] MCP CLI not found.")
         console.print("Install it with: [cyan]pip install 'mcp[cli]'[/cyan]")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @mcp.command()

@@ -82,7 +82,7 @@ def list_users(role, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"List users failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @user_command.command('get')
@@ -121,7 +121,7 @@ def get_user(user_id, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Get user failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @user_command.command('create')
@@ -179,7 +179,7 @@ def create_user(username, email, role, password, first_name, last_name, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Create user failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @user_command.command('update')
@@ -242,7 +242,7 @@ def update_user(user_id, email, role, password, first_name, last_name, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Update user failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @user_command.command('delete')
@@ -286,4 +286,4 @@ def delete_user(user_id, reassign, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Delete user failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None

@@ -101,7 +101,7 @@ def list_comments(post_id, status, limit, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"List comments failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @comment_command.command('get')
@@ -158,7 +158,7 @@ def get_comment(comment_id, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Get comment failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @comment_command.command('create')
@@ -211,7 +211,7 @@ def create_comment(post_id, content, author, email, url, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Create comment failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @comment_command.command('update')
@@ -267,7 +267,7 @@ def update_comment(comment_id, content, author, email, url, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Update comment failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @comment_command.command('delete')
@@ -311,7 +311,7 @@ def delete_comment(comment_id, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Delete comment failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @comment_command.command('approve')
@@ -364,4 +364,4 @@ def approve_comment(comment_id, unapprove, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Approve comment failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None

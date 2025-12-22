@@ -77,7 +77,7 @@ def list_plugins(status, server):
     except Exception as e:
         logger.error(f"Failed to list plugins: {e}")
         click.echo(f"Error: {e}", err=True)
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @plugin.command('update')
@@ -122,7 +122,7 @@ def update_plugin(plugin, server):
     except Exception as e:
         logger.error(f"Failed to update plugin: {e}")
         click.echo(f"Error: {e}", err=True)
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @plugin.command('activate')
@@ -160,7 +160,7 @@ def activate_plugin(plugin, server):
     except Exception as e:
         logger.error(f"Failed to activate plugin: {e}")
         click.echo(f"Error: {e}", err=True)
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @plugin.command('deactivate')
@@ -198,4 +198,4 @@ def deactivate_plugin(plugin, server):
     except Exception as e:
         logger.error(f"Failed to deactivate plugin: {e}")
         click.echo(f"Error: {e}", err=True)
-        raise click.Abort()
+        raise click.Abort() from None

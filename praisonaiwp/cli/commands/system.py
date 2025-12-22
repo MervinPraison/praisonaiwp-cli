@@ -60,7 +60,7 @@ def cache_flush(server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Cache flush failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @system_command.command('cache-type')
@@ -102,7 +102,7 @@ def cache_type(server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Get cache type failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @system_command.command('version')
@@ -159,7 +159,7 @@ def version(detailed, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Get version failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
 
 
 @system_command.command('check-install')
@@ -204,4 +204,4 @@ def check_install(server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Check install failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None

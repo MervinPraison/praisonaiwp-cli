@@ -46,7 +46,7 @@ def generate(topic, title, status, post_type, category, category_id, author, exc
             "Install with: pip install 'praisonaiwp[ai]'",
             fg='red'
         ))
-        raise click.Abort()
+        raise click.Abort() from None
 
     # Load config
     config = Config()
@@ -55,7 +55,7 @@ def generate(topic, title, status, post_type, category, category_id, author, exc
             "Error: Configuration not found. Run 'praisonaiwp init' first.",
             fg='red'
         ))
-        raise click.Abort()
+        raise click.Abort() from None
 
     # Import here to avoid import errors when AI not installed
     from praisonaiwp.ai.integration import PraisonAIWPIntegration

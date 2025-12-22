@@ -97,4 +97,4 @@ def list_command(post_type, status, limit, search, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"List command failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from None
