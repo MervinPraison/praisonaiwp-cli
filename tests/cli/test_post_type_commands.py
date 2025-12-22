@@ -1,10 +1,16 @@
 """Test post-type CLI commands"""
+import importlib.util
 from unittest.mock import Mock, patch
 
 from click.testing import CliRunner
 
-from praisonaiwp.cli.commands.post_type import post_type_command
 from praisonaiwp.utils.exceptions import ConfigNotFoundError
+
+# Import post-type command using importlib
+post_type_spec = importlib.util.spec_from_file_location("post_type", "praisonaiwp/cli/commands/post-type.py")
+post_type_module = importlib.util.module_from_spec(post_type_spec)
+post_type_spec.loader.exec_module(post_type_module)
+post_type_command = post_type_module.post_type_command
 
 
 class TestPostTypeCommands:

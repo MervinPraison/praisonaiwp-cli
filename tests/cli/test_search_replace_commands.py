@@ -1,11 +1,16 @@
 """Test search-replace CLI commands"""
-
+import importlib.util
 from unittest.mock import Mock, patch
 
 from click.testing import CliRunner
 
-from praisonaiwp.cli.commands.search_replace import search_replace_command
 from praisonaiwp.utils.exceptions import ConfigNotFoundError
+
+# Import search-replace command using importlib
+search_replace_spec = importlib.util.spec_from_file_location("search_replace", "praisonaiwp/cli/commands/search-replace.py")
+search_replace_module = importlib.util.module_from_spec(search_replace_spec)
+search_replace_spec.loader.exec_module(search_replace_module)
+search_replace_command = search_replace_module.search_replace_command
 
 
 class TestSearchReplaceCommands:

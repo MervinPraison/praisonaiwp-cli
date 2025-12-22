@@ -1,10 +1,16 @@
 """Test super-admin CLI commands"""
+import importlib.util
 from unittest.mock import Mock, patch
 
 from click.testing import CliRunner
 
-from praisonaiwp.cli.commands.super_admin import super_admin_command
 from praisonaiwp.utils.exceptions import ConfigNotFoundError
+
+# Import super-admin command using importlib
+super_admin_spec = importlib.util.spec_from_file_location("super_admin", "praisonaiwp/cli/commands/super-admin.py")
+super_admin_module = importlib.util.module_from_spec(super_admin_spec)
+super_admin_spec.loader.exec_module(super_admin_module)
+super_admin_command = super_admin_module.super_admin_command
 
 
 class TestSuperAdminCommands:
