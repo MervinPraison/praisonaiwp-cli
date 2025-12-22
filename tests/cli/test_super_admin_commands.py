@@ -1,6 +1,6 @@
 """Test super-admin CLI commands"""
 import importlib.util
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
 
 from click.testing import CliRunner
 
@@ -23,31 +23,32 @@ class TestSuperAdminCommands:
         self.mock_ssh_manager = Mock()
         self.mock_wp_client = Mock()
 
-    @patch('praisonaiwp.cli.commands.super_admin.Config')
-    @patch('praisonaiwp.cli.commands.super_admin.SSHManager')
-    @patch('praisonaiwp.cli.commands.super_admin.WPClient')
-    def test_super_admin_list_basic(self, mock_wp_client_class, mock_ssh_manager_class, mock_config_class):
+    def test_super_admin_list_basic(self):
         """Test basic super-admin list"""
-        # Setup mocks
-        mock_config_class.return_value = self.mock_config
-        self.mock_config.get_default_server.return_value = {
-            'hostname': 'test-server',
-            'wp_path': '/var/www/html'
-        }
-        mock_ssh_manager_class.from_config.return_value = self.mock_ssh_manager
-        mock_wp_client_class.return_value = self.mock_wp_client
-        self.mock_wp_client.super_admin_list.return_value = {
-            "super_admins": [
-                {"user_id": "1", "user_email": "admin@example.com", "user_login": "admin"},
-                {"user_id": "2", "user_email": "super@example.com", "user_login": "super"}
-            ]
-        }
+        with patch.object(super_admin_module, 'Config') as mock_config_class, \
+             patch.object(super_admin_module, 'SSHManager') as mock_ssh_manager_class, \
+             patch.object(super_admin_module, 'WPClient') as mock_wp_client_class:
+            
+            # Setup mocks
+            mock_config_class.return_value = self.mock_config
+            self.mock_config.get_default_server.return_value = {
+                'hostname': 'test-server',
+                'wp_path': '/var/www/html'
+            }
+            mock_ssh_manager_class.from_config.return_value = self.mock_ssh_manager
+            mock_wp_client_class.return_value = self.mock_wp_client
+            self.mock_wp_client.super_admin_list.return_value = {
+                "super_admins": [
+                    {"user_id": "1", "user_email": "admin@example.com", "user_login": "admin"},
+                    {"user_id": "2", "user_email": "super@example.com", "user_login": "super"}
+                ]
+            }
 
-        # Execute command
-        result = self.runner.invoke(super_admin_command, ['list'])
+            # Execute command
+            result = self.runner.invoke(super_admin_command, ['list'])
 
-        # Assertions
-        assert result.exit_code == 0
+            # Assertions
+            assert result.exit_code == 0
         self.mock_wp_client.super_admin_list.assert_called_once_with("table")
         assert "Super Admins" in result.output
         assert "admin@example.com" in result.output
