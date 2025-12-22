@@ -1165,6 +1165,225 @@ praisonaiwp category add 123 --category "Python"
 
 # Remove categories
 praisonaiwp category remove 123 --category "Uncategorized"
+# NEW in v1.5.0: Create, update, delete categories
+praisonaiwp category create "Technology" --slug "tech" --description "Tech posts"
+praisonaiwp category update 123 --name "New Name" --slug "new-slug"
+praisonaiwp category delete 123
+```
+
+---
+
+### `praisonaiwp option` - Manage WordPress Options (NEW in v1.5.0)
+
+**Subcommands:**
+- `get <key>` - Get WordPress option value
+- `set <key> <value>` - Set WordPress option value
+- `delete <key>` - Delete WordPress option
+
+**Examples:**
+```bash
+# Get option value
+praisonaiwp option get blogname
+
+# Set option value
+praisonaiwp option set blogname "My Blog"
+
+# Delete option
+praisonaiwp option delete transient_option
+```
+
+---
+
+### `praisonaiwp meta` - Manage Post & User Metadata (NEW in v1.5.0)
+
+**Post Meta Subcommands:**
+- `post get <post_id> <key>` - Get post meta value
+- `post set <post_id> <key> <value>` - Set post meta value
+- `post update <post_id> <key> <value>` - Update post meta value
+- `post delete <post_id> <key>` - Delete post meta value
+
+**User Meta Subcommands:**
+- `user get <user_id> <key>` - Get user meta value
+- `user set <user_id> <key> <value>` - Set user meta value
+- `user update <user_id> <key> <value>` - Update user meta value
+- `user delete <user_id> <key>` - Delete user meta value
+
+**Examples:**
+```bash
+# Post metadata
+praisonaiwp meta post get 123 views
+praisonaiwp meta post set 123 views 1000
+praisonaiwp meta post delete 123 views
+
+# User metadata
+praisonaiwp meta user get 1 nickname
+praisonaiwp meta user set 1 nickname "Admin"
+```
+
+---
+
+### `praisonaiwp comment` - Manage Comments (NEW in v1.5.0)
+
+**Subcommands:**
+- `list` - List comments with filters
+- `get <id>` - Get comment details
+- `create` - Create new comment
+- `update <id>` - Update existing comment
+- `delete <id>` - Delete comment
+- `approve <id>` - Approve comment
+- `unapprove <id>` - Unapprove comment
+
+**Examples:**
+```bash
+# List comments
+praisonaiwp comment list
+praisonaiwp comment list --post-id 123 --status approve
+
+# Get comment
+praisonaiwp comment get 456
+
+# Create comment
+praisonaiwp comment create 123 "Great post!" --author "John"
+
+# Update comment
+praisonaiwp comment update 456 --content "Updated comment"
+
+# Delete comment
+praisonaiwp comment delete 456
+
+# Approve/unapprove
+praisonaiwp comment approve 456
+praisonaiwp comment unapprove 456
+```
+
+---
+
+### `praisonaiwp system` - System Operations (NEW in v1.5.0)
+
+**Subcommands:**
+- `cache-flush` - Clear WordPress cache
+- `cache-type` - Get cache type
+- `version` - Get WordPress version
+- `check-install` - Check WordPress installation
+
+**Examples:**
+```bash
+# Clear cache
+praisonaiwp system cache-flush
+
+# Get cache type
+praisonaiwp system cache-type
+
+# Get WordPress version
+praisonaiwp system version
+praisonaiwp system version --detailed
+
+# Check installation
+praisonaiwp system check-install
+```
+
+---
+
+### `praisonaiwp theme` - Manage Themes (NEW in v1.5.0)
+
+**Subcommands:**
+- `list` - List all themes
+- `activate <slug>` - Activate theme
+
+**Examples:**
+```bash
+# List themes
+praisonaiwp theme list
+
+# Activate theme
+praisonaiwp theme activate twentytwentythree
+praisonaiwp theme activate twentytwentythree --server production
+```
+
+---
+
+### `praisonaiwp menu` - Manage Menus (NEW in v1.5.0)
+
+**Subcommands:**
+- `list` - List all menus
+- `create <name>` - Create new menu
+- `delete <id>` - Delete menu
+- `add-item <id>` - Add item to menu
+
+**Examples:**
+```bash
+# List menus
+praisonaiwp menu list
+
+# Create menu
+praisonaiwp menu create "Main Menu"
+
+# Delete menu
+praisonaiwp menu delete 123
+
+# Add menu item
+praisonaiwp menu add-item 123 --title "Home" --url "https://example.com"
+praisonaiwp menu add-item 123 --title "About" --url "https://example.com/about" --parent 456 --order 2
+```
+
+---
+
+### `praisonaiwp transient` - Manage Transients (NEW in v1.5.0)
+
+**Subcommands:**
+- `get <key>` - Get transient value
+- `set <key> <value>` - Set transient with expiration
+- `delete <key>` - Delete transient
+
+**Examples:**
+```bash
+# Get transient
+praisonaiwp transient get cache_key
+
+# Set transient (1 hour default)
+praisonaiwp transient set cache_key "cached_data"
+
+# Set with custom expiration
+praisonaiwp transient set cache_key "data" --expire 7200
+
+# Delete transient
+praisonaiwp transient delete cache_key
+```
+
+---
+
+### `praisonaiwp post` - Post Utilities (NEW in v1.5.0)
+
+**Subcommands:**
+- `delete <id>` - Delete post
+- `exists <id>` - Check if post exists
+
+**Examples:**
+```bash
+# Delete post
+praisonaiwp post delete 123
+
+# Check if post exists
+praisonaiwp post exists 123
+```
+
+---
+
+### `praisonaiwp db` - Database Operations (NEW in v1.5.0)
+
+**Subcommands:**
+- `query "<SQL>"` - Execute database queries
+
+**Examples:**
+```bash
+# Simple query
+praisonaiwp db query "SELECT COUNT(*) FROM wp_posts"
+
+# Query with conditions
+praisonaiwp db query "SELECT * FROM wp_posts WHERE post_status = 'publish' LIMIT 5"
+
+# Query on specific server
+praisonaiwp db query "SHOW TABLES" --server production
 ```
 
 ---
