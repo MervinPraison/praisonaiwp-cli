@@ -22,18 +22,18 @@ logger = get_logger(__name__)
 def list_command(post_type, status, limit, search, server):
     """
     List WordPress posts
-    
+
     Examples:
-    
+
         # List all posts
         praisonaiwp list
-        
+
         # List pages
         praisonaiwp list --type page
-        
+
         # List drafts
         praisonaiwp list --status draft
-        
+
         # List with limit
         praisonaiwp list --limit 10
     """

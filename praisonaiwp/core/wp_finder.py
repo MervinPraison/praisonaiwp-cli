@@ -30,7 +30,7 @@ class WordPressFinder:
     def __init__(self, ssh: SSHManager):
         """
         Initialize WordPress Finder
-        
+
         Args:
             ssh: SSH Manager instance
         """
@@ -39,10 +39,10 @@ class WordPressFinder:
     def find_wp_config(self, search_paths: Optional[List[str]] = None) -> List[str]:
         """
         Find wp-config.php files on the server
-        
+
         Args:
             search_paths: Custom paths to search (optional)
-            
+
         Returns:
             List of paths containing wp-config.php
         """
@@ -85,7 +85,7 @@ class WordPressFinder:
     def check_common_paths(self) -> List[str]:
         """
         Check common WordPress installation paths
-        
+
         Returns:
             List of valid WordPress paths
         """
@@ -125,10 +125,10 @@ class WordPressFinder:
     def verify_wordpress(self, path: str) -> Tuple[bool, dict]:
         """
         Verify if path contains a valid WordPress installation
-        
+
         Args:
             path: Path to check
-            
+
         Returns:
             Tuple of (is_valid, info_dict)
         """
@@ -187,10 +187,10 @@ class WordPressFinder:
     def find_all(self, verify: bool = True) -> List[dict]:
         """
         Find all WordPress installations on the server
-        
+
         Args:
             verify: Whether to verify each installation (default: True)
-            
+
         Returns:
             List of WordPress installation info dicts
         """
@@ -226,7 +226,7 @@ class WordPressFinder:
     def find_best(self) -> Optional[str]:
         """
         Find the best WordPress installation (most likely to be the main one)
-        
+
         Returns:
             Path to WordPress installation or None
         """
@@ -267,10 +267,10 @@ class WordPressFinder:
     def interactive_select(self, installations: List[dict]) -> Optional[str]:
         """
         Let user interactively select WordPress installation
-        
+
         Args:
             installations: List of WordPress installations
-            
+
         Returns:
             Selected path or None
         """

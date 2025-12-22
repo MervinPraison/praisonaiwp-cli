@@ -267,7 +267,6 @@ class SmartContentAgent:
                     server_context += f"Relevant topics: {', '.join(tags)}\n"
 
         # Generate content using AI integration
-        prompt = f"Create a blog post about: {topic}{server_context}"
 
         # Use AI integration to generate
         result = self.ai_integration.generate_post(

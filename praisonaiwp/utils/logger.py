@@ -9,11 +9,11 @@ from typing import Optional
 def get_logger(name: str, level: Optional[str] = None) -> logging.Logger:
     """
     Get a configured logger instance
-    
+
     Args:
         name: Logger name (usually __name__)
         level: Log level (DEBUG, INFO, WARNING, ERROR)
-    
+
     Returns:
         Configured logger instance
     """

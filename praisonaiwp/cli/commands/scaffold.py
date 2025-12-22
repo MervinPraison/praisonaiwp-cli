@@ -1,11 +1,12 @@
 """WordPress scaffold commands"""
 
 import click
+from rich.console import Console
+
 from praisonaiwp.core.config import Config
 from praisonaiwp.core.ssh_manager import SSHManager
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
-from rich.console import Console
 
 console = Console()
 logger = get_logger(__name__)

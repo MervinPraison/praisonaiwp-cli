@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 def install_wp_cli(server, install_path, no_sudo, install_deps, php_bin, yes):
     """
     Automatically install WP-CLI on remote server
-    
+
     Detects OS and installs WP-CLI with appropriate method.
     """
     try:

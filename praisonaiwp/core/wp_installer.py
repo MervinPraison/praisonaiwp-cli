@@ -15,7 +15,7 @@ class WPCLIInstaller:
     def __init__(self, ssh: SSHManager):
         """
         Initialize WP-CLI Installer
-        
+
         Args:
             ssh: SSH Manager instance
         """
@@ -26,7 +26,7 @@ class WPCLIInstaller:
     def detect_os(self) -> Tuple[str, str]:
         """
         Detect remote server OS
-        
+
         Returns:
             Tuple of (os_type, os_version)
             os_type: 'ubuntu', 'debian', 'centos', 'rhel', 'fedora', 'alpine', 'macos', 'unknown'
@@ -114,10 +114,10 @@ class WPCLIInstaller:
     def check_wp_cli_installed(self, wp_cli_path: str = '/usr/local/bin/wp') -> bool:
         """
         Check if WP-CLI is already installed
-        
+
         Args:
             wp_cli_path: Path to check for WP-CLI
-            
+
         Returns:
             True if WP-CLI is installed and working
         """
@@ -145,15 +145,15 @@ class WPCLIInstaller:
     ) -> bool:
         """
         Install WP-CLI automatically based on detected OS
-        
+
         Args:
             install_path: Where to install WP-CLI (default: /usr/local/bin/wp)
             use_sudo: Whether to use sudo for installation (default: True)
             php_bin: PHP binary to test with (optional)
-            
+
         Returns:
             True if installation successful
-            
+
         Raises:
             WPCLIError: If installation fails
         """
@@ -231,10 +231,10 @@ class WPCLIInstaller:
     def install_dependencies(self, use_sudo: bool = True) -> bool:
         """
         Install required dependencies (curl/wget, php) based on OS
-        
+
         Args:
             use_sudo: Whether to use sudo (default: True)
-            
+
         Returns:
             True if successful
         """
@@ -306,13 +306,13 @@ class WPCLIInstaller:
     ) -> bool:
         """
         Automatically detect OS and install WP-CLI
-        
+
         Args:
             install_path: Where to install WP-CLI
             use_sudo: Whether to use sudo
             install_deps: Whether to install dependencies (curl, php)
             php_bin: PHP binary to test with
-            
+
         Returns:
             True if successful
         """

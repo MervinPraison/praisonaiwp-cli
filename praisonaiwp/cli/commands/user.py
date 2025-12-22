@@ -27,12 +27,12 @@ def user_command():
 def list_users(role, server):
     """
     List WordPress users
-    
+
     Examples:
-    
+
         # List all users
         praisonaiwp user list
-        
+
         # List administrators only
         praisonaiwp user list --role administrator
     """
@@ -93,9 +93,9 @@ def list_users(role, server):
 def get_user(user_id, server):
     """
     Get user details
-    
+
     Examples:
-    
+
         # Get user info
         praisonaiwp user get 1
     """
@@ -137,12 +137,12 @@ def get_user(user_id, server):
 def create_user(username, email, role, password, first_name, last_name, server):
     """
     Create a new user
-    
+
     Examples:
-    
+
         # Create user
         praisonaiwp user create john john@example.com --role editor
-        
+
         # Create with password
         praisonaiwp user create jane jane@example.com --password secret123
     """
@@ -195,12 +195,12 @@ def create_user(username, email, role, password, first_name, last_name, server):
 def update_user(user_id, email, role, password, first_name, last_name, server):
     """
     Update user
-    
+
     Examples:
-    
+
         # Update email
         praisonaiwp user update 5 --email newemail@example.com
-        
+
         # Change role
         praisonaiwp user update 5 --role editor
     """
@@ -255,12 +255,12 @@ def update_user(user_id, email, role, password, first_name, last_name, server):
 def delete_user(user_id, reassign, server):
     """
     Delete user
-    
+
     Examples:
-    
+
         # Delete user
         praisonaiwp user delete 5
-        
+
         # Delete and reassign posts
         praisonaiwp user delete 5 --reassign 1
     """

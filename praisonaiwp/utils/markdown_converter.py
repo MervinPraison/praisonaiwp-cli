@@ -16,10 +16,10 @@ from praisonaiwp.utils.block_converter import convert_to_blocks
 def is_markdown(content: str) -> bool:
     """
     Detect if content is likely Markdown format.
-    
+
     Args:
         content: Content to check
-        
+
     Returns:
         True if content appears to be Markdown
     """
@@ -54,11 +54,11 @@ def is_markdown(content: str) -> bool:
 def markdown_to_html(markdown_content: str, downgrade_h1: bool = True) -> str:
     """
     Convert Markdown to HTML.
-    
+
     Args:
         markdown_content: Markdown content
         downgrade_h1: If True, convert H1 to H2 (since post title is H1)
-        
+
     Returns:
         HTML content
     """
@@ -82,10 +82,10 @@ def markdown_to_html(markdown_content: str, downgrade_h1: bool = True) -> str:
 def markdown_to_blocks(markdown_content: str) -> str:
     """
     Convert Markdown to WordPress Gutenberg blocks.
-    
+
     Args:
         markdown_content: Markdown content
-        
+
     Returns:
         Gutenberg block content
     """
@@ -101,11 +101,11 @@ def markdown_to_blocks(markdown_content: str) -> str:
 def auto_convert_content(content: str, to_blocks: bool = True) -> str:
     """
     Automatically detect and convert content format.
-    
+
     Args:
         content: Content to convert
         to_blocks: If True, convert to Gutenberg blocks. If False, convert to HTML.
-        
+
     Returns:
         Converted content
     """

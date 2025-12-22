@@ -11,10 +11,10 @@ logger = get_logger(__name__)
 def extract_website_from_wp_path(wp_path: str) -> str:
     """
     Extract website domain from WordPress path
-    
+
     Args:
         wp_path: WordPress installation path (e.g., /var/www/vhosts/example.com/httpdocs)
-        
+
     Returns:
         Website URL with https:// prefix
     """
@@ -37,15 +37,15 @@ def extract_website_from_wp_path(wp_path: str) -> str:
 def migrate_config_v1_to_v2(config: Dict[str, Any]) -> Dict[str, Any]:
     """
     Migrate configuration from v1.0 to v2.0
-    
+
     Adds:
     - website field to each server (extracted from wp_path)
     - auto_route setting (default: False)
     - Updates version to 2.0
-    
+
     Args:
         config: Configuration dictionary in v1.0 format
-        
+
     Returns:
         Configuration dictionary in v2.0 format
     """
@@ -81,10 +81,10 @@ def migrate_config_v1_to_v2(config: Dict[str, Any]) -> Dict[str, Any]:
 def needs_migration(config: Dict[str, Any]) -> bool:
     """
     Check if configuration needs migration
-    
+
     Args:
         config: Configuration dictionary
-        
+
     Returns:
         True if migration is needed, False otherwise
     """

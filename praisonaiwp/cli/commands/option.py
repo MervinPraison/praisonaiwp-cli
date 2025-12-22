@@ -24,12 +24,12 @@ def option_command():
 def get_option(option_name, server):
     """
     Get WordPress option value
-    
+
     Examples:
-    
+
         # Get site name
         praisonaiwp option get blogname
-        
+
         # Get from specific server
         praisonaiwp option get siteurl --server production
     """
@@ -67,12 +67,12 @@ def get_option(option_name, server):
 def set_option(option_name, value, server):
     """
     Set WordPress option value
-    
+
     Examples:
-    
+
         # Set site name
         praisonaiwp option set blogname "My New Site"
-        
+
         # Set option on specific server
         praisonaiwp option set posts_per_page 20 --server production
     """
@@ -110,12 +110,12 @@ def set_option(option_name, value, server):
 def delete_option(option_name, server):
     """
     Delete WordPress option
-    
+
     Examples:
-    
+
         # Delete option
         praisonaiwp option delete custom_option
-        
+
         # Delete from specific server
         praisonaiwp option delete temp_setting --server production
     """

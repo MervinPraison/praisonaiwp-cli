@@ -23,11 +23,11 @@ def plugin():
 def list_plugins(status, server):
     """
     List installed WordPress plugins
-    
+
     Examples:
         # List all plugins
         praisonaiwp plugin list
-        
+
         # List only active plugins
         praisonaiwp plugin list --status active
     """
@@ -87,14 +87,14 @@ def list_plugins(status, server):
 def update_plugin(plugin, server):
     """
     Update WordPress plugin(s)
-    
+
     PLUGIN: Plugin slug/path or "all" to update all plugins (default: all)
-    
+
     Examples:
         # Update all plugins
         praisonaiwp plugin update
         praisonaiwp plugin update all
-        
+
         # Update specific plugin
         praisonaiwp plugin update akismet
     """
@@ -132,7 +132,7 @@ def update_plugin(plugin, server):
 def activate_plugin(plugin, server):
     """
     Activate a WordPress plugin
-    
+
     Examples:
         praisonaiwp plugin activate akismet
     """
@@ -170,7 +170,7 @@ def activate_plugin(plugin, server):
 def deactivate_plugin(plugin, server):
     """
     Deactivate a WordPress plugin
-    
+
     Examples:
         praisonaiwp plugin deactivate akismet
     """
@@ -198,5 +198,103 @@ def deactivate_plugin(plugin, server):
 
     except Exception as e:
         logger.error(f"Failed to deactivate plugin: {e}")
+        click.echo(f"Error: {e}", err=True)
+        raise click.Abort() from None
+
+
+@plugin.command('install')
+@click.argument('plugin')
+@click.option('--version', help='Specific version to install')
+@click.option('--force', is_flag=True, help='Force installation even if already installed')
+@click.option('--server', help='Server name from config (default: first server)')
+def install_plugin(plugin, version, force, server):
+    """
+    Install a WordPress plugin
+
+    Examples:
+        # Install latest version
+        praisonaiwp plugin install akismet
+
+        # Install specific version
+        praisonaiwp plugin install akismet --version 5.0
+
+        # Force installation
+        praisonaiwp plugin install akismet --force
+    """
+    try:
+        config = Config()
+        server_config = config.get_server(server)
+
+        with SSHManager(
+            server_config['hostname'],
+            server_config['username'],
+            server_config['key_file'],
+            server_config.get('port', 22)
+        ) as ssh:
+
+            wp = WPClient(
+                ssh,
+                server_config['wp_path'],
+                server_config.get('php_bin', 'php'),
+                server_config.get('wp_cli', '/usr/local/bin/wp')
+            )
+
+            click.echo(f"Installing plugin: {plugin}...")
+            success = wp.plugin_install(plugin, version, force)
+            if success:
+                click.echo(f"✓ Successfully installed plugin: {plugin}")
+            else:
+                click.echo(f"✗ Failed to install plugin: {plugin}")
+                raise click.Abort()
+
+    except Exception as e:
+        logger.error(f"Failed to install plugin: {e}")
+        click.echo(f"Error: {e}", err=True)
+        raise click.Abort() from None
+
+
+@plugin.command('delete')
+@click.argument('plugin')
+@click.option('--deactivate/--no-deactivate', default=True, help='Deactivate before deleting')
+@click.option('--server', help='Server name from config (default: first server)')
+def delete_plugin(plugin, deactivate, server):
+    """
+    Delete a WordPress plugin
+
+    Examples:
+        # Delete plugin (deactivates first)
+        praisonaiwp plugin delete akismet
+
+        # Delete without deactivating
+        praisonaiwp plugin delete akismet --no-deactivate
+    """
+    try:
+        config = Config()
+        server_config = config.get_server(server)
+
+        with SSHManager(
+            server_config['hostname'],
+            server_config['username'],
+            server_config['key_file'],
+            server_config.get('port', 22)
+        ) as ssh:
+
+            wp = WPClient(
+                ssh,
+                server_config['wp_path'],
+                server_config.get('php_bin', 'php'),
+                server_config.get('wp_cli', '/usr/local/bin/wp')
+            )
+
+            click.echo(f"Deleting plugin: {plugin}...")
+            success = wp.plugin_delete(plugin, deactivate)
+            if success:
+                click.echo(f"✓ Successfully deleted plugin: {plugin}")
+            else:
+                click.echo(f"✗ Failed to delete plugin: {plugin}")
+                raise click.Abort()
+
+    except Exception as e:
+        logger.error(f"Failed to delete plugin: {e}")
         click.echo(f"Error: {e}", err=True)
         raise click.Abort() from None

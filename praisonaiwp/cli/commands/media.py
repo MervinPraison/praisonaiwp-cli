@@ -124,15 +124,15 @@ def upload_media(file_path, post_id, title, caption, alt, desc, server):
 def get_media(attachment_id, field, server):
     """
     Get media/attachment information
-    
+
     Examples:
-    
+
         # Get all attachment info
         praisonaiwp media get 240814
-        
+
         # Get specific field (URL)
         praisonaiwp media get 240814 --field guid
-        
+
         # Get title
         praisonaiwp media get 240814 --field post_title
     """
@@ -173,9 +173,9 @@ def get_media(attachment_id, field, server):
 def get_url(attachment_id, server):
     """
     Get media URL
-    
+
     Examples:
-    
+
         # Get media URL
         praisonaiwp media url 240814
     """
@@ -213,15 +213,15 @@ def get_url(attachment_id, server):
 def list_media(post_id, mime_type, server):
     """
     List media/attachments
-    
+
     Examples:
-    
+
         # List all attachments
         praisonaiwp media list
-        
+
         # List attachments for a specific post
         praisonaiwp media list --post-id 240812
-        
+
         # List PDFs only
         praisonaiwp media list --mime-type application/pdf
     """

@@ -19,12 +19,12 @@ logger = get_logger(__name__)
 def _parse_category_input(category_str, category_id_str, wp):
     """
     Parse category input and return list of category IDs
-    
+
     Args:
         category_str: Comma-separated category names/slugs
         category_id_str: Comma-separated category IDs
         wp: WPClient instance
-        
+
     Returns:
         List of category IDs
     """
@@ -75,33 +75,33 @@ def update_command(post_id, find_text, replace_text, line, nth, preview, categor
                    tags, meta, comment_status, no_block_conversion, server):
     """
     Update WordPress post content
-    
+
     \b
     CONTENT FORMAT:
     Content should be HTML. By default, it auto-converts to Gutenberg blocks.
     Use --no-block-conversion to send raw Gutenberg block markup directly.
-    
+
     \b
     EXAMPLES:
-    
+
         # Update all occurrences
         praisonaiwp update 123 "old text" "new text"
-        
+
         # Update specific line
         praisonaiwp update 123 "old text" "new text" --line 10
-        
+
         # Replace entire content with HTML
         praisonaiwp update 123 --post-content "<h2>New</h2><p>Content</p>"
-        
+
         # Replace with raw Gutenberg blocks
         praisonaiwp update 123 --no-block-conversion --post-content "<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->"
-        
+
         # Update categories only
         praisonaiwp update 123 --category "RAG,AI"
-    
+
     \b
     GUTENBERG BLOCKS (use with --no-block-conversion):
-    
+
     \b
         <!-- wp:paragraph --><p>Text</p><!-- /wp:paragraph -->
         <!-- wp:heading --><h2 class="wp-block-heading">Title</h2><!-- /wp:heading -->

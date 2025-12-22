@@ -16,7 +16,7 @@ class ParallelExecutor:
     def __init__(self, nodejs_path: str = None):
         """
         Initialize parallel executor
-        
+
         Args:
             nodejs_path: Path to Node.js scripts directory
         """
@@ -37,13 +37,13 @@ class ParallelExecutor:
     ) -> List[Dict[str, Any]]:
         """
         Execute operations in parallel
-        
+
         Args:
             operation: Operation type ('create', 'update', etc.)
             data: List of operations to perform
             server_config: Server configuration
             workers: Number of parallel workers
-            
+
         Returns:
             List of results
         """
@@ -95,7 +95,7 @@ class ParallelExecutor:
     def is_available(self) -> bool:
         """
         Check if Node.js is available
-        
+
         Returns:
             True if Node.js is installed and scripts exist
         """

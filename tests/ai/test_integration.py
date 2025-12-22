@@ -118,7 +118,7 @@ class TestPraisonAIWPIntegration:
         mock_agents_class.return_value = mock_agents
 
         # Call generate with auto_publish and skip_validation
-        result = integration.generate(
+        integration.generate(
             "AI Trends",
             title="The Future of AI",
             auto_publish=True,

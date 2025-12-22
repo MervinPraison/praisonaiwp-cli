@@ -26,7 +26,7 @@ class SSHManager:
     ):
         """
         Initialize SSH Manager
-        
+
         Args:
             hostname: Server hostname, IP, or SSH config alias
             username: SSH username (optional if in SSH config)
@@ -60,7 +60,7 @@ class SSHManager:
     def _load_ssh_config(self) -> dict:
         """
         Load SSH configuration from ~/.ssh/config
-        
+
         Returns:
             Dictionary of SSH config values for the hostname
         """
@@ -88,10 +88,10 @@ class SSHManager:
     def connect(self) -> "SSHManager":
         """
         Establish SSH connection
-        
+
         Returns:
             Self for chaining
-            
+
         Raises:
             SSHConnectionError: If connection fails
         """
@@ -127,13 +127,13 @@ class SSHManager:
     def execute(self, command: str) -> Tuple[str, str]:
         """
         Execute command on remote server
-        
+
         Args:
             command: Command to execute
-            
+
         Returns:
             Tuple of (stdout, stderr)
-            
+
         Raises:
             SSHConnectionError: If not connected or execution fails
         """
@@ -164,14 +164,14 @@ class SSHManager:
     def upload_file(self, local_path: str, remote_path: str) -> str:
         """
         Upload a local file to the remote server via SFTP
-        
+
         Args:
             local_path: Path to local file
             remote_path: Path on remote server
-            
+
         Returns:
             Remote path where file was uploaded
-            
+
         Raises:
             SSHConnectionError: If not connected or upload fails
         """
@@ -221,11 +221,11 @@ class SSHManager:
     def from_config(config, hostname: Optional[str] = None):
         """
         Create SSHManager from configuration
-        
+
         Args:
             config: Config instance
             hostname: Server hostname (optional)
-            
+
         Returns:
             SSHManager instance
         """
@@ -233,7 +233,7 @@ class SSHManager:
             server_config = config.get_server(hostname)
         else:
             server_config = config.get_default_server()
-        
+
         return SSHManager(
             hostname=server_config.get('hostname'),
             username=server_config.get('username'),

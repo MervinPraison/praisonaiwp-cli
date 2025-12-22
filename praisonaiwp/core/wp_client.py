@@ -197,7 +197,7 @@ class WPClient:
         try:
             stdout, stderr = self.ssh.execute(full_cmd)
         except Exception as e:
-            raise WPCLIError(f"Failed to execute WP-CLI command: {e}")
+            raise WPCLIError(f"Failed to execute WP-CLI command: {e}") from e
 
         # Check for common error patterns
         if stderr:
@@ -1537,24 +1537,6 @@ class WPClient:
             logger.warning("Could not get config path")
             return None
 
-    def get_core_version(self) -> Optional[str]:
-        """
-        Get WordPress core version
-
-        Returns:
-            WordPress version string or None
-        """
-        try:
-            cmd = "core version"
-            result = self._execute_wp(cmd)
-            version = result.strip()
-
-            logger.debug(f"WordPress version: {version}")
-            return version if version else None
-        except WPCLIError:
-            logger.warning("Could not get WordPress version")
-            return None
-
     def update_core(self, version: Optional[str] = None, force: bool = False) -> bool:
         """
         Update WordPress core
@@ -1873,67 +1855,7 @@ class WPClient:
             logger.warning(f"Term '{term_id}' not found in taxonomy '{taxonomy}'")
             return None
 
-    def create_term(self, taxonomy: str, name: str, slug: Optional[str] = None,
-                   parent: Optional[str] = None, description: Optional[str] = None) -> Optional[Dict[str, Any]]:
-        """
-        Create a WordPress taxonomy term
 
-        Args:
-            taxonomy: Taxonomy name
-            name: Term name
-            slug: Term slug (optional)
-            parent: Parent term ID (optional)
-            description: Term description (optional)
-
-        Returns:
-            Created term dictionary or None
-        """
-        try:
-            cmd_parts = ["term", "create", taxonomy, f"'{name}'"]
-
-            if slug:
-                cmd_parts.append(f"--slug='{slug}'")
-
-            if parent:
-                cmd_parts.append(f"--parent={parent}")
-
-            if description:
-                escaped_desc = description.replace("'", "'\\''")
-                cmd_parts.append(f"--description='{escaped_desc}'")
-
-            cmd_parts.append("--porcelain")
-            cmd = " ".join(cmd_parts)
-            result = self._execute_wp(cmd)
-            term_id = result.strip()
-
-            # Get the created term info
-            term_info = self.get_term(taxonomy, term_id)
-            logger.info(f"Created term '{name}' in taxonomy '{taxonomy}'")
-            return term_info
-        except WPCLIError as e:
-            logger.error(f"Failed to create term: {e}")
-            return None
-
-    def delete_term(self, taxonomy: str, term_id: str) -> bool:
-        """
-        Delete a WordPress taxonomy term
-
-        Args:
-            taxonomy: Taxonomy name
-            term_id: Term ID
-
-        Returns:
-            True if successful, False otherwise
-        """
-        try:
-            cmd = f"term delete {taxonomy} {term_id}"
-            self._execute_wp(cmd)
-
-            logger.info(f"Deleted term '{term_id}' from taxonomy '{taxonomy}'")
-            return True
-        except WPCLIError as e:
-            logger.error(f"Failed to delete term: {e}")
-            return False
 
     def list_widgets(self) -> List[Dict[str, Any]]:
         """
@@ -2088,7 +2010,7 @@ class WPClient:
             logger.error(f"Failed to delete role: {e}")
             return False
 
-    def scaffold_post_type(self, slug: str, label: Optional[str] = None, 
+    def scaffold_post_type(self, slug: str, label: Optional[str] = None,
                           public: Optional[str] = None, has_archive: Optional[str] = None,
                           supports: Optional[str] = None) -> bool:
         """
@@ -2230,4 +2152,1576 @@ class WPClient:
             return True
         except WPCLIError as e:
             logger.error(f"Failed to generate theme: {e}")
+            return False
+
+    def start_server(self, host: str = "localhost", port: int = 8080,
+                    config: Optional[str] = None, docroot: Optional[str] = None) -> str:
+        """
+        Start PHP development server
+
+        Args:
+            host: Host to bind to (default: localhost)
+            port: Port to bind to (default: 8080)
+            config: Path to PHP configuration file (optional)
+            docroot: Document root path (optional)
+
+        Returns:
+            Server URL if successful, None otherwise
+        """
+        try:
+            cmd_parts = ["server", f"--host={host}", f"--port={port}"]
+
+            if config:
+                cmd_parts.append(f"--config={config}")
+            if docroot:
+                cmd_parts.append(f"--docroot={docroot}")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Started development server at http://{host}:{port}")
+            return f"http://{host}:{port}"
+        except WPCLIError as e:
+            logger.error(f"Failed to start server: {e}")
+            return None
+
+    def open_shell(self) -> str:
+        """
+        Open interactive PHP shell
+
+        Returns:
+            Shell prompt string if successful, None otherwise
+        """
+        try:
+            cmd = "shell"
+            self._execute_wp(cmd)
+
+            logger.info("Opened PHP shell")
+            return "wp>"
+        except WPCLIError as e:
+            logger.error(f"Failed to open shell: {e}")
+            return None
+
+    def db_optimize(self) -> bool:
+        """
+        Optimize database
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = "db optimize"
+            self._execute_wp(cmd)
+            logger.info("Database optimized successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to optimize database: {e}")
+            return False
+
+    def db_repair(self) -> bool:
+        """
+        Repair database
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = "db repair"
+            self._execute_wp(cmd)
+            logger.info("Database repaired successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to repair database: {e}")
+            return False
+
+    def db_check(self) -> Dict[str, Any]:
+        """
+        Check database status
+
+        Returns:
+            Dictionary with database check results
+        """
+        try:
+            cmd = "db check --format=json"
+            result = self._execute_wp(cmd)
+
+            import json
+            check_data = json.loads(result)
+
+            logger.info("Database check completed")
+            return check_data
+        except WPCLIError as e:
+            logger.error(f"Failed to check database: {e}")
+            return {"error": str(e)}
+
+    def cache_flush(self, cache_type: Optional[str] = None) -> bool:
+        """
+        Flush WordPress cache
+
+        Args:
+            cache_type: Specific cache type to flush (optional)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["cache", "flush"]
+            if cache_type:
+                cmd_parts.append(f"--{cache_type}")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info("Cache flushed successfully" + (f" ({cache_type})" if cache_type else ""))
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to flush cache: {e}")
+            return False
+
+    def cache_add(self, key: str, value: str, group: Optional[str] = None,
+                  expire: Optional[int] = None) -> bool:
+        """
+        Add item to cache
+
+        Args:
+            key: Cache key
+            value: Cache value
+            group: Cache group (optional)
+            expire: Expiration time in seconds (optional)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["cache", "add", key, f"'{value}'"]
+
+            if group:
+                cmd_parts.append(f"--group={group}")
+            if expire:
+                cmd_parts.append(f"--expire={expire}")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Cache item '{key}' added successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to add cache item: {e}")
+            return False
+
+    def cache_get(self, key: str, group: Optional[str] = None) -> Optional[str]:
+        """
+        Get item from cache
+
+        Args:
+            key: Cache key
+            group: Cache group (optional)
+
+        Returns:
+            Cache value or None
+        """
+        try:
+            cmd_parts = ["cache", "get", key]
+
+            if group:
+                cmd_parts.append(f"--group={group}")
+
+            cmd = " ".join(cmd_parts)
+            result = self._execute_wp(cmd)
+
+            value = result.strip()
+            return value if value else None
+        except WPCLIError:
+            return None
+
+    def cache_delete(self, key: str, group: Optional[str] = None) -> bool:
+        """
+        Delete item from cache
+
+        Args:
+            key: Cache key
+            group: Cache group (optional)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["cache", "delete", key]
+
+            if group:
+                cmd_parts.append(f"--group={group}")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Cache item '{key}' deleted successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to delete cache item: {e}")
+            return False
+
+    def cache_list(self, group: Optional[str] = None) -> Dict[str, Any]:
+        """
+        List cache items
+
+        Args:
+            group: Cache group (optional)
+
+        Returns:
+            Dictionary with cache items
+        """
+        try:
+            cmd_parts = ["cache", "list", "--format=json"]
+
+            if group:
+                cmd_parts.append(f"--group={group}")
+
+            cmd = " ".join(cmd_parts)
+            result = self._execute_wp(cmd)
+
+            import json
+            cache_data = json.loads(result)
+
+            logger.info("Cache list retrieved successfully")
+            return cache_data
+        except WPCLIError as e:
+            logger.error(f"Failed to list cache: {e}")
+            return {"error": str(e)}
+
+    def rewrite_list(self, format_type: str = "table") -> Dict[str, Any]:
+        """
+        List WordPress rewrite rules
+
+        Args:
+            format_type: Output format (table, json)
+
+        Returns:
+            Dictionary with rewrite rules
+        """
+        try:
+            cmd = f"rewrite list --format={format_type}"
+            result = self._execute_wp(cmd)
+
+            if format_type == "json":
+                import json
+                rewrite_data = json.loads(result)
+            else:
+                # Parse table format
+                lines = result.strip().split('\n')
+                rewrite_data = {"rules": []}
+                for line in lines[2:]:  # Skip header lines
+                    if line.strip():
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            rewrite_data["rules"].append({
+                                "match": parts[0],
+                                "source": parts[1],
+                                "query": " ".join(parts[2:]) if len(parts) > 2 else ""
+                            })
+
+            logger.info("Rewrite rules listed successfully")
+            return rewrite_data
+        except WPCLIError as e:
+            logger.error(f"Failed to list rewrite rules: {e}")
+            return {"error": str(e)}
+
+    def rewrite_flush(self) -> bool:
+        """
+        Flush WordPress rewrite rules
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = "rewrite flush"
+            self._execute_wp(cmd)
+
+            logger.info("Rewrite rules flushed successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to flush rewrite rules: {e}")
+            return False
+
+    def rewrite_structure(self, structure: str, category_base: Optional[str] = None,
+                          tag_base: Optional[str] = None) -> bool:
+        """
+        Update permalink structure
+
+        Args:
+            structure: Permalink structure
+            category_base: Category base (optional)
+            tag_base: Tag base (optional)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["rewrite", "structure", f"'{structure}'"]
+
+            if category_base:
+                cmd_parts.append(f"--category-base='{category_base}'")
+            if tag_base:
+                cmd_parts.append(f"--tag-base='{tag_base}'")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Permalink structure updated to: {structure}")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to update permalink structure: {e}")
+            return False
+
+    def rewrite_get(self, rewrite_type: str) -> Optional[str]:
+        """
+        Get rewrite rule by type
+
+        Args:
+            rewrite_type: Type of rewrite rule
+
+        Returns:
+            Rewrite rule or None
+        """
+        try:
+            cmd = f"rewrite get {rewrite_type}"
+            result = self._execute_wp(cmd)
+
+            rule = result.strip()
+            return rule if rule else None
+        except WPCLIError:
+            return None
+
+    def rewrite_set(self, rewrite_type: str, rule: str) -> bool:
+        """
+        Set rewrite rule
+
+        Args:
+            rewrite_type: Type of rewrite rule
+            rule: Rewrite rule
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"rewrite set {rewrite_type} '{rule}'"
+            self._execute_wp(cmd)
+
+            logger.info(f"Rewrite rule '{rewrite_type}' set successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to set rewrite rule: {e}")
+            return False
+
+    def sidebar_list(self) -> Dict[str, Any]:
+        """
+        List WordPress sidebars
+
+        Returns:
+            Dictionary with sidebar information
+        """
+        try:
+            cmd = "sidebar list --format=json"
+            result = self._execute_wp(cmd)
+
+            import json
+            sidebar_data = json.loads(result)
+
+            logger.info("Sidebars listed successfully")
+            return sidebar_data
+        except WPCLIError as e:
+            logger.error(f"Failed to list sidebars: {e}")
+            return {"error": str(e)}
+
+    def sidebar_get(self, sidebar_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get sidebar information by ID
+
+        Args:
+            sidebar_id: Sidebar ID
+
+        Returns:
+            Sidebar information or None
+        """
+        try:
+            cmd = f"sidebar get {sidebar_id} --format=json"
+            result = self._execute_wp(cmd)
+
+            import json
+            sidebar_info = json.loads(result)
+
+            logger.debug(f"Retrieved sidebar info for {sidebar_id}")
+            return sidebar_info
+        except WPCLIError:
+            logger.warning(f"Sidebar '{sidebar_id}' not found")
+            return None
+
+    def sidebar_update(self, sidebar_id: str, widgets: List[str]) -> bool:
+        """
+        Update sidebar with widgets
+
+        Args:
+            sidebar_id: Sidebar ID
+            widgets: List of widget IDs to add to sidebar
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            if not widgets:
+                cmd = f"sidebar update {sidebar_id}"
+            else:
+                widget_list = ",".join(widgets)
+                cmd = f"sidebar update {sidebar_id} --widgets={widget_list}"
+
+            self._execute_wp(cmd)
+
+            logger.info(f"Sidebar '{sidebar_id}' updated successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to update sidebar: {e}")
+            return False
+
+    def sidebar_add_widget(self, sidebar_id: str, widget_id: str, position: Optional[int] = None) -> bool:
+        """
+        Add widget to sidebar
+
+        Args:
+            sidebar_id: Sidebar ID
+            widget_id: Widget ID to add
+            position: Position in sidebar (optional)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["sidebar", "add-widget", sidebar_id, widget_id]
+
+            if position is not None:
+                cmd_parts.append(f"--position={position}")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Widget '{widget_id}' added to sidebar '{sidebar_id}' successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to add widget to sidebar: {e}")
+            return False
+
+    def sidebar_remove_widget(self, sidebar_id: str, widget_id: str) -> bool:
+        """
+        Remove widget from sidebar
+
+        Args:
+            sidebar_id: Sidebar ID
+            widget_id: Widget ID to remove
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"sidebar remove-widget {sidebar_id} {widget_id}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Widget '{widget_id}' removed from sidebar '{sidebar_id}' successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to remove widget from sidebar: {e}")
+            return False
+
+    def sidebar_empty(self, sidebar_id: str) -> bool:
+        """
+        Empty all widgets from sidebar
+
+        Args:
+            sidebar_id: Sidebar ID
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"sidebar empty {sidebar_id}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Sidebar '{sidebar_id}' emptied successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to empty sidebar: {e}")
+            return False
+
+    def post_type_list(self, format_type: str = "table") -> Dict[str, Any]:
+        """
+        List WordPress post types
+
+        Args:
+            format_type: Output format (table, json)
+
+        Returns:
+            Dictionary with post type information
+        """
+        try:
+            cmd = f"post-type list --format={format_type}"
+            result = self._execute_wp(cmd)
+
+            if format_type == "json":
+                import json
+                post_type_data = json.loads(result)
+            else:
+                # Parse table format
+                lines = result.strip().split('\n')
+                post_type_data = {"post_types": []}
+                for line in lines[2:]:  # Skip header lines
+                    if line.strip():
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            post_type_data["post_types"].append({
+                                "name": parts[0],
+                                "description": " ".join(parts[1:]) if len(parts) > 1 else ""
+                            })
+
+            logger.info("Post types listed successfully")
+            return post_type_data
+        except WPCLIError as e:
+            logger.error(f"Failed to list post types: {e}")
+            return {"error": str(e)}
+
+    def post_type_get(self, post_type: str) -> Optional[Dict[str, Any]]:
+        """
+        Get post type information by name
+
+        Args:
+            post_type: Post type name
+
+        Returns:
+            Post type information or None
+        """
+        try:
+            cmd = f"post-type get {post_type} --format=json"
+            result = self._execute_wp(cmd)
+
+            import json
+            post_type_info = json.loads(result)
+
+            logger.debug(f"Retrieved post type info for {post_type}")
+            return post_type_info
+        except WPCLIError:
+            logger.warning(f"Post type '{post_type}' not found")
+            return None
+
+    def post_type_create(self, post_type: str, label: str, slug: Optional[str] = None,
+                        public: Optional[str] = None, has_archive: Optional[str] = None,
+                        supports: Optional[str] = None) -> bool:
+        """
+        Create a new post type
+
+        Args:
+            post_type: Post type name
+            label: Post type label
+            slug: Post type slug (optional)
+            public: Whether public (optional)
+            has_archive: Whether has archive (optional)
+            supports: Supported features (optional)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["post-type", "create", post_type, f"'{label}'"]
+
+            if slug:
+                cmd_parts.append(f"--slug='{slug}'")
+            if public:
+                cmd_parts.append(f"--public='{public}'")
+            if has_archive:
+                cmd_parts.append(f"--has_archive='{has_archive}'")
+            if supports:
+                cmd_parts.append(f"--supports='{supports}'")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Post type '{post_type}' created successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to create post type: {e}")
+            return False
+
+    def post_type_delete(self, post_type: str, force: bool = False) -> bool:
+        """
+        Delete a post type
+
+        Args:
+            post_type: Post type name
+            force: Force deletion
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["post-type", "delete", post_type]
+            if force:
+                cmd_parts.append("--force")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Post type '{post_type}' deleted successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to delete post type: {e}")
+            return False
+
+    def post_type_update(self, post_type: str, **kwargs) -> bool:
+        """
+        Update a post type
+
+        Args:
+            post_type: Post type name
+            **kwargs: Fields to update
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["post-type", "update", post_type]
+
+            for key, value in kwargs.items():
+                if value is not None:
+                    escaped_value = str(value).replace("'", "'\\''")
+                    cmd_parts.append(f"--{key}='{escaped_value}'")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Post type '{post_type}' updated successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to update post type: {e}")
+            return False
+
+    def site_list(self, format_type: str = "table") -> Dict[str, Any]:
+        """
+        List WordPress multisite sites
+
+        Args:
+            format_type: Output format (table, json)
+
+        Returns:
+            Dictionary with site information
+        """
+        try:
+            cmd = f"site list --format={format_type}"
+            result = self._execute_wp(cmd)
+
+            if format_type == "json":
+                import json
+                site_data = json.loads(result)
+            else:
+                # Parse table format
+                lines = result.strip().split('\n')
+                site_data = {"sites": []}
+                for line in lines[2:]:  # Skip header lines
+                    if line.strip():
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            site_data["sites"].append({
+                                "blog_id": parts[0],
+                                "url": parts[1],
+                                "last_updated": parts[2] if len(parts) > 2 else "",
+                                "registered": parts[3] if len(parts) > 3 else ""
+                            })
+
+            logger.info("Sites listed successfully")
+            return site_data
+        except WPCLIError as e:
+            logger.error(f"Failed to list sites: {e}")
+            return {"error": str(e)}
+
+    def site_get(self, site_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get site information by ID
+
+        Args:
+            site_id: Site ID or URL
+
+        Returns:
+            Site information or None
+        """
+        try:
+            cmd = f"site get {site_id} --format=json"
+            result = self._execute_wp(cmd)
+
+            import json
+            site_info = json.loads(result)
+
+            logger.debug(f"Retrieved site info for {site_id}")
+            return site_info
+        except WPCLIError:
+            logger.warning(f"Site '{site_id}' not found")
+            return None
+
+    def site_create(self, url: str, title: str, email: str,
+                   site_id: Optional[str] = None,
+                   private: Optional[bool] = None) -> bool:
+        """
+        Create a new site in multisite
+
+        Args:
+            url: Site URL
+            title: Site title
+            email: Admin email
+            site_id: Site ID (optional)
+            private: Whether private (optional)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["site", "create", url, f"'{title}'", email]
+
+            if site_id:
+                cmd_parts.append(f"--site_id={site_id}")
+            if private is not None:
+                cmd_parts.append(f"--private={'true' if private else 'false'}")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Site '{url}' created successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to create site: {e}")
+            return False
+
+    def site_delete(self, site_id: str, keep_tables: bool = False) -> bool:
+        """
+        Delete a site from multisite
+
+        Args:
+            site_id: Site ID or URL
+            keep_tables: Whether to keep database tables
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["site", "delete", site_id]
+            if keep_tables:
+                cmd_parts.append("--keep-tables")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Site '{site_id}' deleted successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to delete site: {e}")
+            return False
+
+    def site_update(self, site_id: str, **kwargs) -> bool:
+        """
+        Update a site in multisite
+
+        Args:
+            site_id: Site ID or URL
+            **kwargs: Fields to update
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["site", "update", site_id]
+
+            for key, value in kwargs.items():
+                if value is not None:
+                    escaped_value = str(value).replace("'", "'\\''")
+                    cmd_parts.append(f"--{key}='{escaped_value}'")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Site '{site_id}' updated successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to update site: {e}")
+            return False
+
+    def site_activate(self, site_id: str) -> bool:
+        """
+        Activate a site theme/plugins
+
+        Args:
+            site_id: Site ID or URL
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"site activate {site_id}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Site '{site_id}' activated successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to activate site: {e}")
+            return False
+
+    def site_deactivate(self, site_id: str) -> bool:
+        """
+        Deactivate a site theme/plugins
+
+        Args:
+            site_id: Site ID or URL
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"site deactivate {site_id}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Site '{site_id}' deactivated successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to deactivate site: {e}")
+            return False
+
+    def site_archive(self, site_id: str) -> bool:
+        """
+        Archive a site
+
+        Args:
+            site_id: Site ID or URL
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"site archive {site_id}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Site '{site_id}' archived successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to archive site: {e}")
+            return False
+
+    def site_unarchive(self, site_id: str) -> bool:
+        """
+        Unarchive a site
+
+        Args:
+            site_id: Site ID or URL
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"site unarchive {site_id}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Site '{site_id}' unarchived successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to unarchive site: {e}")
+            return False
+
+    def site_spam(self, site_id: str) -> bool:
+        """
+        Mark a site as spam
+
+        Args:
+            site_id: Site ID or URL
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"site spam {site_id}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Site '{site_id}' marked as spam successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to mark site as spam: {e}")
+            return False
+
+    def site_unspam(self, site_id: str) -> bool:
+        """
+        Unmark a site as spam
+
+        Args:
+            site_id: Site ID or URL
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"site unspam {site_id}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Site '{site_id}' unmarked as spam successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to unmark site as spam: {e}")
+            return False
+
+    def network_meta_get(self, meta_key: str) -> Optional[str]:
+        """
+        Get WordPress multisite network meta value
+
+        Args:
+            meta_key: Meta key to retrieve
+
+        Returns:
+            Meta value or None
+        """
+        try:
+            cmd = f"network meta get {meta_key}"
+            result = self._execute_wp(cmd)
+            value = result.strip()
+            return value if value else None
+        except WPCLIError:
+            logger.warning(f"Network meta key '{meta_key}' not found")
+            return None
+
+    def network_meta_set(self, meta_key: str, meta_value: str) -> bool:
+        """
+        Set WordPress multisite network meta value
+
+        Args:
+            meta_key: Meta key to set
+            meta_value: Meta value to set
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            escaped_value = meta_value.replace("'", "'\\''")
+            cmd = f"network meta set {meta_key} '{escaped_value}'"
+            self._execute_wp(cmd)
+
+            logger.info(f"Network meta '{meta_key}' set successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to set network meta: {e}")
+            return False
+
+    def network_meta_delete(self, meta_key: str) -> bool:
+        """
+        Delete WordPress multisite network meta
+
+        Args:
+            meta_key: Meta key to delete
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"network meta delete {meta_key}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Network meta '{meta_key}' deleted successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to delete network meta: {e}")
+            return False
+
+    def network_meta_list(self, format_type: str = "table") -> Dict[str, Any]:
+        """
+        List WordPress multisite network meta
+
+        Args:
+            format_type: Output format (table, json)
+
+        Returns:
+            Dictionary with network meta information
+        """
+        try:
+            cmd = f"network meta list --format={format_type}"
+            result = self._execute_wp(cmd)
+
+            if format_type == "json":
+                import json
+                meta_data = json.loads(result)
+            else:
+                # Parse table format
+                lines = result.strip().split('\n')
+                meta_data = {"meta": []}
+                for line in lines[2:]:  # Skip header lines
+                    if line.strip():
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            meta_data["meta"].append({
+                                "meta_id": parts[0],
+                                "meta_key": parts[1],
+                                "meta_value": " ".join(parts[2:]) if len(parts) > 2 else ""
+                            })
+
+            logger.info("Network meta listed successfully")
+            return meta_data
+        except WPCLIError as e:
+            logger.error(f"Failed to list network meta: {e}")
+            return {"error": str(e)}
+
+    def network_option_get(self, option_name: str) -> Optional[str]:
+        """
+        Get WordPress multisite network option value
+
+        Args:
+            option_name: Option name to retrieve
+
+        Returns:
+            Option value or None
+        """
+        try:
+            cmd = f"network option get {option_name}"
+            result = self._execute_wp(cmd)
+            value = result.strip()
+            return value if value else None
+        except WPCLIError:
+            logger.warning(f"Network option '{option_name}' not found")
+            return None
+
+    def network_option_set(self, option_name: str, option_value: str) -> bool:
+        """
+        Set WordPress multisite network option value
+
+        Args:
+            option_name: Option name to set
+            option_value: Option value to set
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            escaped_value = option_value.replace("'", "'\\''")
+            cmd = f"network option set {option_name} '{escaped_value}'"
+            self._execute_wp(cmd)
+
+            logger.info(f"Network option '{option_name}' set successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to set network option: {e}")
+            return False
+
+    def network_option_delete(self, option_name: str) -> bool:
+        """
+        Delete WordPress multisite network option
+
+        Args:
+            option_name: Option name to delete
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"network option delete {option_name}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Network option '{option_name}' deleted successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to delete network option: {e}")
+            return False
+
+    def network_option_list(self, format_type: str = "table") -> Dict[str, Any]:
+        """
+        List WordPress multisite network options
+
+        Args:
+            format_type: Output format (table, json)
+
+        Returns:
+            Dictionary with network options information
+        """
+        try:
+            cmd = f"network option list --format={format_type}"
+            result = self._execute_wp(cmd)
+
+            if format_type == "json":
+                import json
+                options_data = json.loads(result)
+            else:
+                # Parse table format
+                lines = result.strip().split('\n')
+                options_data = {"options": []}
+                for line in lines[2:]:  # Skip header lines
+                    if line.strip():
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            options_data["options"].append({
+                                "option_name": parts[0],
+                                "option_value": " ".join(parts[1:]) if len(parts) > 1 else ""
+                            })
+
+            logger.info("Network options listed successfully")
+            return options_data
+        except WPCLIError as e:
+            logger.error(f"Failed to list network options: {e}")
+            return {"error": str(e)}
+
+    def super_admin_add(self, user_id: str) -> bool:
+        """
+        Add super admin to multisite
+
+        Args:
+            user_id: User ID or email
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"super-admin add {user_id}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Super admin '{user_id}' added successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to add super admin: {e}")
+            return False
+
+    def super_admin_remove(self, user_id: str) -> bool:
+        """
+        Remove super admin from multisite
+
+        Args:
+            user_id: User ID or email
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"super-admin remove {user_id}"
+            self._execute_wp(cmd)
+
+            logger.info(f"Super admin '{user_id}' removed successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to remove super admin: {e}")
+            return False
+
+    def super_admin_list(self, format_type: str = "table") -> Dict[str, Any]:
+        """
+        List super admins in multisite
+
+        Args:
+            format_type: Output format (table, json)
+
+        Returns:
+            Dictionary with super admin information
+        """
+        try:
+            cmd = f"super-admin list --format={format_type}"
+            result = self._execute_wp(cmd)
+
+            if format_type == "json":
+                import json
+                admin_data = json.loads(result)
+            else:
+                # Parse table format
+                lines = result.strip().split('\n')
+                admin_data = {"super_admins": []}
+                for line in lines[2:]:  # Skip header lines
+                    if line.strip():
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            admin_data["super_admins"].append({
+                                "user_id": parts[0],
+                                "user_email": parts[1],
+                                "user_login": parts[2] if len(parts) > 2 else ""
+                            })
+
+            logger.info("Super admins listed successfully")
+            return admin_data
+        except WPCLIError as e:
+            logger.error(f"Failed to list super admins: {e}")
+            return {"error": str(e)}
+
+    def plugin_install(self, plugin_slug: str, version: str = None, force: bool = False) -> bool:
+        """
+        Install a WordPress plugin
+
+        Args:
+            plugin_slug: Plugin slug from WordPress repository
+            version: Specific version to install (optional)
+            force: Force installation even if already installed
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["plugin", "install", plugin_slug]
+            if version:
+                cmd_parts.extend(["--version", version])
+            if force:
+                cmd_parts.append("--force")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Plugin '{plugin_slug}' installed successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to install plugin: {e}")
+            return False
+
+    def plugin_delete(self, plugin_slug: str, deactivate: bool = True) -> bool:
+        """
+        Delete a WordPress plugin
+
+        Args:
+            plugin_slug: Plugin slug or path
+            deactivate: Whether to deactivate before deleting
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["plugin", "delete", plugin_slug]
+            if deactivate:
+                cmd_parts.append("--deactivate")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Plugin '{plugin_slug}' deleted successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to delete plugin: {e}")
+            return False
+
+    def theme_install(self, theme_slug: str, version: str = None, force: bool = False) -> bool:
+        """
+        Install a WordPress theme
+
+        Args:
+            theme_slug: Theme slug from WordPress repository
+            version: Specific version to install (optional)
+            force: Force installation even if already installed
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["theme", "install", theme_slug]
+            if version:
+                cmd_parts.extend(["--version", version])
+            if force:
+                cmd_parts.append("--force")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Theme '{theme_slug}' installed successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to install theme: {e}")
+            return False
+
+    def theme_delete(self, theme_slug: str, force: bool = False) -> bool:
+        """
+        Delete a WordPress theme
+
+        Args:
+            theme_slug: Theme slug or path
+            force: Force deletion even if active
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["theme", "delete", theme_slug]
+            if force:
+                cmd_parts.append("--force")
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"Theme '{theme_slug}' deleted successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to delete theme: {e}")
+            return False
+
+    def user_create(self, username: str, email: str, password: str = None, role: str = "subscriber",
+                   first_name: str = None, last_name: str = None, display_name: str = None) -> bool:
+        """
+        Create a WordPress user
+
+        Args:
+            username: Username
+            email: Email address
+            password: Password (optional, will generate if not provided)
+            role: User role (default: subscriber)
+            first_name: First name (optional)
+            last_name: Last name (optional)
+            display_name: Display name (optional)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["user", "create", username, email]
+            if password:
+                cmd_parts.extend(["--user_pass", password])
+            if role:
+                cmd_parts.extend(["--role", role])
+            if first_name:
+                cmd_parts.extend(["--first_name", first_name])
+            if last_name:
+                cmd_parts.extend(["--last_name", last_name])
+            if display_name:
+                cmd_parts.extend(["--display_name", display_name])
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"User '{username}' created successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to create user: {e}")
+            return False
+
+    def user_delete(self, user_id: str, reassign: str = None) -> bool:
+        """
+        Delete a WordPress user
+
+        Args:
+            user_id: User ID or username
+            reassign: User ID to reassign content to (optional)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["user", "delete", user_id]
+            if reassign:
+                cmd_parts.extend(["--reassign", reassign])
+            cmd_parts.append("--yes")  # Auto-confirm deletion
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"User '{user_id}' deleted successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to delete user: {e}")
+            return False
+
+    def user_update(self, user_id: str, **kwargs) -> bool:
+        """
+        Update a WordPress user
+
+        Args:
+            user_id: User ID or username
+            **kwargs: User fields to update (email, password, role, etc.)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["user", "update", user_id]
+
+            field_mapping = {
+                'email': '--user_email',
+                'password': '--user_pass',
+                'role': '--role',
+                'first_name': '--first_name',
+                'last_name': '--last_name',
+                'display_name': '--display_name',
+                'nickname': '--nickname'
+            }
+
+            for field, value in kwargs.items():
+                if field in field_mapping and value:
+                    cmd_parts.extend([field_mapping[field], str(value)])
+
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+
+            logger.info(f"User '{user_id}' updated successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to update user: {e}")
+            return False
+
+    def comment_approve(self, comment_id: str) -> bool:
+        """
+        Approve a WordPress comment
+
+        Args:
+            comment_id: Comment ID
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"comment approve {comment_id}"
+            self._execute_wp(cmd)
+            
+            logger.info(f"Comment '{comment_id}' approved successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to approve comment: {e}")
+            return False
+
+    def comment_unapprove(self, comment_id: str) -> bool:
+        """
+        Unapprove a WordPress comment
+
+        Args:
+            comment_id: Comment ID
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"comment unapprove {comment_id}"
+            self._execute_wp(cmd)
+            
+            logger.info(f"Comment '{comment_id}' unapproved successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to unapprove comment: {e}")
+            return False
+
+    def comment_spam(self, comment_id: str) -> bool:
+        """
+        Mark a WordPress comment as spam
+
+        Args:
+            comment_id: Comment ID
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"comment spam {comment_id}"
+            self._execute_wp(cmd)
+            
+            logger.info(f"Comment '{comment_id}' marked as spam successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to mark comment as spam: {e}")
+            return False
+
+    def comment_trash(self, comment_id: str) -> bool:
+        """
+        Move a WordPress comment to trash
+
+        Args:
+            comment_id: Comment ID
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"comment trash {comment_id}"
+            self._execute_wp(cmd)
+            
+            logger.info(f"Comment '{comment_id}' moved to trash successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to trash comment: {e}")
+            return False
+
+    def media_upload(self, file_path: str, title: str = None, caption: str = None, alt_text: str = None) -> Optional[Dict[str, Any]]:
+        """
+        Upload a media file to WordPress
+
+        Args:
+            file_path: Local path to the file
+            title: Media title (optional)
+            caption: Media caption (optional)
+            alt_text: Alt text for the media (optional)
+
+        Returns:
+            Media information or None if failed
+        """
+        try:
+            cmd_parts = ["media", "import", file_path]
+            if title:
+                cmd_parts.extend(["--title", title])
+            if caption:
+                cmd_parts.extend(["--caption", caption])
+            if alt_text:
+                cmd_parts.extend(["--alt", alt_text])
+            
+            cmd = " ".join(cmd_parts)
+            result = self._execute_wp(cmd)
+            
+            # Parse the result to get media info
+            import json
+            media_info = json.loads(result)
+            
+            logger.info(f"Media uploaded successfully: {media_info.get('url', 'Unknown')}")
+            return media_info
+        except WPCLIError as e:
+            logger.error(f"Failed to upload media: {e}")
+            return None
+
+    def media_delete(self, media_id: str) -> bool:
+        """
+        Delete a media file from WordPress
+
+        Args:
+            media_id: Media ID
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"media delete {media_id} --yes"
+            self._execute_wp(cmd)
+            
+            logger.info(f"Media '{media_id}' deleted successfully")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to delete media: {e}")
+            return False
+
+    def db_export(self, file_path: str, tables: str = None) -> bool:
+        """
+        Export WordPress database
+
+        Args:
+            file_path: Path to save the export file
+            tables: Specific tables to export (optional)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd_parts = ["db", "export", file_path]
+            if tables:
+                cmd_parts.extend(["--tables", tables])
+            
+            cmd = " ".join(cmd_parts)
+            self._execute_wp(cmd)
+            
+            logger.info(f"Database exported successfully to: {file_path}")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to export database: {e}")
+            return False
+
+    def db_import(self, file_path: str) -> bool:
+        """
+        Import WordPress database
+
+        Args:
+            file_path: Path to the import file
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cmd = f"db import {file_path}"
+            self._execute_wp(cmd)
+            
+            logger.info(f"Database imported successfully from: {file_path}")
+            return True
+        except WPCLIError as e:
+            logger.error(f"Failed to import database: {e}")
             return False

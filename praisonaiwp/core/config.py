@@ -18,7 +18,7 @@ class Config:
     def __init__(self, config_path: Optional[str] = None):
         """
         Initialize configuration
-        
+
         Args:
             config_path: Path to config file (optional, uses default if not provided)
         """
@@ -74,10 +74,10 @@ class Config:
     def get_server(self, name: Optional[str] = None) -> Dict[str, Any]:
         """
         Get server configuration
-        
+
         Args:
             name: Server name (uses default if not provided)
-            
+
         Returns:
             Server configuration dictionary
         """
@@ -104,10 +104,10 @@ class Config:
     def _load_ssh_config(self, host: str) -> Dict[str, Any]:
         """
         Load configuration from SSH config file
-        
+
         Args:
             host: SSH config host name
-            
+
         Returns:
             Dictionary with hostname, username, key_file, port
         """
@@ -151,7 +151,7 @@ class Config:
     def get_default_server(self) -> Dict[str, Any]:
         """
         Get default server configuration
-        
+
         Returns:
             Default server configuration dictionary
         """
@@ -160,7 +160,7 @@ class Config:
     def add_server(self, name: str, config: Dict[str, Any]):
         """
         Add or update server configuration
-        
+
         Args:
             name: Server name
             config: Server configuration
@@ -183,11 +183,11 @@ class Config:
     def get_setting(self, key: str, default: Any = None) -> Any:
         """
         Get a setting value
-        
+
         Args:
             key: Setting key
             default: Default value if not found
-            
+
         Returns:
             Setting value
         """
@@ -196,7 +196,7 @@ class Config:
     def set_setting(self, key: str, value: Any):
         """
         Set a setting value
-        
+
         Args:
             key: Setting key
             value: Setting value

@@ -280,7 +280,7 @@ def cleanup_test_post(post_id):
             SERVER_CONFIG['port']
         ) as ssh:
 
-            wp = WPClient(
+            WPClient(
                 ssh,
                 SERVER_CONFIG['wp_path'],
                 SERVER_CONFIG['php_bin'],

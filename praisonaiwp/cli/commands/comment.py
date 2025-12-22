@@ -27,15 +27,15 @@ def comment_command():
 def list_comments(post_id, status, limit, server):
     """
     List WordPress comments
-    
+
     Examples:
-    
+
         # List all comments
         praisonaiwp comment list
-        
+
         # List comments for specific post
         praisonaiwp comment list --post-id 123
-        
+
         # List pending comments
         praisonaiwp comment list --status pending
     """
@@ -111,9 +111,9 @@ def list_comments(post_id, status, limit, server):
 def get_comment(comment_id, server):
     """
     Get comment details
-    
+
     Examples:
-    
+
         # Get comment details
         praisonaiwp comment get 123
     """
@@ -172,12 +172,12 @@ def get_comment(comment_id, server):
 def create_comment(post_id, content, author, email, url, server):
     """
     Create a new comment
-    
+
     Examples:
-    
+
         # Create comment
         praisonaiwp comment create --post-id 123 --content "Great post!"
-        
+
         # Create comment with author info
         praisonaiwp comment create --post-id 123 --content "Nice article" --author "John" --email "john@example.com"
     """
@@ -225,12 +225,12 @@ def create_comment(post_id, content, author, email, url, server):
 def update_comment(comment_id, content, author, email, url, server):
     """
     Update a comment
-    
+
     Examples:
-    
+
         # Update comment content
         praisonaiwp comment update 123 --content "Updated content"
-        
+
         # Update author info
         praisonaiwp comment update 123 --author "Jane" --email "jane@example.com"
     """
@@ -278,9 +278,9 @@ def update_comment(comment_id, content, author, email, url, server):
 def delete_comment(comment_id, server):
     """
     Delete a comment
-    
+
     Examples:
-    
+
         # Delete comment
         praisonaiwp comment delete 123
     """
@@ -322,12 +322,12 @@ def delete_comment(comment_id, server):
 def approve_comment(comment_id, unapprove, server):
     """
     Approve or unapprove a comment
-    
+
     Examples:
-    
+
         # Approve comment
         praisonaiwp comment approve 123
-        
+
         # Unapprove comment
         praisonaiwp comment approve 123 --unapprove
     """
@@ -365,4 +365,184 @@ def approve_comment(comment_id, unapprove, server):
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Approve comment failed: {e}")
+        raise click.Abort() from None
+
+
+@comment_command.command('approve')
+@click.argument('comment_id', type=int)
+@click.option('--server', default=None, help='Server name from config')
+def approve_comment(comment_id, server):
+    """
+    Approve a WordPress comment
+
+    Examples:
+
+        # Approve comment
+        praisonaiwp comment approve 123
+    """
+    try:
+        config = Config()
+        server_config = config.get_server(server)
+
+        with SSHManager(
+            server_config['hostname'],
+            server_config['username'],
+            server_config.get('key_filename'),
+            server_config.get('port', 22)
+        ) as ssh:
+
+            wp = WPClient(
+                ssh,
+                server_config['wp_path'],
+                server_config.get('php_bin', 'php'),
+                server_config.get('wp_cli', '/usr/local/bin/wp')
+            )
+
+            success = wp.comment_approve(comment_id)
+            if success:
+                console.print(f"[green]✓ Approved comment {comment_id}[/green]")
+            else:
+                console.print(f"[red]✗ Failed to approve comment {comment_id}[/red]")
+                raise click.ClickException(f"Comment approval failed for {comment_id}")
+
+    except click.ClickException:
+        raise
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        logger.error(f"Approve comment failed: {e}")
+        raise click.Abort() from None
+
+
+@comment_command.command('unapprove')
+@click.argument('comment_id', type=int)
+@click.option('--server', default=None, help='Server name from config')
+def unapprove_comment(comment_id, server):
+    """
+    Unapprove a WordPress comment
+
+    Examples:
+
+        # Unapprove comment
+        praisonaiwp comment unapprove 123
+    """
+    try:
+        config = Config()
+        server_config = config.get_server(server)
+
+        with SSHManager(
+            server_config['hostname'],
+            server_config['username'],
+            server_config.get('key_filename'),
+            server_config.get('port', 22)
+        ) as ssh:
+
+            wp = WPClient(
+                ssh,
+                server_config['wp_path'],
+                server_config.get('php_bin', 'php'),
+                server_config.get('wp_cli', '/usr/local/bin/wp')
+            )
+
+            success = wp.comment_unapprove(comment_id)
+            if success:
+                console.print(f"[green]✓ Unapproved comment {comment_id}[/green]")
+            else:
+                console.print(f"[red]✗ Failed to unapprove comment {comment_id}[/red]")
+                raise click.ClickException(f"Comment unapproval failed for {comment_id}")
+
+    except click.ClickException:
+        raise
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        logger.error(f"Unapprove comment failed: {e}")
+        raise click.Abort() from None
+
+
+@comment_command.command('spam')
+@click.argument('comment_id', type=int)
+@click.option('--server', default=None, help='Server name from config')
+def spam_comment(comment_id, server):
+    """
+    Mark a WordPress comment as spam
+
+    Examples:
+
+        # Mark comment as spam
+        praisonaiwp comment spam 123
+    """
+    try:
+        config = Config()
+        server_config = config.get_server(server)
+
+        with SSHManager(
+            server_config['hostname'],
+            server_config['username'],
+            server_config.get('key_filename'),
+            server_config.get('port', 22)
+        ) as ssh:
+
+            wp = WPClient(
+                ssh,
+                server_config['wp_path'],
+                server_config.get('php_bin', 'php'),
+                server_config.get('wp_cli', '/usr/local/bin/wp')
+            )
+
+            success = wp.comment_spam(comment_id)
+            if success:
+                console.print(f"[green]✓ Marked comment {comment_id} as spam[/green]")
+            else:
+                console.print(f"[red]✗ Failed to mark comment {comment_id} as spam[/red]")
+                raise click.ClickException(f"Comment spam marking failed for {comment_id}")
+
+    except click.ClickException:
+        raise
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        logger.error(f"Spam comment failed: {e}")
+        raise click.Abort() from None
+
+
+@comment_command.command('trash')
+@click.argument('comment_id', type=int)
+@click.option('--server', default=None, help='Server name from config')
+def trash_comment(comment_id, server):
+    """
+    Move a WordPress comment to trash
+
+    Examples:
+
+        # Move comment to trash
+        praisonaiwp comment trash 123
+    """
+    try:
+        config = Config()
+        server_config = config.get_server(server)
+
+        with SSHManager(
+            server_config['hostname'],
+            server_config['username'],
+            server_config.get('key_filename'),
+            server_config.get('port', 22)
+        ) as ssh:
+
+            wp = WPClient(
+                ssh,
+                server_config['wp_path'],
+                server_config.get('php_bin', 'php'),
+                server_config.get('wp_cli', '/usr/local/bin/wp')
+            )
+
+            success = wp.comment_trash(comment_id)
+            if success:
+                console.print(f"[green]✓ Moved comment {comment_id} to trash[/green]")
+            else:
+                console.print(f"[red]✗ Failed to move comment {comment_id} to trash[/red]")
+                raise click.ClickException(f"Comment trash failed for {comment_id}")
+
+    except click.ClickException:
+        raise
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        logger.error(f"Trash comment failed: {e}")
         raise click.Abort() from None

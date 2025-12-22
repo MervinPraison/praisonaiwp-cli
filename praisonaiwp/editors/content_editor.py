@@ -14,13 +14,13 @@ class ContentEditor:
     def replace_at_line(content: str, line_num: int, old: str, new: str) -> str:
         """
         Replace text at specific line number
-        
+
         Args:
             content: Original content
             line_num: Line number (1-indexed)
             old: Text to find
             new: Replacement text
-            
+
         Returns:
             Modified content
         """
@@ -38,13 +38,13 @@ class ContentEditor:
     def replace_nth_occurrence(content: str, old: str, new: str, n: int = 1) -> str:
         """
         Replace the nth occurrence of text
-        
+
         Args:
             content: Original content
             old: Text to find
             new: Replacement text
             n: Which occurrence to replace (1-indexed)
-            
+
         Returns:
             Modified content
         """
@@ -71,14 +71,14 @@ class ContentEditor:
     ) -> str:
         """
         Replace text in line range
-        
+
         Args:
             content: Original content
             start_line: Start line (1-indexed, inclusive)
             end_line: End line (1-indexed, inclusive)
             old: Text to find
             new: Replacement text
-            
+
         Returns:
             Modified content
         """
@@ -102,14 +102,14 @@ class ContentEditor:
     ) -> str:
         """
         Replace text only when surrounded by specific context
-        
+
         Args:
             content: Original content
             old: Text to find
             new: Replacement text
             before: Text that should appear before (optional)
             after: Text that should appear after (optional)
-            
+
         Returns:
             Modified content
         """
@@ -134,11 +134,11 @@ class ContentEditor:
     def find_occurrences(content: str, pattern: str) -> List[Tuple[int, str]]:
         """
         Find all occurrences with line numbers
-        
+
         Args:
             content: Content to search
             pattern: Text to find
-            
+
         Returns:
             List of (line_number, line_content) tuples
         """
@@ -161,13 +161,13 @@ class ContentEditor:
     ) -> Dict[str, any]:
         """
         Preview what changes will be made
-        
+
         Args:
             content: Original content
             old: Text to find
             new: Replacement text
             operation: Operation function to apply
-            
+
         Returns:
             Dictionary with change details
         """

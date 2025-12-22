@@ -1,7 +1,8 @@
 """Tests for scaffold CLI commands"""
 
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
 from click.testing import CliRunner
 
 from praisonaiwp.cli.commands.scaffold import scaffold_command

@@ -52,7 +52,7 @@ class TestWordPressTools:
 
     def test_create_post_default_status(self, wp_tools, mock_wp_client):
         """Test create_post with default status"""
-        result = wp_tools.create_post(
+        wp_tools.create_post(
             title="Test",
             content="Content"
         )

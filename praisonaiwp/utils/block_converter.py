@@ -26,7 +26,7 @@ class BlockConverter:
     def __init__(self, html_content: str):
         """
         Initialize the converter.
-        
+
         Args:
             html_content: HTML content to convert
         """
@@ -40,11 +40,11 @@ class BlockConverter:
     def convert(self, safe_mode: bool = True) -> str:
         """
         Convert HTML to Gutenberg blocks.
-        
+
         Args:
             safe_mode: If True, only convert safe patterns and wrap rest in wp:html.
                       If False, attempt more aggressive conversion (not recommended).
-        
+
         Returns:
             Block-formatted content
         """
@@ -60,13 +60,13 @@ class BlockConverter:
     def _safe_convert(self) -> str:
         """
         Safe conversion - only convert well-known patterns.
-        
+
         This is the recommended approach. It converts:
         - Headings (h1-h6)
         - Simple paragraphs (no nested HTML)
         - Simple lists (ul/ol with li)
         - Code blocks (pre > code)
-        
+
         Everything else is wrapped in <!-- wp:html --> to preserve it exactly.
         """
         content = self.html_content
@@ -152,7 +152,7 @@ class BlockConverter:
     def _wrap_remaining_html(self, content: str) -> str:
         """
         Wrap any remaining unconverted HTML in wp:html blocks.
-        
+
         This ensures nothing breaks - custom HTML, CSS, JS all preserved.
         """
         # Find blocks of HTML that aren't already in Gutenberg blocks
@@ -203,7 +203,7 @@ class BlockConverter:
     def _aggressive_convert(self) -> str:
         """
         Aggressive conversion - attempts to convert more patterns.
-        
+
         WARNING: This may break complex HTML. Use with caution.
         Not recommended for production use.
         """
@@ -219,14 +219,14 @@ class BlockConverter:
 def convert_to_blocks(html_content: str, safe_mode: bool = True) -> str:
     """
     Convert HTML content to WordPress Gutenberg blocks.
-    
+
     Args:
         html_content: HTML content to convert
         safe_mode: If True, only convert safe patterns (recommended)
-    
+
     Returns:
         Block-formatted content
-    
+
     Example:
         >>> html = '<h2>Title</h2><p>Content</p>'
         >>> blocks = convert_to_blocks(html)
@@ -245,10 +245,10 @@ def convert_to_blocks(html_content: str, safe_mode: bool = True) -> str:
 def has_blocks(content: str) -> bool:
     """
     Check if content already has Gutenberg blocks.
-    
+
     Args:
         content: Content to check
-    
+
     Returns:
         True if content has blocks, False otherwise
     """

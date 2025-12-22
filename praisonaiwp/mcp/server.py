@@ -29,10 +29,10 @@ _ssh_manager: Optional[SSHManager] = None
 def get_wp_client(server_name: Optional[str] = None) -> WPClient:
     """
     Get or create a WPClient instance.
-    
+
     Args:
         server_name: Optional server name from config. Uses default if not specified.
-        
+
     Returns:
         WPClient instance
     """
@@ -207,7 +207,7 @@ else:
 def run_server(transport: str = "stdio"):
     """
     Run the MCP server
-    
+
     Args:
         transport: Transport type ("stdio" or "streamable-http")
     """

@@ -24,12 +24,12 @@ def system_command():
 def cache_flush(server):
     """
     Flush WordPress cache
-    
+
     Examples:
-    
+
         # Flush cache
         praisonaiwp system cache-flush
-        
+
         # Flush cache on specific server
         praisonaiwp system cache-flush --server production
     """
@@ -69,9 +69,9 @@ def cache_flush(server):
 def cache_type(server):
     """
     Get cache type information
-    
+
     Examples:
-    
+
         # Get cache type
         praisonaiwp system cache-type
     """
@@ -112,12 +112,12 @@ def cache_type(server):
 def version(detailed, server):
     """
     Get WordPress version information
-    
+
     Examples:
-    
+
         # Get version
         praisonaiwp system version
-        
+
         # Get detailed version info
         praisonaiwp system version --detailed
     """
@@ -168,9 +168,9 @@ def version(detailed, server):
 def check_install(server):
     """
     Check WordPress installation
-    
+
     Examples:
-    
+
         # Check installation
         praisonaiwp system check-install
     """

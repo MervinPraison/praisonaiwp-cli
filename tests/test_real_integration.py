@@ -110,7 +110,7 @@ class TestRealIntegration:
         Test creating post with category in one go - NO MOCKS
         """
         # Get a category
-        categories = wp_client.list_categories()
+        wp_client.list_categories()
         test_cat_id = 1  # Uncategorized as default
 
         # Create post

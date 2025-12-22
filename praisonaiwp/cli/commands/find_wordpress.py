@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 def find_wordpress(server, interactive, update_config):
     """
     Find WordPress installations on remote server
-    
+
     Automatically searches common locations and verifies installations.
     """
     try:

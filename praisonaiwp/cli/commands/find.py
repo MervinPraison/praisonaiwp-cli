@@ -21,15 +21,15 @@ logger = get_logger(__name__)
 def find_command(pattern, post_id, post_type, server):
     """
     Search for text in WordPress posts
-    
+
     Examples:
-    
+
         # Find in specific post
         praisonaiwp find "search text" 123
-        
+
         # Find across all posts
         praisonaiwp find "search text"
-        
+
         # Find in pages
         praisonaiwp find "search text" --type page
     """

@@ -133,3 +133,109 @@ def activate_theme(theme_slug, server):
         console.print(f"[red]Error: {e}[/red]")
         logger.error(f"Activate theme failed: {e}")
         raise click.Abort() from None
+
+
+@theme_command.command("install")
+@click.argument("theme_slug")
+@click.option("--version", help="Specific version to install")
+@click.option("--force", is_flag=True, help="Force installation even if already installed")
+@click.option("--server", default=None, help="Server name from config")
+def install_theme(theme_slug, version, force, server):
+    """
+    Install a WordPress theme
+
+    Examples:
+
+        # Install latest version
+        praisonaiwp theme install twentytwentythree
+
+        # Install specific version
+        praisonaiwp theme install twentytwentythree --version 1.0
+
+        # Force installation
+        praisonaiwp theme install twentytwentythree --force
+    """
+    try:
+        config = Config()
+        server_config = config.get_server(server)
+
+        with SSHManager(
+            server_config["hostname"],
+            server_config["username"],
+            server_config.get("key_filename"),
+            server_config.get("port", 22),
+        ) as ssh:
+
+            wp = WPClient(
+                ssh,
+                server_config["wp_path"],
+                server_config.get("php_bin", "php"),
+                server_config.get("wp_cli", "/usr/local/bin/wp"),
+            )
+
+            console.print(f"Installing theme: {theme_slug}...")
+            success = wp.theme_install(theme_slug, version, force)
+
+            if success:
+                console.print(f"[green]✓ Successfully installed theme '{theme_slug}'[/green]")
+            else:
+                console.print(f"[red]✗ Failed to install theme '{theme_slug}'[/red]")
+                raise click.ClickException(f"Theme installation failed for '{theme_slug}'")
+
+    except click.ClickException:
+        raise
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        logger.error(f"Install theme failed: {e}")
+        raise click.Abort() from None
+
+
+@theme_command.command("delete")
+@click.argument("theme_slug")
+@click.option("--force", is_flag=True, help="Force deletion even if active")
+@click.option("--server", default=None, help="Server name from config")
+def delete_theme(theme_slug, force, server):
+    """
+    Delete a WordPress theme
+
+    Examples:
+
+        # Delete theme
+        praisonaiwp theme delete twentytwentythree
+
+        # Force delete even if active
+        praisonaiwp theme delete twentytwentythree --force
+    """
+    try:
+        config = Config()
+        server_config = config.get_server(server)
+
+        with SSHManager(
+            server_config["hostname"],
+            server_config["username"],
+            server_config.get("key_filename"),
+            server_config.get("port", 22),
+        ) as ssh:
+
+            wp = WPClient(
+                ssh,
+                server_config["wp_path"],
+                server_config.get("php_bin", "php"),
+                server_config.get("wp_cli", "/usr/local/bin/wp"),
+            )
+
+            console.print(f"Deleting theme: {theme_slug}...")
+            success = wp.theme_delete(theme_slug, force)
+
+            if success:
+                console.print(f"[green]✓ Successfully deleted theme '{theme_slug}'[/green]")
+            else:
+                console.print(f"[red]✗ Failed to delete theme '{theme_slug}'[/red]")
+                raise click.ClickException(f"Theme deletion failed for '{theme_slug}'")
+
+    except click.ClickException:
+        raise
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        logger.error(f"Delete theme failed: {e}")
+        raise click.Abort() from None
