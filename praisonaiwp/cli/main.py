@@ -1,6 +1,7 @@
 """Main CLI entry point for PraisonAIWP"""
 
 import click
+from pathlib import Path
 
 from praisonaiwp.__version__ import __version__
 from praisonaiwp.cli.commands.backup import backup
@@ -50,33 +51,36 @@ from praisonaiwp.cli.commands.cap import cap
 from praisonaiwp.cli.commands.cli import wpcli
 import importlib.util
 
+# Define commands directory using absolute path
+COMMANDS_DIR = Path(__file__).parent / "commands"
+
 # Import modules with hyphens in names
-dist_archive_spec = importlib.util.spec_from_file_location("dist_archive", "praisonaiwp/cli/commands/dist-archive.py")
+dist_archive_spec = importlib.util.spec_from_file_location("dist_archive", str(COMMANDS_DIR / "dist-archive.py"))
 dist_archive_module = importlib.util.module_from_spec(dist_archive_spec)
 dist_archive_spec.loader.exec_module(dist_archive_module)
 dist_archive = dist_archive_module.dist_archive
 
-eval_file_spec = importlib.util.spec_from_file_location("eval_file", "praisonaiwp/cli/commands/eval-file.py")
+eval_file_spec = importlib.util.spec_from_file_location("eval_file", str(COMMANDS_DIR / "eval-file.py"))
 eval_file_module = importlib.util.module_from_spec(eval_file_spec)
 eval_file_spec.loader.exec_module(eval_file_module)
 eval_file = eval_file_module.eval_file
 
-maintenance_mode_spec = importlib.util.spec_from_file_location("maintenance_mode", "praisonaiwp/cli/commands/maintenance-mode.py")
+maintenance_mode_spec = importlib.util.spec_from_file_location("maintenance_mode", str(COMMANDS_DIR / "maintenance-mode.py"))
 maintenance_mode_module = importlib.util.module_from_spec(maintenance_mode_spec)
 maintenance_mode_spec.loader.exec_module(maintenance_mode_module)
 maintenance_mode = maintenance_mode_module.maintenance_mode
 
-post_type_spec = importlib.util.spec_from_file_location("post_type", "praisonaiwp/cli/commands/post-type.py")
+post_type_spec = importlib.util.spec_from_file_location("post_type", str(COMMANDS_DIR / "post-type.py"))
 post_type_module = importlib.util.module_from_spec(post_type_spec)
 post_type_spec.loader.exec_module(post_type_module)
 post_type = post_type_module.post_type_command
 
-search_replace_spec = importlib.util.spec_from_file_location("search_replace", "praisonaiwp/cli/commands/search-replace.py")
+search_replace_spec = importlib.util.spec_from_file_location("search_replace", str(COMMANDS_DIR / "search-replace.py"))
 search_replace_module = importlib.util.module_from_spec(search_replace_spec)
 search_replace_spec.loader.exec_module(search_replace_module)
 search_replace = search_replace_module.search_replace_command
 
-super_admin_spec = importlib.util.spec_from_file_location("super_admin", "praisonaiwp/cli/commands/super-admin.py")
+super_admin_spec = importlib.util.spec_from_file_location("super_admin", str(COMMANDS_DIR / "super-admin.py"))
 super_admin_module = importlib.util.module_from_spec(super_admin_spec)
 super_admin_spec.loader.exec_module(super_admin_module)
 super_admin = super_admin_module.super_admin_command
