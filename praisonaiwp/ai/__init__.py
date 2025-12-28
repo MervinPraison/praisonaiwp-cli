@@ -4,7 +4,8 @@
 try:
     from praisonaiagents import Agent, PraisonAIAgents, Task
     AI_AVAILABLE = True
-except ImportError:
+except (ImportError, Exception):
+    # Catches ImportError (not installed) and OpenAIError (API key not set)
     AI_AVAILABLE = False
     Agent = None
     Task = None
