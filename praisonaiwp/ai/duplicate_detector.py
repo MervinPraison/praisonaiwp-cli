@@ -244,14 +244,10 @@ class DuplicateDetector:
         self._indexed = False
     
     def _get_embedding(self, text: str) -> List[float]:
-        """Get embedding for text using litellm."""
+        """Get embedding for text using praisonai.embedding()."""
         try:
-            import litellm
-            response = litellm.embedding(
-                model=self.embedding_model,
-                input=[text]
-            )
-            return response.data[0]["embedding"]
+            import praisonai
+            return praisonai.embedding(text, model=self.embedding_model)
         except Exception as e:
             logger.error(f"Embedding error: {e}")
             raise

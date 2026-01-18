@@ -39,8 +39,7 @@ dependencies = [
 
 [project.optional-dependencies]
 ai = [
-    "praisonaiagents>=0.0.1",
-    "openai>=1.0.0",
+    "praisonai[llm]>=3.9.21; python_version >= '3.10'",
 ]
 mcp = [
     "mcp[cli]>=1.2.0; python_version >= '3.10'",
