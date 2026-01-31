@@ -58,3 +58,5 @@ backups/
 .DS_Store
 Thumbs.db
 .praisonsite/
+site/
+.praison/
