@@ -1,10 +1,10 @@
 site_name: PraisonAIWP
 site_description: AI-powered WordPress content management via WP-CLI over SSH
 site_author: Mervin Praison
-site_url: https://mervinpraison.github.io/PraisonAI-WPcli/
+site_url: https://mervinpraison.github.io/praisonaiwp-cli/
 
-repo_name: MervinPraison/PraisonAI-WPcli
-repo_url: https://github.com/MervinPraison/PraisonAI-WPcli
+repo_name: MervinPraison/praisonaiwp-cli
+repo_url: https://github.com/MervinPraison/praisonaiwp-cli
 edit_uri: edit/main/mkdocs-docs/
 
 docs_dir: mkdocs-docs
