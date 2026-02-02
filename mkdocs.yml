@@ -40,9 +40,9 @@ theme:
     - content.tabs.link
   icon:
     repo: fontawesome/brands/github
-    logo: material/wordpress
-  # logo: assets/logo.png  # TODO: Add logo.png to mkdocs-docs/assets/
-  # favicon: assets/favicon.png  # TODO: Add favicon.png to mkdocs-docs/assets/
+    logo: material/console  # Generic terminal icon - WordPress logo is trademarked
+  # logo: assets/logo.png  # TODO: Add custom logo.png to mkdocs-docs/assets/
+  # favicon: assets/favicon.png
 
 plugins:
   - search
@@ -121,8 +121,8 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/MervinPraison
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/meraborapraison
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/MervinPraison
   generator: false
 
 copyright: Copyright &copy; 2024 Mervin Praison
