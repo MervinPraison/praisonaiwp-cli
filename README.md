@@ -469,8 +469,8 @@ pip install praisonaiwp[all]
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Clone and install
-git clone https://github.com/MervinPraison/PraisonAI-WPcli.git
-cd PraisonAI-WPcli
+git clone https://github.com/MervinPraison/praisonaiwp-cli.git
+cd praisonaiwp-cli
 uv sync
 
 # Run commands
@@ -480,8 +480,8 @@ uv run praisonaiwp init
 ### From source
 
 ```bash
-git clone https://github.com/MervinPraison/PraisonAI-WPcli.git
-cd PraisonAI-WPcli
+git clone https://github.com/MervinPraison/praisonaiwp-cli.git
+cd praisonaiwp-cli
 pip install -e ".[ai]"  # With AI features
 ```
 
@@ -2166,8 +2166,8 @@ Error: Failed after 3 attempts: Connection timeout
 
 ```bash
 # Clone repository
-git clone https://github.com/MervinPraison/PraisonAI-WPcli.git
-cd PraisonAI-WPcli
+git clone https://github.com/MervinPraison/praisonaiwp-cli.git
+cd praisonaiwp-cli
 
 # Install in development mode
 pip install -e ".[dev]"
@@ -2954,6 +2954,6 @@ Praison
 
 ## Links
 
-- GitHub: https://github.com/MervinPraison/PraisonAI-WPcli
+- GitHub: https://github.com/MervinPraison/praisonaiwp-cli
 - Documentation: https://praisonaiwp.readthedocs.io
 - PyPI: https://pypi.org/project/praisonaiwp
