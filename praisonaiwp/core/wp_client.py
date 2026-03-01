@@ -1432,6 +1432,93 @@ class WPClient:
             logger.warning(f"Category ID {category_id} not found")
             return None
 
+    def create_category(
+        self,
+        name: str,
+        slug: Optional[str] = None,
+        description: Optional[str] = None,
+        parent: Optional[int] = None,
+    ) -> int:
+        """
+        Create a new category (idempotent - returns existing ID if already exists)
+
+        Args:
+            name: Category name
+            slug: Category slug (optional)
+            description: Category description (optional)
+            parent: Parent category ID (optional)
+
+        Returns:
+            Category ID (new or existing)
+        """
+        # Check if category already exists
+        existing = self.get_category_by_name(name)
+        if existing:
+            logger.info(f"Category '{name}' already exists with ID {existing['term_id']}")
+            return int(existing["term_id"])
+
+        # Build kwargs for create_term
+        kwargs = {}
+        if slug:
+            kwargs["slug"] = slug
+        if description:
+            kwargs["description"] = description
+        if parent is not None:
+            kwargs["parent"] = parent
+
+        term_id = self.create_term("category", name, **kwargs)
+        logger.info(f"Created category '{name}' with ID {term_id}")
+        return term_id
+
+    def update_category(
+        self,
+        category_id: int,
+        name: Optional[str] = None,
+        slug: Optional[str] = None,
+        description: Optional[str] = None,
+        parent: Optional[int] = None,
+    ) -> bool:
+        """
+        Update an existing category
+
+        Args:
+            category_id: Category ID
+            name: New category name (optional)
+            slug: New category slug (optional)
+            description: New category description (optional)
+            parent: New parent category ID (optional)
+
+        Returns:
+            True if successful
+        """
+        kwargs = {}
+        if name is not None:
+            kwargs["name"] = name
+        if slug is not None:
+            kwargs["slug"] = slug
+        if description is not None:
+            kwargs["description"] = description
+        if parent is not None:
+            kwargs["parent"] = parent
+
+        if not kwargs:
+            logger.warning("No fields to update")
+            return False
+
+        return self.update_term("category", category_id, **kwargs)
+
+    def delete_category(self, category_id: int) -> bool:
+        """
+        Delete a category
+
+        Args:
+            category_id: Category ID
+
+        Returns:
+            True if successful
+        """
+        return self.delete_term("category", category_id)
+
     def get_config_param(self, param: str) -> Optional[str]:
         """
         Get WordPress configuration parameter
