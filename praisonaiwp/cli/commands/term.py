@@ -5,12 +5,27 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
 console = Console()
 logger = get_logger(__name__)
+
+
+def _get_wp_client(server=None):
+    """Create WPClient using the appropriate transport (SSH or Kubernetes)."""
+    config = Config()
+    server_config = config.get_server(server)
+    transport = get_transport(config, server)
+    transport.connect()
+    wp = WPClient(
+        transport,
+        server_config['wp_path'],
+        server_config.get('php_bin', 'php'),
+        server_config.get('wp_cli', '/usr/local/bin/wp')
+    )
+    return transport, wp
 
 
 @click.group()
@@ -37,15 +52,7 @@ def list_terms(taxonomy, server):
     praisonaiwp term list category --server staging
     """
     try:
-        config = Config()
-        server_config = config.get_server(server) if server else config.get_default_server()
-
-        if not server_config:
-            console.print(f"[red]Server '{server}' not found in configuration[/red]")
-            return
-
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport, client = _get_wp_client(server)
 
         terms = client.list_terms(taxonomy)
 
@@ -61,12 +68,13 @@ def list_terms(taxonomy, server):
 
         for term in terms:
             table.add_row(
-                term.get('term_id', 'N/A'),
-                term.get('name', 'N/A'),
-                term.get('slug', 'N/A')
+                str(term.get('term_id', 'N/A')),
+                str(term.get('name', 'N/A')),
+                str(term.get('slug', 'N/A'))
             )
 
         console.print(table)
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -90,15 +98,7 @@ def get_term(taxonomy, term_id, server):
     praisonaiwp term get post_tag 5 --server staging
     """
     try:
-        config = Config()
-        server_config = config.get_server(server) if server else config.get_default_server()
-
-        if not server_config:
-            console.print(f"[red]Server '{server}' not found in configuration[/red]")
-            return
-
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport, client = _get_wp_client(server)
 
         term_info = client.get_term(taxonomy, term_id)
 
@@ -111,6 +111,8 @@ def get_term(taxonomy, term_id, server):
             console.print(f"[cyan]Description:[/cyan] {term_info.get('description', 'N/A')}")
         else:
             console.print(f"[yellow]Term '{term_id}' not found in taxonomy '{taxonomy}'[/yellow]")
+
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -143,15 +145,7 @@ def create_term(taxonomy, name, slug, parent, description, server):
     praisonaiwp term create category "News" --server staging
     """
     try:
-        config = Config()
-        server_config = config.get_server(server) if server else config.get_default_server()
-
-        if not server_config:
-            console.print(f"[red]Server '{server}' not found in configuration[/red]")
-            return
-
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport, client = _get_wp_client(server)
 
         term_info = client.create_term(taxonomy, name, slug, parent, description)
 
@@ -162,6 +156,8 @@ def create_term(taxonomy, name, slug, parent, description, server):
         else:
             console.print(f"[red]Failed to create term '{name}'[/red]")
             raise click.Abort()
+
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -185,15 +181,7 @@ def delete_term(taxonomy, term_id, server):
     praisonaiwp term delete post_tag 5 --server staging
     """
     try:
-        config = Config()
-        server_config = config.get_server(server) if server else config.get_default_server()
-
-        if not server_config:
-            console.print(f"[red]Server '{server}' not found in configuration[/red]")
-            return
-
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport, client = _get_wp_client(server)
 
         success = client.delete_term(taxonomy, term_id)
 
@@ -202,6 +190,8 @@ def delete_term(taxonomy, term_id, server):
         else:
             console.print(f"[red]Failed to delete term '{term_id}'[/red]")
             raise click.Abort()
+
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

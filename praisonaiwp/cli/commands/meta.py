@@ -6,12 +6,27 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
 console = Console()
 logger = get_logger(__name__)
+
+
+def _get_wp_client(server=None):
+    """Create WPClient using the appropriate transport (SSH or Kubernetes)."""
+    config = Config()
+    server_config = config.get_server(server)
+    transport = get_transport(config, server)
+    transport.connect()
+    wp = WPClient(
+        transport,
+        server_config['wp_path'],
+        server_config.get('php_bin', 'php'),
+        server_config.get('wp_cli', '/usr/local/bin/wp')
+    )
+    return transport, wp
 
 
 @click.group()
@@ -38,41 +53,28 @@ def get_post_meta(post_id, key, server):
         praisonaiwp meta post-get 123
     """
     try:
-        config = Config()
-        server_config = config.get_server(server)
+        transport, wp = _get_wp_client(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        result = wp.get_post_meta(post_id, key)
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
+        if isinstance(result, list):
+            # Display as table
+            table = Table(title=f"Post {post_id} Meta Fields")
+            table.add_column("Key", style="cyan")
+            table.add_column("Value", style="green")
 
-            result = wp.get_post_meta(post_id, key)
+            for meta in result:
+                table.add_row(
+                    meta.get('meta_key', ''),
+                    str(meta.get('meta_value', ''))
+                )
 
-            if isinstance(result, list):
-                # Display as table
-                table = Table(title=f"Post {post_id} Meta Fields")
-                table.add_column("Key", style="cyan")
-                table.add_column("Value", style="green")
+            console.print(table)
+        else:
+            # Single value
+            console.print(result)
 
-                for meta in result:
-                    table.add_row(
-                        meta.get('meta_key', ''),
-                        str(meta.get('meta_value', ''))
-                    )
-
-                console.print(table)
-            else:
-                # Single value
-                console.print(result)
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -95,25 +97,10 @@ def set_post_meta(post_id, key, value, server):
         praisonaiwp meta post-set 123 custom_field "test value"
     """
     try:
-        config = Config()
-        server_config = config.get_server(server)
-
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
-
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
-
-            wp.set_post_meta(post_id, key, value)
-            console.print(f"[green]✓ Set meta '{key}' = '{value}' for post {post_id}[/green]")
+        transport, wp = _get_wp_client(server)
+        wp.set_post_meta(post_id, key, value)
+        console.print(f"[green]✓ Set meta '{key}' = '{value}' for post {post_id}[/green]")
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -136,25 +123,10 @@ def update_post_meta(post_id, key, value, server):
         praisonaiwp meta post-update 123 custom_field "new value"
     """
     try:
-        config = Config()
-        server_config = config.get_server(server)
-
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
-
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
-
-            wp.update_post_meta(post_id, key, value)
-            console.print(f"[green]✓ Updated meta '{key}' = '{value}' for post {post_id}[/green]")
+        transport, wp = _get_wp_client(server)
+        wp.update_post_meta(post_id, key, value)
+        console.print(f"[green]✓ Updated meta '{key}' = '{value}' for post {post_id}[/green]")
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -176,25 +148,10 @@ def delete_post_meta(post_id, key, server):
         praisonaiwp meta post-delete 123 custom_field
     """
     try:
-        config = Config()
-        server_config = config.get_server(server)
-
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
-
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
-
-            wp.delete_post_meta(post_id, key)
-            console.print(f"[green]✓ Deleted meta '{key}' from post {post_id}[/green]")
+        transport, wp = _get_wp_client(server)
+        wp.delete_post_meta(post_id, key)
+        console.print(f"[green]✓ Deleted meta '{key}' from post {post_id}[/green]")
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -220,41 +177,28 @@ def get_user_meta(user_id, key, server):
         praisonaiwp meta user-get 456
     """
     try:
-        config = Config()
-        server_config = config.get_server(server)
+        transport, wp = _get_wp_client(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        result = wp.get_user_meta(user_id, key)
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
+        if isinstance(result, list):
+            # Display as table
+            table = Table(title=f"User {user_id} Meta Fields")
+            table.add_column("Key", style="cyan")
+            table.add_column("Value", style="green")
 
-            result = wp.get_user_meta(user_id, key)
+            for meta in result:
+                table.add_row(
+                    meta.get('meta_key', ''),
+                    str(meta.get('meta_value', ''))
+                )
 
-            if isinstance(result, list):
-                # Display as table
-                table = Table(title=f"User {user_id} Meta Fields")
-                table.add_column("Key", style="cyan")
-                table.add_column("Value", style="green")
+            console.print(table)
+        else:
+            # Single value
+            console.print(result)
 
-                for meta in result:
-                    table.add_row(
-                        meta.get('meta_key', ''),
-                        str(meta.get('meta_value', ''))
-                    )
-
-                console.print(table)
-            else:
-                # Single value
-                console.print(result)
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -277,25 +221,10 @@ def set_user_meta(user_id, key, value, server):
         praisonaiwp meta user-set 456 user_field "test value"
     """
     try:
-        config = Config()
-        server_config = config.get_server(server)
-
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
-
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
-
-            wp.set_user_meta(user_id, key, value)
-            console.print(f"[green]✓ Set meta '{key}' = '{value}' for user {user_id}[/green]")
+        transport, wp = _get_wp_client(server)
+        wp.set_user_meta(user_id, key, value)
+        console.print(f"[green]✓ Set meta '{key}' = '{value}' for user {user_id}[/green]")
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -318,25 +247,10 @@ def update_user_meta(user_id, key, value, server):
         praisonaiwp meta user-update 456 user_field "new value"
     """
     try:
-        config = Config()
-        server_config = config.get_server(server)
-
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
-
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
-
-            wp.update_user_meta(user_id, key, value)
-            console.print(f"[green]✓ Updated meta '{key}' = '{value}' for user {user_id}[/green]")
+        transport, wp = _get_wp_client(server)
+        wp.update_user_meta(user_id, key, value)
+        console.print(f"[green]✓ Updated meta '{key}' = '{value}' for user {user_id}[/green]")
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -358,25 +272,10 @@ def delete_user_meta(user_id, key, server):
         praisonaiwp meta user-delete 456 user_field
     """
     try:
-        config = Config()
-        server_config = config.get_server(server)
-
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
-
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
-
-            wp.delete_user_meta(user_id, key)
-            console.print(f"[green]✓ Deleted meta '{key}' from user {user_id}[/green]")
+        transport, wp = _get_wp_client(server)
+        wp.delete_user_meta(user_id, key)
+        console.print(f"[green]✓ Deleted meta '{key}' from user {user_id}[/green]")
+        transport.close()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
