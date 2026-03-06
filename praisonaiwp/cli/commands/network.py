@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.ai_formatter import AIFormatter
 from praisonaiwp.utils.logger import get_logger
@@ -52,8 +52,14 @@ def network_meta_get(ctx, meta_key, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Get network meta value
         result = client.network_meta_get(meta_key)
@@ -116,8 +122,14 @@ def network_meta_set(ctx, meta_key, meta_value, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Set network meta value
         success = client.network_meta_set(meta_key, meta_value)
@@ -179,8 +191,14 @@ def network_meta_delete(ctx, meta_key, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Delete network meta
         success = client.network_meta_delete(meta_key)
@@ -245,8 +263,14 @@ def network_meta_list(ctx, format_type, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # List network meta
         result = client.network_meta_list(format_type)
@@ -325,8 +349,14 @@ def network_option_get(ctx, option_name, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Get network option value
         result = client.network_option_get(option_name)
@@ -389,8 +419,14 @@ def network_option_set(ctx, option_name, option_value, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Set network option value
         success = client.network_option_set(option_name, option_value)
@@ -452,8 +488,14 @@ def network_option_delete(ctx, option_name, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Delete network option
         success = client.network_option_delete(option_name)
@@ -518,8 +560,14 @@ def network_option_list(ctx, format_type, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # List network options
         result = client.network_option_list(format_type)

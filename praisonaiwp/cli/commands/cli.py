@@ -1,7 +1,7 @@
 """WP-CLI management commands"""
 import click
 
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.config import Config
 from praisonaiwp.core.wp_client import WPClient
 
@@ -17,7 +17,8 @@ def wpcli():
 def version(server):
     """Get WP-CLI version."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli('cli version')
@@ -29,7 +30,8 @@ def version(server):
 def info(server):
     """Get WP-CLI info."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli('cli info')
@@ -41,7 +43,8 @@ def info(server):
 def cache_clear(server):
     """Clear WP-CLI cache."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli('cli cache clear')
@@ -53,7 +56,8 @@ def cache_clear(server):
 def cmd_dump(server):
     """Dump available commands."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli('cli cmd-dump')
@@ -65,7 +69,8 @@ def cmd_dump(server):
 def update(server):
     """Update WP-CLI."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli('cli update')

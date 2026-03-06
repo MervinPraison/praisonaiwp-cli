@@ -4,7 +4,7 @@ import click
 from rich.console import Console
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.editors.content_editor import ContentEditor
 from praisonaiwp.utils.logger import get_logger
@@ -41,28 +41,24 @@ def find_command(pattern, post_id, post_type, server):
 
         console.print(f"\n[yellow]Searching for: '{pattern}'...[/yellow]\n")
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config['key_file'],
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            editor = ContentEditor()
+        editor = ContentEditor()
 
-            if post_id:
-                # Search in specific post
-                _search_in_post(wp, editor, post_id, pattern)
-            else:
-                # Search across all posts
-                _search_all_posts(wp, editor, post_type, pattern)
+        if post_id:
+            # Search in specific post
+            _search_in_post(wp, editor, post_id, pattern)
+        else:
+            # Search across all posts
+            _search_all_posts(wp, editor, post_type, pattern)
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

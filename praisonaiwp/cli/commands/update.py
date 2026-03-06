@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.prompt import Confirm
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.editors.content_editor import ContentEditor
 from praisonaiwp.utils.block_converter import convert_to_blocks as html_to_blocks
@@ -134,154 +134,150 @@ def update_command(post_id, find_text, replace_text, line, nth, preview, categor
 
         console.print(f"\n[yellow]Fetching post {post_id}...[/yellow]")
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config['key_file'],
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            # Get current content
-            try:
-                post_data = wp.get_post(post_id)
-            except Exception:
-                console.print(f"[red]Error: Post {post_id} not found[/red]")
-                raise click.Abort() from None
+        # Get current content
+        try:
+            post_data = wp.get_post(post_id)
+        except Exception:
+            console.print(f"[red]Error: Post {post_id} not found[/red]")
+            raise click.Abort() from None
 
-            # Handle direct field updates first
-            update_fields = {}
-            if post_content:
-                # Auto-convert HTML to blocks (unless disabled)
-                if not no_block_conversion and not has_blocks(post_content):
-                    console.print("[cyan]Auto-converting HTML to Gutenberg blocks...[/cyan]")
-                    post_content = html_to_blocks(post_content)
-                    console.print("[green]✓ Content converted to blocks[/green]")
-                elif no_block_conversion:
-                    console.print("[yellow]Block conversion disabled - using raw HTML[/yellow]")
-                update_fields['post_content'] = post_content
-                console.print("[cyan]Updating post content...[/cyan]")
-            if post_title:
-                update_fields['post_title'] = post_title
-                console.print(f"[cyan]Updating post title to: {post_title}[/cyan]")
-            if post_status:
-                update_fields['post_status'] = post_status
-                console.print(f"[cyan]Updating post status to: {post_status}[/cyan]")
-            if post_excerpt:
-                update_fields['post_excerpt'] = post_excerpt
-                console.print("[cyan]Updating post excerpt...[/cyan]")
-            if post_author:
-                # Handle author lookup
-                if post_author.isdigit():
-                    update_fields['post_author'] = int(post_author)
+        # Handle direct field updates first
+        update_fields = {}
+        if post_content:
+            # Auto-convert HTML to blocks (unless disabled)
+            if not no_block_conversion and not has_blocks(post_content):
+                console.print("[cyan]Auto-converting HTML to Gutenberg blocks...[/cyan]")
+                post_content = html_to_blocks(post_content)
+                console.print("[green]✓ Content converted to blocks[/green]")
+            elif no_block_conversion:
+                console.print("[yellow]Block conversion disabled - using raw HTML[/yellow]")
+            update_fields['post_content'] = post_content
+            console.print("[cyan]Updating post content...[/cyan]")
+        if post_title:
+            update_fields['post_title'] = post_title
+            console.print(f"[cyan]Updating post title to: {post_title}[/cyan]")
+        if post_status:
+            update_fields['post_status'] = post_status
+            console.print(f"[cyan]Updating post status to: {post_status}[/cyan]")
+        if post_excerpt:
+            update_fields['post_excerpt'] = post_excerpt
+            console.print("[cyan]Updating post excerpt...[/cyan]")
+        if post_author:
+            # Handle author lookup
+            if post_author.isdigit():
+                update_fields['post_author'] = int(post_author)
+            else:
+                user = wp.get_user(post_author)
+                if user:
+                    update_fields['post_author'] = int(user['ID'])
                 else:
-                    user = wp.get_user(post_author)
-                    if user:
-                        update_fields['post_author'] = int(user['ID'])
-                    else:
-                        console.print(f"[yellow]Warning: User '{post_author}' not found[/yellow]")
-                console.print("[cyan]Updating post author...[/cyan]")
-            if post_date:
-                update_fields['post_date'] = post_date
-                console.print(f"[cyan]Updating post date to: {post_date}[/cyan]")
-            if tags:
-                update_fields['tags_input'] = tags
-                console.print("[cyan]Updating tags...[/cyan]")
-            if meta:
-                update_fields['meta_input'] = meta
-                console.print("[cyan]Updating post meta...[/cyan]")
-            if comment_status:
-                update_fields['comment_status'] = comment_status
-                console.print(f"[cyan]Updating comment status to: {comment_status}[/cyan]")
+                    console.print(f"[yellow]Warning: User '{post_author}' not found[/yellow]")
+            console.print("[cyan]Updating post author...[/cyan]")
+        if post_date:
+            update_fields['post_date'] = post_date
+            console.print(f"[cyan]Updating post date to: {post_date}[/cyan]")
+        if tags:
+            update_fields['tags_input'] = tags
+            console.print("[cyan]Updating tags...[/cyan]")
+        if meta:
+            update_fields['meta_input'] = meta
+            console.print("[cyan]Updating post meta...[/cyan]")
+        if comment_status:
+            update_fields['comment_status'] = comment_status
+            console.print(f"[cyan]Updating comment status to: {comment_status}[/cyan]")
 
-            if update_fields:
-                wp.update_post(post_id, **update_fields)
-                console.print("[green]✓ Post fields updated successfully[/green]")
+        if update_fields:
+            wp.update_post(post_id, **update_fields)
+            console.print("[green]✓ Post fields updated successfully[/green]")
 
-            # Handle append mode
-            if append_content:
-                console.print("[cyan]Appending content to post...[/cyan]")
-                current_content = wp.get_post(post_id, field='post_content')
+        # Handle append mode
+        if append_content:
+            console.print("[cyan]Appending content to post...[/cyan]")
+            current_content = wp.get_post(post_id, field='post_content')
                 
-                # Auto-convert HTML to blocks (unless disabled)
-                if not no_block_conversion and not has_blocks(append_content):
-                    console.print("[cyan]Auto-converting appended HTML to Gutenberg blocks...[/cyan]")
-                    append_content = html_to_blocks(append_content)
-                    console.print("[green]✓ Content converted to blocks[/green]")
+            # Auto-convert HTML to blocks (unless disabled)
+            if not no_block_conversion and not has_blocks(append_content):
+                console.print("[cyan]Auto-converting appended HTML to Gutenberg blocks...[/cyan]")
+                append_content = html_to_blocks(append_content)
+                console.print("[green]✓ Content converted to blocks[/green]")
                 
-                # Append separator and new content
-                new_content = current_content + "\n\n" + append_content
-                wp.update_post(post_id, post_content=new_content)
-                console.print("[green]✓ Content appended successfully[/green]")
-                console.print(f"Title: {post_data.get('post_title', 'N/A')}\n")
+            # Append separator and new content
+            new_content = current_content + "\n\n" + append_content
+            wp.update_post(post_id, post_content=new_content)
+            console.print("[green]✓ Content appended successfully[/green]")
+            console.print(f"Title: {post_data.get('post_title', 'N/A')}\n")
+            return
+
+        # Handle content update if find/replace provided
+        if find_text and replace_text:
+            current_content = wp.get_post(post_id, field='post_content')
+
+            # Apply replacement based on options
+            editor = ContentEditor()
+
+            if line:
+                console.print(f"[cyan]Replacing at line {line}...[/cyan]")
+                new_content = editor.replace_at_line(current_content, line, find_text, replace_text)
+            elif nth:
+                console.print(f"[cyan]Replacing occurrence #{nth}...[/cyan]")
+                new_content = editor.replace_nth_occurrence(current_content, find_text, replace_text, nth)
+            else:
+                console.print("[cyan]Replacing all occurrences...[/cyan]")
+                new_content = current_content.replace(find_text, replace_text)
+
+            # Show preview
+            changes = _show_preview(current_content, new_content)
+
+            if not changes:
+                console.print("[yellow]No changes to apply[/yellow]")
                 return
 
-            # Handle content update if find/replace provided
-            if find_text and replace_text:
-                current_content = wp.get_post(post_id, field='post_content')
+            if preview:
+                console.print("\n[yellow]Preview mode - no changes applied[/yellow]")
+                return
 
-                # Apply replacement based on options
-                editor = ContentEditor()
+            # Confirm changes
+            if not Confirm.ask("\n[bold]Apply these changes?[/bold]", default=True):
+                console.print("[yellow]Update cancelled[/yellow]")
+                return
 
-                if line:
-                    console.print(f"[cyan]Replacing at line {line}...[/cyan]")
-                    new_content = editor.replace_at_line(current_content, line, find_text, replace_text)
-                elif nth:
-                    console.print(f"[cyan]Replacing occurrence #{nth}...[/cyan]")
-                    new_content = editor.replace_nth_occurrence(current_content, find_text, replace_text, nth)
-                else:
-                    console.print("[cyan]Replacing all occurrences...[/cyan]")
-                    new_content = current_content.replace(find_text, replace_text)
+            # Apply content changes
+            console.print("\n[yellow]Updating post content...[/yellow]")
+            wp.update_post(post_id, post_content=new_content)
 
-                # Show preview
-                changes = _show_preview(current_content, new_content)
+        # Update categories if provided
+        if category or category_id:
+            console.print("\n[yellow]Updating categories...[/yellow]")
+            category_ids = _parse_category_input(category, category_id, wp)
+            if category_ids:
+                wp.set_post_categories(post_id, category_ids)
 
-                if not changes:
-                    console.print("[yellow]No changes to apply[/yellow]")
-                    return
+                # Get category names for display
+                category_names = []
+                for cid in category_ids:
+                    cat = wp.get_category_by_id(cid)
+                    if cat:
+                        category_names.append(cat['name'])
 
-                if preview:
-                    console.print("\n[yellow]Preview mode - no changes applied[/yellow]")
-                    return
-
-                # Confirm changes
-                if not Confirm.ask("\n[bold]Apply these changes?[/bold]", default=True):
-                    console.print("[yellow]Update cancelled[/yellow]")
-                    return
-
-                # Apply content changes
-                console.print("\n[yellow]Updating post content...[/yellow]")
-                wp.update_post(post_id, post_content=new_content)
-
-            # Update categories if provided
-            if category or category_id:
-                console.print("\n[yellow]Updating categories...[/yellow]")
-                category_ids = _parse_category_input(category, category_id, wp)
-                if category_ids:
-                    wp.set_post_categories(post_id, category_ids)
-
-                    # Get category names for display
-                    category_names = []
-                    for cid in category_ids:
-                        cat = wp.get_category_by_id(cid)
-                        if cat:
-                            category_names.append(cat['name'])
-
-                    console.print(f"[green]✓ Post {post_id} updated successfully[/green]")
-                    console.print(f"Title: {post_data.get('post_title', 'N/A')}")
-                    console.print(f"Categories: {', '.join(category_names)}\n")
-                else:
-                    console.print(f"[green]✓ Post {post_id} updated successfully[/green]")
-                    console.print(f"Title: {post_data.get('post_title', 'N/A')}\n")
-            elif find_text and replace_text:
+                console.print(f"[green]✓ Post {post_id} updated successfully[/green]")
+                console.print(f"Title: {post_data.get('post_title', 'N/A')}")
+                console.print(f"Categories: {', '.join(category_names)}\n")
+            else:
                 console.print(f"[green]✓ Post {post_id} updated successfully[/green]")
                 console.print(f"Title: {post_data.get('post_title', 'N/A')}\n")
+        elif find_text and replace_text:
+            console.print(f"[green]✓ Post {post_id} updated successfully[/green]")
+            console.print(f"Title: {post_data.get('post_title', 'N/A')}\n")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

@@ -4,7 +4,7 @@ import click
 from rich.console import Console
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -37,26 +37,22 @@ def get_transient(key, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            value = wp.get_transient(key)
+        value = wp.get_transient(key)
 
-            if value is not None:
-                console.print(f"[cyan]Transient '{key}':[/cyan] {value}")
-            else:
-                console.print(f"[yellow]Transient '{key}' not found[/yellow]")
+        if value is not None:
+            console.print(f"[cyan]Transient '{key}':[/cyan] {value}")
+        else:
+            console.print(f"[yellow]Transient '{key}' not found[/yellow]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -88,27 +84,23 @@ def set_transient(key, value, expire, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            success = wp.set_transient(key, value, expire)
+        success = wp.set_transient(key, value, expire)
 
-            if success:
-                expire_text = f" ({expire}s)" if expire != 0 else " (no expiration)"
-                console.print(f"[green]✓ Set transient '{key}' = '{value}'{expire_text}[/green]")
-            else:
-                console.print(f"[red]✗ Failed to set transient '{key}'[/red]")
+        if success:
+            expire_text = f" ({expire}s)" if expire != 0 else " (no expiration)"
+            console.print(f"[green]✓ Set transient '{key}' = '{value}'{expire_text}[/green]")
+        else:
+            console.print(f"[red]✗ Failed to set transient '{key}'[/red]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -135,27 +127,23 @@ def delete_transient(key, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            success = wp.delete_transient(key)
+        success = wp.delete_transient(key)
 
-            if success:
-                console.print(f"[green]✓ Deleted transient '{key}'[/green]")
-            else:
-                console.print(f"[red]✗ Transient '{key}' not found or failed to delete[/red]")
-                raise click.ClickException(f"Transient deletion failed for '{key}'")
+        if success:
+            console.print(f"[green]✓ Deleted transient '{key}'[/green]")
+        else:
+            console.print(f"[red]✗ Transient '{key}' not found or failed to delete[/red]")
+            raise click.ClickException(f"Transient deletion failed for '{key}'")
 
     except click.ClickException:
         raise

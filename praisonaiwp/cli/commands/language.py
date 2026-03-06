@@ -1,7 +1,7 @@
 """Language management commands"""
 import click
 
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.config import Config
 from praisonaiwp.core.wp_client import WPClient
 
@@ -17,7 +17,8 @@ def language():
 def list(server):
     """List available languages."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli('language list')
@@ -30,7 +31,8 @@ def list(server):
 def install(language_code, server):
     """Install language."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'language install {language_code}')
@@ -43,7 +45,8 @@ def install(language_code, server):
 def activate(language_code, server):
     """Activate language."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'language activate {language_code}')
@@ -56,7 +59,8 @@ def activate(language_code, server):
 def uninstall(language_code, server):
     """Uninstall language."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'language uninstall {language_code}')
@@ -68,7 +72,8 @@ def uninstall(language_code, server):
 def core(server):
     """Get core language."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli('language core')

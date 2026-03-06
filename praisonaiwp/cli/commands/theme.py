@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -37,48 +37,44 @@ def list_themes(server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            themes = wp.list_themes()
+        themes = wp.list_themes()
 
-            if themes:
-                table = Table(title="WordPress Themes")
-                table.add_column("Name", style="cyan")
-                table.add_column("Slug", style="white")
-                table.add_column("Status", style="green")
-                table.add_column("Version", style="yellow")
-                table.add_column("Author", style="blue")
+        if themes:
+            table = Table(title="WordPress Themes")
+            table.add_column("Name", style="cyan")
+            table.add_column("Slug", style="white")
+            table.add_column("Status", style="green")
+            table.add_column("Version", style="yellow")
+            table.add_column("Author", style="blue")
 
-                for theme in themes:
-                    status = theme.get("status", "unknown")
-                    if status == "active":
-                        status = "[green]active[/green]"
-                    elif status == "inactive":
-                        status = "[dim]inactive[/dim]"
+            for theme in themes:
+                status = theme.get("status", "unknown")
+                if status == "active":
+                    status = "[green]active[/green]"
+                elif status == "inactive":
+                    status = "[dim]inactive[/dim]"
 
-                    table.add_row(
-                        theme.get("name", ""),
-                        theme.get("slug", ""),
-                        status,
-                        theme.get("version", ""),
-                        theme.get("author", ""),
-                    )
+                table.add_row(
+                    theme.get("name", ""),
+                    theme.get("slug", ""),
+                    status,
+                    theme.get("version", ""),
+                    theme.get("author", ""),
+                )
 
-                console.print(table)
-            else:
-                console.print("[yellow]No themes found[/yellow]")
+            console.print(table)
+        else:
+            console.print("[yellow]No themes found[/yellow]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -105,27 +101,23 @@ def activate_theme(theme_slug, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            success = wp.activate_theme(theme_slug)
+        success = wp.activate_theme(theme_slug)
 
-            if success:
-                console.print(f"[green]✓ Activated theme '{theme_slug}'[/green]")
-            else:
-                console.print(f"[red]✗ Failed to activate theme '{theme_slug}'[/red]")
-                raise click.ClickException(f"Theme activation failed for '{theme_slug}'")
+        if success:
+            console.print(f"[green]✓ Activated theme '{theme_slug}'[/green]")
+        else:
+            console.print(f"[red]✗ Failed to activate theme '{theme_slug}'[/red]")
+            raise click.ClickException(f"Theme activation failed for '{theme_slug}'")
 
     except click.ClickException:
         raise
@@ -159,28 +151,24 @@ def install_theme(theme_slug, version, force, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            console.print(f"Installing theme: {theme_slug}...")
-            success = wp.theme_install(theme_slug, version, force)
+        console.print(f"Installing theme: {theme_slug}...")
+        success = wp.theme_install(theme_slug, version, force)
 
-            if success:
-                console.print(f"[green]✓ Successfully installed theme '{theme_slug}'[/green]")
-            else:
-                console.print(f"[red]✗ Failed to install theme '{theme_slug}'[/red]")
-                raise click.ClickException(f"Theme installation failed for '{theme_slug}'")
+        if success:
+            console.print(f"[green]✓ Successfully installed theme '{theme_slug}'[/green]")
+        else:
+            console.print(f"[red]✗ Failed to install theme '{theme_slug}'[/red]")
+            raise click.ClickException(f"Theme installation failed for '{theme_slug}'")
 
     except click.ClickException:
         raise
@@ -210,28 +198,24 @@ def delete_theme(theme_slug, force, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            console.print(f"Deleting theme: {theme_slug}...")
-            success = wp.theme_delete(theme_slug, force)
+        console.print(f"Deleting theme: {theme_slug}...")
+        success = wp.theme_delete(theme_slug, force)
 
-            if success:
-                console.print(f"[green]✓ Successfully deleted theme '{theme_slug}'[/green]")
-            else:
-                console.print(f"[red]✗ Failed to delete theme '{theme_slug}'[/red]")
-                raise click.ClickException(f"Theme deletion failed for '{theme_slug}'")
+        if success:
+            console.print(f"[green]✓ Successfully deleted theme '{theme_slug}'[/green]")
+        else:
+            console.print(f"[red]✗ Failed to delete theme '{theme_slug}'[/red]")
+            raise click.ClickException(f"Theme deletion failed for '{theme_slug}'")
 
     except click.ClickException:
         raise

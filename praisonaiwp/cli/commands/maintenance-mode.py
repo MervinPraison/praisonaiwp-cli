@@ -4,7 +4,7 @@ import click
 from rich.console import Console
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -85,29 +85,25 @@ def maintenance_status(server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            status = wp.maintenance_mode_status()
+        status = wp.maintenance_mode_status()
 
-            if status is True:
-                console.print("[yellow]⚠️  Maintenance mode is ACTIVE[/yellow]")
-            elif status is False:
-                console.print("[green]✓ Maintenance mode is INACTIVE[/green]")
-            else:
-                console.print("[red]✗ Failed to check maintenance mode status[/red]")
-                raise click.ClickException("Maintenance mode status check failed")
+        if status is True:
+            console.print("[yellow]⚠️  Maintenance mode is ACTIVE[/yellow]")
+        elif status is False:
+            console.print("[green]✓ Maintenance mode is INACTIVE[/green]")
+        else:
+            console.print("[red]✗ Failed to check maintenance mode status[/red]")
+            raise click.ClickException("Maintenance mode status check failed")
 
     except click.ClickException:
         raise
@@ -159,29 +155,25 @@ def maintenance_activate(server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            console.print("Activating maintenance mode...")
-            success = wp.maintenance_mode_activate()
+        console.print("Activating maintenance mode...")
+        success = wp.maintenance_mode_activate()
 
-            if success:
-                console.print("[green]✓ Maintenance mode activated successfully[/green]")
-                console.print("[yellow]⚠️  Your site is now in maintenance mode[/yellow]")
-            else:
-                console.print("[red]✗ Failed to activate maintenance mode[/red]")
-                raise click.ClickException("Maintenance mode activation failed")
+        if success:
+            console.print("[green]✓ Maintenance mode activated successfully[/green]")
+            console.print("[yellow]⚠️  Your site is now in maintenance mode[/yellow]")
+        else:
+            console.print("[red]✗ Failed to activate maintenance mode[/red]")
+            raise click.ClickException("Maintenance mode activation failed")
 
     except click.ClickException:
         raise
@@ -241,29 +233,25 @@ def maintenance_deactivate(server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            console.print("Deactivating maintenance mode...")
-            success = wp.maintenance_mode_deactivate()
+        console.print("Deactivating maintenance mode...")
+        success = wp.maintenance_mode_deactivate()
 
-            if success:
-                console.print("[green]✓ Maintenance mode deactivated successfully[/green]")
-                console.print("[green]✓ Your site is now live[/green]")
-            else:
-                console.print("[red]✗ Failed to deactivate maintenance mode[/red]")
-                raise click.ClickException("Maintenance mode deactivation failed")
+        if success:
+            console.print("[green]✓ Maintenance mode deactivated successfully[/green]")
+            console.print("[green]✓ Your site is now live[/green]")
+        else:
+            console.print("[red]✗ Failed to deactivate maintenance mode[/red]")
+            raise click.ClickException("Maintenance mode deactivation failed")
 
     except click.ClickException:
         raise

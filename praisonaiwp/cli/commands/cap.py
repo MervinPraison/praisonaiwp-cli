@@ -1,7 +1,7 @@
 """Capability management commands"""
 import click
 
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.config import Config
 from praisonaiwp.core.wp_client import WPClient
 
@@ -18,7 +18,8 @@ def cap():
 def list(role, server):
     """List role capabilities."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'cap list {role}')
@@ -33,7 +34,8 @@ def list(role, server):
 def add(role, capability, grant, server):
     """Add capability to role."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     if grant:
@@ -51,7 +53,8 @@ def add(role, capability, grant, server):
 def remove(role, capability, server):
     """Remove capability from role."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'cap remove {role} {capability}')

@@ -4,7 +4,7 @@ import click
 
 from praisonaiwp.ai import AI_AVAILABLE
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.ai_formatter import AIFormatter
 
@@ -51,19 +51,13 @@ def create(name, description, trigger, server, json_output, verbose):
         server_config = config.get_server(server)
         
         # Create SSH manager and WP client
-        ssh_manager = SSHManager(
-            hostname=server_config.get('hostname') or server_config.get('ssh_host'),
-            username=server_config.get('username') or server_config.get('ssh_user'),
-            key_file=server_config.get('key_file') or server_config.get('ssh_key'),
-            port=server_config.get('port', 22)
-        )
-        
+        transport = get_transport(config, server)
+        transport.connect()
         wp_client = WPClient(
-            ssh=ssh_manager,
-            wp_path=server_config.get('wp_path', '/var/www/html'),
-            php_bin=server_config.get('php_bin', 'php'),
-            wp_cli=server_config.get('wp_cli', '/usr/local/bin/wp'),
-            verify_installation=False
+            transport,
+            server_config.get('wp_path', '/var/www/html'),
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
         )
         
         # Import AI integration
@@ -163,19 +157,13 @@ def add_step(workflow_id, action, params, server, json_output, verbose):
         server_config = config.get_server(server)
         
         # Create SSH manager and WP client
-        ssh_manager = SSHManager(
-            hostname=server_config.get('hostname') or server_config.get('ssh_host'),
-            username=server_config.get('username') or server_config.get('ssh_user'),
-            key_file=server_config.get('key_file') or server_config.get('ssh_key'),
-            port=server_config.get('port', 22)
-        )
-        
+        transport = get_transport(config, server)
+        transport.connect()
         wp_client = WPClient(
-            ssh=ssh_manager,
-            wp_path=server_config.get('wp_path', '/var/www/html'),
-            php_bin=server_config.get('php_bin', 'php'),
-            wp_cli=server_config.get('wp_cli', '/usr/local/bin/wp'),
-            verify_installation=False
+            transport,
+            server_config.get('wp_path', '/var/www/html'),
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
         )
         
         # Import AI integration
@@ -257,19 +245,13 @@ def run(workflow_id, server, json_output, verbose):
         server_config = config.get_server(server)
         
         # Create SSH manager and WP client
-        ssh_manager = SSHManager(
-            hostname=server_config.get('hostname') or server_config.get('ssh_host'),
-            username=server_config.get('username') or server_config.get('ssh_user'),
-            key_file=server_config.get('key_file') or server_config.get('ssh_key'),
-            port=server_config.get('port', 22)
-        )
-        
+        transport = get_transport(config, server)
+        transport.connect()
         wp_client = WPClient(
-            ssh=ssh_manager,
-            wp_path=server_config.get('wp_path', '/var/www/html'),
-            php_bin=server_config.get('php_bin', 'php'),
-            wp_cli=server_config.get('wp_cli', '/usr/local/bin/wp'),
-            verify_installation=False
+            transport,
+            server_config.get('wp_path', '/var/www/html'),
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
         )
         
         # Import AI integration
@@ -358,19 +340,13 @@ def list(server, json_output, verbose):
         server_config = config.get_server(server)
         
         # Create SSH manager and WP client
-        ssh_manager = SSHManager(
-            hostname=server_config.get('hostname') or server_config.get('ssh_host'),
-            username=server_config.get('username') or server_config.get('ssh_user'),
-            key_file=server_config.get('key_file') or server_config.get('ssh_key'),
-            port=server_config.get('port', 22)
-        )
-        
+        transport = get_transport(config, server)
+        transport.connect()
         wp_client = WPClient(
-            ssh=ssh_manager,
-            wp_path=server_config.get('wp_path', '/var/www/html'),
-            php_bin=server_config.get('php_bin', 'php'),
-            wp_cli=server_config.get('wp_cli', '/usr/local/bin/wp'),
-            verify_installation=False
+            transport,
+            server_config.get('wp_path', '/var/www/html'),
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
         )
         
         # Import AI integration
@@ -453,19 +429,13 @@ def status(workflow_id, server, json_output, verbose):
         server_config = config.get_server(server)
         
         # Create SSH manager and WP client
-        ssh_manager = SSHManager(
-            hostname=server_config.get('hostname') or server_config.get('ssh_host'),
-            username=server_config.get('username') or server_config.get('ssh_user'),
-            key_file=server_config.get('key_file') or server_config.get('ssh_key'),
-            port=server_config.get('port', 22)
-        )
-        
+        transport = get_transport(config, server)
+        transport.connect()
         wp_client = WPClient(
-            ssh=ssh_manager,
-            wp_path=server_config.get('wp_path', '/var/www/html'),
-            php_bin=server_config.get('php_bin', 'php'),
-            wp_cli=server_config.get('wp_cli', '/usr/local/bin/wp'),
-            verify_installation=False
+            transport,
+            server_config.get('wp_path', '/var/www/html'),
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
         )
         
         # Import AI integration
@@ -570,19 +540,13 @@ def delete(workflow_id, server, json_output, verbose):
         server_config = config.get_server(server)
         
         # Create SSH manager and WP client
-        ssh_manager = SSHManager(
-            hostname=server_config.get('hostname') or server_config.get('ssh_host'),
-            username=server_config.get('username') or server_config.get('ssh_user'),
-            key_file=server_config.get('key_file') or server_config.get('ssh_key'),
-            port=server_config.get('port', 22)
-        )
-        
+        transport = get_transport(config, server)
+        transport.connect()
         wp_client = WPClient(
-            ssh=ssh_manager,
-            wp_path=server_config.get('wp_path', '/var/www/html'),
-            php_bin=server_config.get('php_bin', 'php'),
-            wp_cli=server_config.get('wp_cli', '/usr/local/bin/wp'),
-            verify_installation=False
+            transport,
+            server_config.get('wp_path', '/var/www/html'),
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
         )
         
         # Import AI integration

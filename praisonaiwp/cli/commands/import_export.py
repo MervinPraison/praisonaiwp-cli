@@ -4,7 +4,7 @@ import click
 from rich.console import Console
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -108,38 +108,34 @@ def export_content(dir, format, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            console.print("Exporting WordPress content...")
+        console.print("Exporting WordPress content...")
 
-            # Build export arguments
-            args = []
-            if dir:
-                args.append(f"--dir={dir}")
-            if format:
-                args.append(f"--format={format}")
+        # Build export arguments
+        args = []
+        if dir:
+            args.append(f"--dir={dir}")
+        if format:
+            args.append(f"--format={format}")
 
-            args_str = " ".join(args) if args else None
-            result = wp.export_content(args_str)
+        args_str = " ".join(args) if args else None
+        result = wp.export_content(args_str)
 
-            if result is not None:
-                console.print("[green]✓ Content exported successfully[/green]")
-                console.print(f"Export result: {result}")
-            else:
-                console.print("[red]✗ Failed to export content[/red]")
-                raise click.ClickException("Content export failed")
+        if result is not None:
+            console.print("[green]✓ Content exported successfully[/green]")
+            console.print(f"Export result: {result}")
+        else:
+            console.print("[red]✗ Failed to export content[/red]")
+            raise click.ClickException("Content export failed")
 
     except click.ClickException:
         raise
@@ -258,36 +254,32 @@ def import_content(file_path, authors, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            console.print(f"Importing content from: {file_path}...")
+        console.print(f"Importing content from: {file_path}...")
 
-            # Build import arguments
-            args = []
-            if authors:
-                args.append(f"--authors={authors}")
+        # Build import arguments
+        args = []
+        if authors:
+            args.append(f"--authors={authors}")
 
-            args_str = " ".join(args) if args else None
-            success = wp.import_content(file_path, args_str)
+        args_str = " ".join(args) if args else None
+        success = wp.import_content(file_path, args_str)
 
-            if success:
-                console.print("[green]✓ Content imported successfully[/green]")
-                console.print(f"Imported from: {file_path}")
-            else:
-                console.print("[red]✗ Failed to import content[/red]")
-                raise click.ClickException(f"Content import failed: {file_path}")
+        if success:
+            console.print("[green]✓ Content imported successfully[/green]")
+            console.print(f"Imported from: {file_path}")
+        else:
+            console.print("[red]✗ Failed to import content[/red]")
+            raise click.ClickException(f"Content import failed: {file_path}")
 
     except click.ClickException:
         raise

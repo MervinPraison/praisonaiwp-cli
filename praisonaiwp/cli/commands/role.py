@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.ai_formatter import AIFormatter
 from praisonaiwp.utils.logger import get_logger
@@ -49,8 +49,14 @@ def list_roles(ctx, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         roles = client.list_roles()
 
@@ -114,8 +120,14 @@ def get_role(role, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         role_info = client.get_role(role)
 
@@ -166,8 +178,14 @@ def create_role(role_key, role_name, capabilities, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         success = client.create_role(role_key, role_name, capabilities)
 
@@ -207,8 +225,14 @@ def delete_role(role, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         success = client.delete_role(role)
 

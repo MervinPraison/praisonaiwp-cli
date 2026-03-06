@@ -1,7 +1,7 @@
 """Embed management commands"""
 import click
 
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.config import Config
 from praisonaiwp.core.wp_client import WPClient
 
@@ -20,7 +20,8 @@ def embed():
 def generate(url, width, height, server):
     """Generate embed HTML."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     cmd = f'embed generate {url}'
@@ -39,7 +40,8 @@ def generate(url, width, height, server):
 def discover(url, server):
     """Discover embed providers."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'embed discover {url}')
@@ -51,7 +53,8 @@ def discover(url, server):
 def providers(server):
     """List embed providers."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli('embed providers')

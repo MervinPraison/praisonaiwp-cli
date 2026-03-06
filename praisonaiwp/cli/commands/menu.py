@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -37,40 +37,36 @@ def list_menus(server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            menus = wp.list_menus()
+        menus = wp.list_menus()
 
-            if menus:
-                table = Table(title="WordPress Menus")
-                table.add_column("ID", style="cyan")
-                table.add_column("Name", style="white")
-                table.add_column("Slug", style="dim")
-                table.add_column("Items", style="green")
+        if menus:
+            table = Table(title="WordPress Menus")
+            table.add_column("ID", style="cyan")
+            table.add_column("Name", style="white")
+            table.add_column("Slug", style="dim")
+            table.add_column("Items", style="green")
 
-                for menu in menus:
-                    table.add_row(
-                        str(menu.get("term_id", "")),
-                        menu.get("name", ""),
-                        menu.get("slug", ""),
-                        str(menu.get("count", "0")),
-                    )
+            for menu in menus:
+                table.add_row(
+                    str(menu.get("term_id", "")),
+                    menu.get("name", ""),
+                    menu.get("slug", ""),
+                    str(menu.get("count", "0")),
+                )
 
-                console.print(table)
-            else:
-                console.print("[yellow]No menus found[/yellow]")
+            console.print(table)
+        else:
+            console.print("[yellow]No menus found[/yellow]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -97,23 +93,19 @@ def create_menu(menu_name, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            menu_id = wp.create_menu(menu_name)
+        menu_id = wp.create_menu(menu_name)
 
-            console.print(f"[green]✓ Created menu '{menu_name}' with ID {menu_id}[/green]")
+        console.print(f"[green]✓ Created menu '{menu_name}' with ID {menu_id}[/green]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -138,26 +130,22 @@ def delete_menu(menu_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            success = wp.delete_menu(menu_id)
+        success = wp.delete_menu(menu_id)
 
-            if success:
-                console.print(f"[green]✓ Deleted menu {menu_id}[/green]")
-            else:
-                console.print(f"[red]Failed to delete menu {menu_id}[/red]")
+        if success:
+            console.print(f"[green]✓ Deleted menu {menu_id}[/green]")
+        else:
+            console.print(f"[red]Failed to delete menu {menu_id}[/red]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -188,25 +176,21 @@ def add_menu_item(menu_id, title, url, parent, order, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            item_id = wp.add_menu_item(
-                menu_id=menu_id, title=title, url=url, parent=parent, order=order
-            )
+        item_id = wp.add_menu_item(
+            menu_id=menu_id, title=title, url=url, parent=parent, order=order
+        )
 
-            console.print(f"[green]✓ Added menu item '{title}' with ID {item_id}[/green]")
+        console.print(f"[green]✓ Added menu item '{title}' with ID {item_id}[/green]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

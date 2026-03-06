@@ -4,7 +4,7 @@ import click
 from rich.console import Console
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -38,32 +38,28 @@ def export_database(file_path, tables, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            console.print(f"Exporting database to: {file_path}...")
-            success = wp.db_export(file_path, tables)
+        console.print(f"Exporting database to: {file_path}...")
+        success = wp.db_export(file_path, tables)
 
-            if success:
-                console.print(f"[green]✓ Database exported successfully to: {file_path}[/green]")
-                if tables:
-                    console.print(f"Tables: {tables}")
-                else:
-                    console.print("All tables exported")
+        if success:
+            console.print(f"[green]✓ Database exported successfully to: {file_path}[/green]")
+            if tables:
+                console.print(f"Tables: {tables}")
             else:
-                console.print(f"[red]✗ Failed to export database[/red]")
-                raise click.ClickException("Database export failed")
+                console.print("All tables exported")
+        else:
+            console.print(f"[red]✗ Failed to export database[/red]")
+            raise click.ClickException("Database export failed")
 
     except click.ClickException:
         raise
@@ -90,29 +86,25 @@ def import_database(file_path, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            console.print(f"Importing database from: {file_path}...")
-            success = wp.db_import(file_path)
+        console.print(f"Importing database from: {file_path}...")
+        success = wp.db_import(file_path)
 
-            if success:
-                console.print(f"[green]✓ Database imported successfully from: {file_path}[/green]")
-                console.print("[yellow]⚠️  You may need to clear caches and update permalinks[/yellow]")
-            else:
-                console.print(f"[red]✗ Failed to import database[/red]")
-                raise click.ClickException("Database import failed")
+        if success:
+            console.print(f"[green]✓ Database imported successfully from: {file_path}[/green]")
+            console.print("[yellow]⚠️  You may need to clear caches and update permalinks[/yellow]")
+        else:
+            console.print(f"[red]✗ Failed to import database[/red]")
+            raise click.ClickException("Database import failed")
 
     except click.ClickException:
         raise
@@ -151,30 +143,26 @@ def create_backup(filename, tables, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            console.print(f"Creating backup: {filename}...")
-            success = wp.db_export(filename, tables)
+        console.print(f"Creating backup: {filename}...")
+        success = wp.db_export(filename, tables)
 
-            if success:
-                console.print(f"[green]✓ Backup created successfully: {filename}[/green]")
-                console.print(f"Size: Calculating...")
-                console.print(f"Location: {server_config['wp_path']}/{filename}")
-            else:
-                console.print(f"[red]✗ Failed to create backup[/red]")
-                raise click.ClickException("Backup creation failed")
+        if success:
+            console.print(f"[green]✓ Backup created successfully: {filename}[/green]")
+            console.print(f"Size: Calculating...")
+            console.print(f"Location: {server_config['wp_path']}/{filename}")
+        else:
+            console.print(f"[red]✗ Failed to create backup[/red]")
+            raise click.ClickException("Backup creation failed")
 
     except click.ClickException:
         raise

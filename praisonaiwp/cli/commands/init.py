@@ -8,7 +8,7 @@ from rich.console import Console
 from rich.prompt import Confirm, Prompt
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.utils.logger import get_logger
 
 console = Console()
@@ -54,63 +54,63 @@ def init_command():
     console.print("\n[yellow]Testing SSH connection...[/yellow]")
 
     try:
-        with SSHManager(hostname, username, key_file, int(port)) as ssh:
-            console.print("[green]✓ SSH connection successful[/green]")
+        transport = get_transport(config, server)
+        transport.connect()
+        console.print("[green]✓ SSH connection successful[/green]")
 
-            # Auto-detect WordPress path
-            console.print("\n[yellow]Detecting WordPress installation...[/yellow]")
+        # Auto-detect WordPress path
+        console.print("\n[yellow]Detecting WordPress installation...[/yellow]")
 
-            # Try common paths
-            common_paths = [
-                "/var/www/html",
-                "/var/www/html/wordpress",
-                "/var/www/vhosts/*/httpdocs",
-                "/home/*/public_html",
-            ]
+        # Try common paths
+        common_paths = [
+            "/var/www/html",
+            "/var/www/html/wordpress",
+            "/var/www/vhosts/*/httpdocs",
+            "/home/*/public_html",
+        ]
 
-            wp_path = None
-            for path in common_paths:
-                stdout, _ = ssh.execute(f"find {path} -name wp-config.php -type f 2>/dev/null | head -1")
-                if stdout:
-                    wp_path = os.path.dirname(stdout.strip())
-                    break
+        wp_path = None
+        for path in common_paths:
+            result = transport.execute(f"find {path} -name wp-config.php -type f 2>/dev/null | head -1")
+            if result:
+                wp_path = os.path.dirname(result.strip())
+                break
 
-            if wp_path:
-                console.print(f"[green]✓ Found WordPress at: {wp_path}[/green]")
-                use_detected = Confirm.ask("Use this path?", default=True)
-                if not use_detected:
-                    wp_path = Prompt.ask("WordPress installation path")
-            else:
+        if wp_path:
+            console.print(f"[green]✓ Found WordPress at: {wp_path}[/green]")
+            use_detected = Confirm.ask("Use this path?", default=True)
+            if not use_detected:
                 wp_path = Prompt.ask("WordPress installation path")
+        else:
+            wp_path = Prompt.ask("WordPress installation path")
 
-            # Auto-detect PHP binary
-            console.print("\n[yellow]Detecting PHP binary...[/yellow]")
+        # Auto-detect PHP binary
+        console.print("\n[yellow]Detecting PHP binary...[/yellow]")
 
-            # Try to find PHP with mysqli
-            stdout, _ = ssh.execute("which php")
-            php_bin = stdout.strip() or "php"
+        # Try to find PHP with mysqli
+        result = transport.execute("which php")
+        php_bin = result.strip() if result else "php"
 
-            # Check for Plesk PHP
-            stdout, _ = ssh.execute("ls -1 /opt/plesk/php/*/bin/php 2>/dev/null | tail -1")
-            if stdout:
-                plesk_php = stdout.strip()
-                console.print(f"[green]✓ Found Plesk PHP: {plesk_php}[/green]")
-                use_plesk = Confirm.ask("Use Plesk PHP?", default=True)
-                if use_plesk:
-                    php_bin = plesk_php
+        # Check for Plesk PHP
+        result = transport.execute("ls -1 /opt/plesk/php/*/bin/php 2>/dev/null | tail -1")
+        if result:
+            plesk_php = result.strip()
+            console.print(f"[green]✓ Found Plesk PHP: {plesk_php}[/green]")
+            use_plesk = Confirm.ask("Use Plesk PHP?", default=True)
+            if use_plesk:
+                php_bin = plesk_php
 
-            console.print(f"Using PHP: {php_bin}")
+        console.print(f"Using PHP: {php_bin}")
 
-            # Test WP-CLI
-            console.print("\n[yellow]Testing WP-CLI...[/yellow]")
-            stdout, stderr = ssh.execute(f"cd {wp_path} && {php_bin} /usr/local/bin/wp --info")
+        # Test WP-CLI
+        console.print("\n[yellow]Testing WP-CLI...[/yellow]")
+        result = transport.execute(f"cd {wp_path} && {php_bin} /usr/local/bin/wp --info")
 
-            if "WP-CLI version" in stdout:
-                console.print("[green]✓ WP-CLI is working[/green]")
-            else:
-                console.print("[red]✗ WP-CLI test failed[/red]")
-                console.print(f"Error: {stderr}")
-                return
+        if result and "WP-CLI version" in result:
+            console.print("[green]✓ WP-CLI is working[/green]")
+        else:
+            console.print("[red]✗ WP-CLI test failed[/red]")
+            return
 
     except Exception as e:
         console.print(f"[red]✗ Connection failed: {e}[/red]")

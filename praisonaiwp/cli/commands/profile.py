@@ -1,7 +1,7 @@
 """WordPress profiling commands"""
 import click
 
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.config import Config
 from praisonaiwp.core.wp_client import WPClient
 
@@ -18,7 +18,8 @@ def profile():
 def stage(url, server):
     """Profile WordPress stage."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'profile stage {url}')
@@ -31,7 +32,8 @@ def stage(url, server):
 def bootstrap(url, server):
     """Profile WordPress bootstrap."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'profile bootstrap {url}')
@@ -44,7 +46,8 @@ def bootstrap(url, server):
 def main(url, server):
     """Profile WordPress main."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'profile main {url}')
@@ -57,7 +60,8 @@ def main(url, server):
 def hook(url, server):
     """Profile WordPress hooks."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'profile hook {url}')
@@ -70,7 +74,8 @@ def hook(url, server):
 def query(url, server):
     """Profile WordPress queries."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'profile query {url}')

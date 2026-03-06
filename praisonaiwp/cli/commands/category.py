@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -84,35 +84,32 @@ def set_categories(post_id, category, category_id, server):
 
         console.print(f"\n[yellow]Setting categories for post {post_id}...[/yellow]")
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            # Parse category input
-            category_ids = _parse_category_input(category, category_id, wp)
 
-            # Get category names for display
-            category_names = []
-            for cid in category_ids:
-                cat = wp.get_category_by_id(cid)
-                if cat:
-                    category_names.append(cat["name"])
+        # Parse category input
+        category_ids = _parse_category_input(category, category_id, wp)
 
-            # Set categories
-            wp.set_post_categories(post_id, category_ids)
+        # Get category names for display
+        category_names = []
+        for cid in category_ids:
+            cat = wp.get_category_by_id(cid)
+            if cat:
+                category_names.append(cat["name"])
 
-            console.print(
-                f"[green]✓ Set categories for post {post_id}: {', '.join(category_names)}[/green]\n"
-            )
+        # Set categories
+        wp.set_post_categories(post_id, category_ids)
+
+        console.print(
+            f"[green]✓ Set categories for post {post_id}: {', '.join(category_names)}[/green]\n"
+        )
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -146,33 +143,30 @@ def add_categories(post_id, category, category_id, server):
 
         console.print(f"\n[yellow]Adding categories to post {post_id}...[/yellow]")
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            # Parse category input
-            category_ids = _parse_category_input(category, category_id, wp)
 
-            # Add each category
-            added_names = []
-            for cid in category_ids:
-                wp.add_post_category(post_id, cid)
-                cat = wp.get_category_by_id(cid)
-                if cat:
-                    added_names.append(cat["name"])
+        # Parse category input
+        category_ids = _parse_category_input(category, category_id, wp)
 
-            console.print(
-                f"[green]✓ Added categories to post {post_id}: {', '.join(added_names)}[/green]\n"
-            )
+        # Add each category
+        added_names = []
+        for cid in category_ids:
+            wp.add_post_category(post_id, cid)
+            cat = wp.get_category_by_id(cid)
+            if cat:
+                added_names.append(cat["name"])
+
+        console.print(
+            f"[green]✓ Added categories to post {post_id}: {', '.join(added_names)}[/green]\n"
+        )
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -206,33 +200,30 @@ def remove_categories(post_id, category, category_id, server):
 
         console.print(f"\n[yellow]Removing categories from post {post_id}...[/yellow]")
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            # Parse category input
-            category_ids = _parse_category_input(category, category_id, wp)
 
-            # Remove each category
-            removed_names = []
-            for cid in category_ids:
-                cat = wp.get_category_by_id(cid)
-                if cat:
-                    removed_names.append(cat["name"])
-                wp.remove_post_category(post_id, cid)
+        # Parse category input
+        category_ids = _parse_category_input(category, category_id, wp)
 
-            console.print(
-                f"[green]✓ Removed categories from post {post_id}: {', '.join(removed_names)}[/green]\n"
-            )
+        # Remove each category
+        removed_names = []
+        for cid in category_ids:
+            cat = wp.get_category_by_id(cid)
+            if cat:
+                removed_names.append(cat["name"])
+            wp.remove_post_category(post_id, cid)
+
+        console.print(
+            f"[green]✓ Removed categories from post {post_id}: {', '.join(removed_names)}[/green]\n"
+        )
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -263,58 +254,55 @@ def list_categories(post_id, search, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            if post_id:
-                # List categories for specific post
-                console.print(f"\n[yellow]Fetching categories for post {post_id}...[/yellow]\n")
-                categories = wp.get_post_categories(post_id)
-                title = f"Categories for Post {post_id}"
+
+        if post_id:
+            # List categories for specific post
+            console.print(f"\n[yellow]Fetching categories for post {post_id}...[/yellow]\n")
+            categories = wp.get_post_categories(post_id)
+            title = f"Categories for Post {post_id}"
+        else:
+            # List all categories
+            if search:
+                console.print(f"\n[yellow]Searching categories for '{search}'...[/yellow]\n")
             else:
-                # List all categories
-                if search:
-                    console.print(f"\n[yellow]Searching categories for '{search}'...[/yellow]\n")
-                else:
-                    console.print("\n[yellow]Fetching all categories...[/yellow]\n")
-                categories = wp.list_categories(search=search)
-                title = "All Categories" if not search else f"Categories matching '{search}'"
+                console.print("\n[yellow]Fetching all categories...[/yellow]\n")
+            categories = wp.list_categories(search=search)
+            title = "All Categories" if not search else f"Categories matching '{search}'"
 
-            if not categories:
-                console.print("[yellow]No categories found[/yellow]\n")
-                return
+        if not categories:
+            console.print("[yellow]No categories found[/yellow]\n")
+            return
 
-            # Display results in table
-            table = Table(title=f"{title} ({len(categories)})")
+        # Display results in table
+        table = Table(title=f"{title} ({len(categories)})")
 
-            table.add_column("ID", style="cyan", no_wrap=True)
-            table.add_column("Name", style="white")
-            table.add_column("Slug", style="dim")
-            table.add_column("Parent", style="yellow")
+        table.add_column("ID", style="cyan", no_wrap=True)
+        table.add_column("Name", style="white")
+        table.add_column("Slug", style="dim")
+        table.add_column("Parent", style="yellow")
+
+        if not post_id:
+            table.add_column("Count", style="green")
+
+        for cat in categories:
+            row = [str(cat["term_id"]), cat["name"], cat["slug"], str(cat.get("parent", "0"))]
 
             if not post_id:
-                table.add_column("Count", style="green")
+                row.append(str(cat.get("count", "0")))
 
-            for cat in categories:
-                row = [str(cat["term_id"]), cat["name"], cat["slug"], str(cat.get("parent", "0"))]
+            table.add_row(*row)
 
-                if not post_id:
-                    row.append(str(cat.get("count", "0")))
-
-                table.add_row(*row)
-
-            console.print(table)
-            console.print()
+        console.print(table)
+        console.print()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -343,45 +331,42 @@ def search_categories(query, server):
 
         console.print(f"\n[yellow]Searching for categories matching '{query}'...[/yellow]\n")
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
+
+
+        categories = wp.list_categories(search=query)
+
+        if not categories:
+            console.print(f"[yellow]No categories found matching '{query}'[/yellow]\n")
+            return
+
+        # Display results in table
+        table = Table(title=f"Categories matching '{query}' ({len(categories)})")
+
+        table.add_column("ID", style="cyan", no_wrap=True)
+        table.add_column("Name", style="white")
+        table.add_column("Slug", style="dim")
+        table.add_column("Parent", style="yellow")
+        table.add_column("Count", style="green")
+
+        for cat in categories:
+            table.add_row(
+                str(cat["term_id"]),
+                cat["name"],
+                cat["slug"],
+                str(cat.get("parent", "0")),
+                str(cat.get("count", "0")),
             )
 
-            categories = wp.list_categories(search=query)
-
-            if not categories:
-                console.print(f"[yellow]No categories found matching '{query}'[/yellow]\n")
-                return
-
-            # Display results in table
-            table = Table(title=f"Categories matching '{query}' ({len(categories)})")
-
-            table.add_column("ID", style="cyan", no_wrap=True)
-            table.add_column("Name", style="white")
-            table.add_column("Slug", style="dim")
-            table.add_column("Parent", style="yellow")
-            table.add_column("Count", style="green")
-
-            for cat in categories:
-                table.add_row(
-                    str(cat["term_id"]),
-                    cat["name"],
-                    cat["slug"],
-                    str(cat.get("parent", "0")),
-                    str(cat.get("count", "0")),
-                )
-
-            console.print(table)
-            console.print()
+        console.print(table)
+        console.print()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -414,25 +399,21 @@ def create_category(name, slug, description, parent, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            category_id = wp.create_category(
-                name=name, slug=slug, description=description, parent=parent
-            )
+        category_id = wp.create_category(
+            name=name, slug=slug, description=description, parent=parent
+        )
 
-            console.print(f"[green]✓ Created category '{name}' with ID {category_id}[/green]")
+        console.print(f"[green]✓ Created category '{name}' with ID {category_id}[/green]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -463,32 +444,28 @@ def update_category(category_id, name, slug, description, parent, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            success = wp.update_category(
-                category_id=category_id,
-                name=name,
-                slug=slug,
-                description=description,
-                parent=parent,
-            )
+        success = wp.update_category(
+            category_id=category_id,
+            name=name,
+            slug=slug,
+            description=description,
+            parent=parent,
+        )
 
-            if success:
-                console.print(f"[green]✓ Updated category {category_id}[/green]")
-            else:
-                console.print(f"[red]Failed to update category {category_id}[/red]")
+        if success:
+            console.print(f"[green]✓ Updated category {category_id}[/green]")
+        else:
+            console.print(f"[red]Failed to update category {category_id}[/red]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -513,26 +490,22 @@ def delete_category(category_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            success = wp.delete_category(category_id)
+        success = wp.delete_category(category_id)
 
-            if success:
-                console.print(f"[green]✓ Deleted category {category_id}[/green]")
-            else:
-                console.print(f"[red]Failed to delete category {category_id}[/red]")
+        if success:
+            console.print(f"[green]✓ Deleted category {category_id}[/green]")
+        else:
+            console.print(f"[red]Failed to delete category {category_id}[/red]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

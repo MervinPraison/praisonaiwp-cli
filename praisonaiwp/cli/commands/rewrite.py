@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.ai_formatter import AIFormatter
 from praisonaiwp.utils.logger import get_logger
@@ -52,8 +52,14 @@ def list_rewrite(ctx, format_type, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # List rewrite rules
         result = client.rewrite_list(format_type)
@@ -128,8 +134,14 @@ def flush_rewrite(ctx, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Flush rewrite rules
         success = client.rewrite_flush()
@@ -196,8 +208,14 @@ def set_structure(ctx, structure, category_base, tag_base, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Set permalink structure
         success = client.rewrite_structure(structure, category_base, tag_base)
@@ -266,8 +284,14 @@ def get_rewrite(ctx, type, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Get rewrite rule
         rule = client.rewrite_get(type)
@@ -340,8 +364,14 @@ def set_rewrite(ctx, type, rule, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Set rewrite rule
         success = client.rewrite_set(type, rule)

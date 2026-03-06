@@ -4,7 +4,7 @@ import click
 from rich.console import Console
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -35,26 +35,22 @@ def delete_post(post_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            success = wp.delete_post(post_id)
+        success = wp.delete_post(post_id)
 
-            if success:
-                console.print(f"[green]✓ Deleted post {post_id}[/green]")
-            else:
-                console.print(f"[red]Failed to delete post {post_id}[/red]")
+        if success:
+            console.print(f"[green]✓ Deleted post {post_id}[/green]")
+        else:
+            console.print(f"[red]Failed to delete post {post_id}[/red]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -78,27 +74,23 @@ def post_exists(post_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            exists = wp.post_exists(post_id)
+        exists = wp.post_exists(post_id)
 
-            if exists:
-                console.print(f"[green]✓ Post {post_id} exists[/green]")
-            else:
-                console.print(f"[red]✗ Post {post_id} does not exist[/red]")
-                raise click.ClickException(f"Post {post_id} does not exist")
+        if exists:
+            console.print(f"[green]✓ Post {post_id} exists[/green]")
+        else:
+            console.print(f"[red]✗ Post {post_id} does not exist[/red]")
+            raise click.ClickException(f"Post {post_id} does not exist")
 
     except click.ClickException:
         raise

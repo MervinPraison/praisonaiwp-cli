@@ -3,7 +3,7 @@
 import click
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -35,45 +35,41 @@ def list_plugins(status, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config['key_file'],
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            kwargs = {}
-            if status != 'all':
-                kwargs['status'] = status
+        kwargs = {}
+        if status != 'all':
+            kwargs['status'] = status
 
-            plugins = wp.list_plugins(**kwargs)
+        plugins = wp.list_plugins(**kwargs)
 
-            if not plugins:
-                click.echo("No plugins found")
-                return
+        if not plugins:
+            click.echo("No plugins found")
+            return
 
-            click.echo(f"\nFound {len(plugins)} plugin(s):\n")
-            for plugin in plugins:
-                name = plugin.get('name', 'Unknown')
-                status_str = plugin.get('status', 'unknown')
-                version = plugin.get('version', 'N/A')
-                update = plugin.get('update', 'none')
+        click.echo(f"\nFound {len(plugins)} plugin(s):\n")
+        for plugin in plugins:
+            name = plugin.get('name', 'Unknown')
+            status_str = plugin.get('status', 'unknown')
+            version = plugin.get('version', 'N/A')
+            update = plugin.get('update', 'none')
 
-                status_icon = "✓" if status_str == "active" else "○"
-                update_icon = " [UPDATE AVAILABLE]" if update != "none" else ""
+            status_icon = "✓" if status_str == "active" else "○"
+            update_icon = " [UPDATE AVAILABLE]" if update != "none" else ""
 
-                click.echo(f"  {status_icon} {name} (v{version}){update_icon}")
-                click.echo(f"    Status: {status_str}")
-                if update != "none":
-                    click.echo(f"    Update: {update}")
-                click.echo()
+            click.echo(f"  {status_icon} {name} (v{version}){update_icon}")
+            click.echo(f"    Status: {status_str}")
+            if update != "none":
+                click.echo(f"    Update: {update}")
+            click.echo()
 
     except Exception as e:
         logger.error(f"Failed to list plugins: {e}")
@@ -102,23 +98,19 @@ def update_plugin(plugin, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config['key_file'],
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            click.echo(f"Updating plugin(s): {plugin}...")
-            wp.update_plugin(plugin)
-            click.echo(f"✓ Successfully updated plugin(s): {plugin}")
+        click.echo(f"Updating plugin(s): {plugin}...")
+        wp.update_plugin(plugin)
+        click.echo(f"✓ Successfully updated plugin(s): {plugin}")
 
     except Exception as e:
         logger.error(f"Failed to update plugin: {e}")
@@ -140,23 +132,19 @@ def activate_plugin(plugin, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config['key_file'],
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            click.echo(f"Activating plugin: {plugin}...")
-            wp.activate_plugin(plugin)
-            click.echo(f"✓ Successfully activated plugin: {plugin}")
+        click.echo(f"Activating plugin: {plugin}...")
+        wp.activate_plugin(plugin)
+        click.echo(f"✓ Successfully activated plugin: {plugin}")
 
     except Exception as e:
         logger.error(f"Failed to activate plugin: {e}")
@@ -178,23 +166,19 @@ def deactivate_plugin(plugin, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config['key_file'],
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            click.echo(f"Deactivating plugin: {plugin}...")
-            wp.deactivate_plugin(plugin)
-            click.echo(f"✓ Successfully deactivated plugin: {plugin}")
+        click.echo(f"Deactivating plugin: {plugin}...")
+        wp.deactivate_plugin(plugin)
+        click.echo(f"✓ Successfully deactivated plugin: {plugin}")
 
     except Exception as e:
         logger.error(f"Failed to deactivate plugin: {e}")
@@ -225,27 +209,23 @@ def install_plugin(plugin, version, force, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config['key_file'],
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            click.echo(f"Installing plugin: {plugin}...")
-            success = wp.plugin_install(plugin, version, force)
-            if success:
-                click.echo(f"✓ Successfully installed plugin: {plugin}")
-            else:
-                click.echo(f"✗ Failed to install plugin: {plugin}")
-                raise click.Abort()
+        click.echo(f"Installing plugin: {plugin}...")
+        success = wp.plugin_install(plugin, version, force)
+        if success:
+            click.echo(f"✓ Successfully installed plugin: {plugin}")
+        else:
+            click.echo(f"✗ Failed to install plugin: {plugin}")
+            raise click.Abort()
 
     except Exception as e:
         logger.error(f"Failed to install plugin: {e}")
@@ -272,27 +252,23 @@ def delete_plugin(plugin, deactivate, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config['key_file'],
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            click.echo(f"Deleting plugin: {plugin}...")
-            success = wp.plugin_delete(plugin, deactivate)
-            if success:
-                click.echo(f"✓ Successfully deleted plugin: {plugin}")
-            else:
-                click.echo(f"✗ Failed to delete plugin: {plugin}")
-                raise click.Abort()
+        click.echo(f"Deleting plugin: {plugin}...")
+        success = wp.plugin_delete(plugin, deactivate)
+        if success:
+            click.echo(f"✓ Successfully deleted plugin: {plugin}")
+        else:
+            click.echo(f"✗ Failed to delete plugin: {plugin}")
+            raise click.Abort()
 
     except Exception as e:
         logger.error(f"Failed to delete plugin: {e}")

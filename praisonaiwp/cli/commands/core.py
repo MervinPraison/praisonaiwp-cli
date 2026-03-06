@@ -4,7 +4,7 @@ import click
 from rich.console import Console
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -39,8 +39,14 @@ def get_core_version(server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         version = client.get_core_version()
 
@@ -84,8 +90,14 @@ def update_core(version, force, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         success = client.update_core(version=version, force=force)
 
@@ -133,8 +145,14 @@ def download_core(version, path, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         download_path = client.download_core(version=version, path=path)
 
@@ -180,8 +198,14 @@ def install_core(version, force, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         success = client.install_core(version=version, force=force)
 
@@ -224,8 +248,14 @@ def verify_core(server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         is_valid = client.verify_core()
 
@@ -263,8 +293,14 @@ def check_core_update(server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         update_info = client.check_core_update()
 

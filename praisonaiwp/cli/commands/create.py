@@ -10,7 +10,7 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.block_converter import convert_to_blocks as html_to_blocks
 from praisonaiwp.utils.block_converter import has_blocks
@@ -183,89 +183,85 @@ def _create_single_post(title, content, status, post_type, category, category_id
 
     console.print(f"\n[yellow]Creating {post_type}...[/yellow]")
 
-    with SSHManager(
-        server_config['hostname'],
-        server_config['username'],
-        server_config.get('key_filename'),
-        server_config.get('port', 22)
-    ) as ssh:
+    transport = get_transport(config, server)
+    transport.connect()
+    wp = WPClient(
+        transport,
+        server_config['wp_path'],
+        server_config.get('php_bin', 'php'),
+        server_config.get('wp_cli', '/usr/local/bin/wp')
+    )
 
-        wp = WPClient(
-            ssh,
-            server_config['wp_path'],
-            server_config.get('php_bin', 'php'),
-            server_config.get('wp_cli', '/usr/local/bin/wp')
-        )
 
-        # Auto-convert HTML to blocks (unless disabled)
-        if not no_block_conversion and content and not has_blocks(content):
-            console.print("[cyan]Auto-converting HTML to Gutenberg blocks...[/cyan]")
-            content = html_to_blocks(content)
-            console.print("[green]✓ Content converted to blocks[/green]")
-        elif no_block_conversion and content:
-            console.print("[yellow]Block conversion disabled - using raw HTML[/yellow]")
+    # Auto-convert HTML to blocks (unless disabled)
+    if not no_block_conversion and content and not has_blocks(content):
+        console.print("[cyan]Auto-converting HTML to Gutenberg blocks...[/cyan]")
+        content = html_to_blocks(content)
+        console.print("[green]✓ Content converted to blocks[/green]")
+    elif no_block_conversion and content:
+        console.print("[yellow]Block conversion disabled - using raw HTML[/yellow]")
 
-        # Prepare post arguments
-        post_args = {
-            'post_title': title,
-            'post_content': content,
-            'post_status': status,
-            'post_type': post_type,
-        }
+    # Prepare post arguments
+    post_args = {
+        'post_title': title,
+        'post_content': content,
+        'post_status': status,
+        'post_type': post_type,
+    }
 
-        # Add author if specified
-        if author:
-            # Check if author is numeric (user ID) or string (login)
-            if author.isdigit():
-                post_args['post_author'] = int(author)
+    # Add author if specified
+    if author:
+        # Check if author is numeric (user ID) or string (login)
+        if author.isdigit():
+            post_args['post_author'] = int(author)
+        else:
+            # Look up user by login
+            user = wp.get_user(author)
+            if user:
+                post_args['post_author'] = int(user['ID'])
             else:
-                # Look up user by login
-                user = wp.get_user(author)
-                if user:
-                    post_args['post_author'] = int(user['ID'])
-                else:
-                    console.print(f"[yellow]Warning: User '{author}' not found, using default author[/yellow]")
+                console.print(f"[yellow]Warning: User '{author}' not found, using default author[/yellow]")
 
-        # Add optional fields
-        if excerpt:
-            post_args['post_excerpt'] = excerpt
-        if date:
-            post_args['post_date'] = date
-        if comment_status:
-            post_args['comment_status'] = comment_status
-        if tags:
-            post_args['tags_input'] = tags
-        if meta:
-            # meta should be JSON string like '{"key":"value"}'
-            post_args['meta_input'] = meta
+    # Add optional fields
+    if excerpt:
+        post_args['post_excerpt'] = excerpt
+    if date:
+        post_args['post_date'] = date
+    if comment_status:
+        post_args['comment_status'] = comment_status
+    if tags:
+        post_args['tags_input'] = tags
+    if meta:
+        # meta should be JSON string like '{"key":"value"}'
+        post_args['meta_input'] = meta
 
-        post_id = wp.create_post(**post_args)
+    post_id = wp.create_post(**post_args)
 
-        # Set categories if provided
-        if category or category_id:
-            category_ids = _parse_category_input(category, category_id, wp)
-            if category_ids:
-                wp.set_post_categories(post_id, category_ids)
+    # Set categories if provided
+    if category or category_id:
+        category_ids = _parse_category_input(category, category_id, wp)
+        if category_ids:
+            wp.set_post_categories(post_id, category_ids)
 
-                # Get category names for display
-                category_names = []
-                for cid in category_ids:
-                    cat = wp.get_category_by_id(cid)
-                    if cat:
-                        category_names.append(cat['name'])
+            # Get category names for display
+            category_names = []
+            for cid in category_ids:
+                cat = wp.get_category_by_id(cid)
+                if cat:
+                    category_names.append(cat['name'])
 
-                console.print(f"[green]✓ Created {post_type} ID: {post_id}[/green]")
-                console.print(f"Title: {title}")
-                console.print(f"Status: {status}")
-                console.print(f"Categories: {', '.join(category_names)}\n")
-            else:
-                console.print(f"[green]✓ Created {post_type} ID: {post_id}[/green]")
-                console.print(f"Title: {title}")
-                console.print(f"Status: {status}\n")
+            console.print(f"[green]✓ Created {post_type} ID: {post_id}[/green]")
+            console.print(f"Title: {title}")
+            console.print(f"Status: {status}")
+            console.print(f"Categories: {', '.join(category_names)}\n")
         else:
             console.print(f"[green]✓ Created {post_type} ID: {post_id}[/green]")
             console.print(f"Title: {title}")
             console.print(f"Status: {status}\n")
+    else:
+        console.print(f"[green]✓ Created {post_type} ID: {post_id}[/green]")
+        console.print(f"Title: {title}")
+        console.print(f"Status: {status}\n")
 
 
 def _create_from_file(file_path, server_config, config):
@@ -290,47 +286,43 @@ def _create_from_file(file_path, server_config, config):
         console.print("[yellow]Note: Parallel mode not yet implemented, using sequential[/yellow]")
 
     # Create posts sequentially
-    with SSHManager(
-        server_config['hostname'],
-        server_config['username'],
-        server_config['key_file'],
-        server_config.get('port', 22)
-    ) as ssh:
+    transport = get_transport(config, server)
+    transport.connect()
+    wp = WPClient(
+        transport,
+        server_config['wp_path'],
+        server_config.get('php_bin', 'php'),
+        server_config.get('wp_cli', '/usr/local/bin/wp')
+    )
 
-        wp = WPClient(
-            ssh,
-            server_config['wp_path'],
-            server_config.get('php_bin', 'php'),
-            server_config.get('wp_cli', '/usr/local/bin/wp')
-        )
 
-        created_ids = []
+    created_ids = []
 
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console
-        ) as progress:
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console
+    ) as progress:
 
-            task = progress.add_task(f"Creating {len(posts)} posts...", total=len(posts))
+        task = progress.add_task(f"Creating {len(posts)} posts...", total=len(posts))
 
-            for i, post in enumerate(posts, 1):
-                try:
-                    post_id = wp.create_post(
-                        post_title=post.get('title', f'Untitled Post {i}'),
-                        post_content=post.get('content', ''),
-                        post_status=post.get('status', 'publish'),
-                        post_type=post.get('type', 'post')
-                    )
-                    created_ids.append(post_id)
-                    progress.update(task, advance=1)
+        for i, post in enumerate(posts, 1):
+            try:
+                post_id = wp.create_post(
+                    post_title=post.get('title', f'Untitled Post {i}'),
+                    post_content=post.get('content', ''),
+                    post_status=post.get('status', 'publish'),
+                    post_type=post.get('type', 'post')
+                )
+                created_ids.append(post_id)
+                progress.update(task, advance=1)
 
-                except Exception as e:
-                    console.print(f"[red]✗ Failed to create post {i}: {e}[/red]")
-                    logger.error(f"Failed to create post: {e}")
+            except Exception as e:
+                console.print(f"[red]✗ Failed to create post {i}: {e}[/red]")
+                logger.error(f"Failed to create post: {e}")
 
-        console.print(f"\n[green]✓ Created {len(created_ids)} posts successfully[/green]")
-        console.print(f"Post IDs: {', '.join(map(str, created_ids))}\n")
+    console.print(f"\n[green]✓ Created {len(created_ids)} posts successfully[/green]")
+    console.print(f"Post IDs: {', '.join(map(str, created_ids))}\n")
 
 
 def _parse_file(file_path):

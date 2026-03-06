@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -43,61 +43,57 @@ def list_comments(post_id, status, limit, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            comments = wp.list_comments(
-                post_id=post_id,
-                status=status,
-                number=limit
-            )
+        comments = wp.list_comments(
+            post_id=post_id,
+            status=status,
+            number=limit
+        )
 
-            if comments:
-                table = Table(title="WordPress Comments")
-                table.add_column("ID", style="cyan")
-                table.add_column("Content", style="white")
-                table.add_column("Author", style="green")
-                table.add_column("Status", style="yellow")
-                table.add_column("Post ID", style="blue")
+        if comments:
+            table = Table(title="WordPress Comments")
+            table.add_column("ID", style="cyan")
+            table.add_column("Content", style="white")
+            table.add_column("Author", style="green")
+            table.add_column("Status", style="yellow")
+            table.add_column("Post ID", style="blue")
 
-                for comment in comments:
-                    # Truncate content for display
-                    content = comment.get('comment_content', '')[:50]
-                    if len(comment.get('comment_content', '')) > 50:
-                        content += "..."
+            for comment in comments:
+                # Truncate content for display
+                content = comment.get('comment_content', '')[:50]
+                if len(comment.get('comment_content', '')) > 50:
+                    content += "..."
 
-                    status_text = comment.get('comment_approved', 'unknown')
-                    if status_text == '1':
-                        status_text = "approved"
-                    elif status_text == '0':
-                        status_text = "pending"
-                    elif status_text == 'spam':
-                        status_text = "spam"
-                    elif status_text == 'trash':
-                        status_text = "trash"
+                status_text = comment.get('comment_approved', 'unknown')
+                if status_text == '1':
+                    status_text = "approved"
+                elif status_text == '0':
+                    status_text = "pending"
+                elif status_text == 'spam':
+                    status_text = "spam"
+                elif status_text == 'trash':
+                    status_text = "trash"
 
-                    table.add_row(
-                        str(comment.get('comment_ID', '')),
-                        content,
-                        comment.get('comment_author', 'Anonymous'),
-                        status_text,
-                        str(comment.get('comment_post_ID', ''))
-                    )
+                table.add_row(
+                    str(comment.get('comment_ID', '')),
+                    content,
+                    comment.get('comment_author', 'Anonymous'),
+                    status_text,
+                    str(comment.get('comment_post_ID', ''))
+                )
 
-                console.print(table)
-            else:
-                console.print("[yellow]No comments found[/yellow]")
+            console.print(table)
+        else:
+            console.print("[yellow]No comments found[/yellow]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -121,40 +117,36 @@ def get_comment(comment_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            comment = wp.get_comment(comment_id)
+        comment = wp.get_comment(comment_id)
 
-            if comment:
-                table = Table(title=f"Comment {comment_id}")
-                table.add_column("Field", style="cyan")
-                table.add_column("Value", style="white")
+        if comment:
+            table = Table(title=f"Comment {comment_id}")
+            table.add_column("Field", style="cyan")
+            table.add_column("Value", style="white")
 
-                table.add_row("ID", str(comment.get('comment_ID', '')))
-                table.add_row("Content", comment.get('comment_content', ''))
-                table.add_row("Author", comment.get('comment_author', 'Anonymous'))
-                table.add_row("Email", comment.get('comment_author_email', ''))
-                table.add_row("URL", comment.get('comment_author_url', ''))
-                table.add_row("IP", comment.get('comment_author_IP', ''))
-                table.add_row("Date", comment.get('comment_date', ''))
-                table.add_row("Post ID", str(comment.get('comment_post_ID', '')))
-                table.add_row("Status", comment.get('comment_approved', ''))
+            table.add_row("ID", str(comment.get('comment_ID', '')))
+            table.add_row("Content", comment.get('comment_content', ''))
+            table.add_row("Author", comment.get('comment_author', 'Anonymous'))
+            table.add_row("Email", comment.get('comment_author_email', ''))
+            table.add_row("URL", comment.get('comment_author_url', ''))
+            table.add_row("IP", comment.get('comment_author_IP', ''))
+            table.add_row("Date", comment.get('comment_date', ''))
+            table.add_row("Post ID", str(comment.get('comment_post_ID', '')))
+            table.add_row("Status", comment.get('comment_approved', ''))
 
-                console.print(table)
-            else:
-                console.print(f"[red]Comment {comment_id} not found[/red]")
+            console.print(table)
+        else:
+            console.print(f"[red]Comment {comment_id} not found[/red]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -185,29 +177,25 @@ def create_comment(post_id, content, author, email, url, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            comment_id = wp.create_comment(
-                post_id=post_id,
-                content=content,
-                author_name=author,
-                author_email=email,
-                author_url=url
-            )
+        comment_id = wp.create_comment(
+            post_id=post_id,
+            content=content,
+            author_name=author,
+            author_email=email,
+            author_url=url
+        )
 
-            console.print(f"[green]✓ Created comment {comment_id}[/green]")
+        console.print(f"[green]✓ Created comment {comment_id}[/green]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -238,32 +226,28 @@ def update_comment(comment_id, content, author, email, url, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            success = wp.update_comment(
-                comment_id=comment_id,
-                content=content,
-                author_name=author,
-                author_email=email,
-                author_url=url
-            )
+        success = wp.update_comment(
+            comment_id=comment_id,
+            content=content,
+            author_name=author,
+            author_email=email,
+            author_url=url
+        )
 
-            if success:
-                console.print(f"[green]✓ Updated comment {comment_id}[/green]")
-            else:
-                console.print(f"[red]Failed to update comment {comment_id}[/red]")
+        if success:
+            console.print(f"[green]✓ Updated comment {comment_id}[/green]")
+        else:
+            console.print(f"[red]Failed to update comment {comment_id}[/red]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -288,26 +272,22 @@ def delete_comment(comment_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            success = wp.delete_comment(comment_id)
+        success = wp.delete_comment(comment_id)
 
-            if success:
-                console.print(f"[green]✓ Deleted comment {comment_id}[/green]")
-            else:
-                console.print(f"[red]Failed to delete comment {comment_id}[/red]")
+        if success:
+            console.print(f"[green]✓ Deleted comment {comment_id}[/green]")
+        else:
+            console.print(f"[red]Failed to delete comment {comment_id}[/red]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -335,32 +315,28 @@ def approve_comment(comment_id, unapprove, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            if unapprove:
-                success = wp.unapprove_comment(comment_id)
-                if success:
-                    console.print(f"[green]✓ Unapproved comment {comment_id}[/green]")
-                else:
-                    console.print(f"[red]Failed to unapprove comment {comment_id}[/red]")
+        if unapprove:
+            success = wp.unapprove_comment(comment_id)
+            if success:
+                console.print(f"[green]✓ Unapproved comment {comment_id}[/green]")
             else:
-                success = wp.approve_comment(comment_id)
-                if success:
-                    console.print(f"[green]✓ Approved comment {comment_id}[/green]")
-                else:
-                    console.print(f"[red]Failed to approve comment {comment_id}[/red]")
+                console.print(f"[red]Failed to unapprove comment {comment_id}[/red]")
+        else:
+            success = wp.approve_comment(comment_id)
+            if success:
+                console.print(f"[green]✓ Approved comment {comment_id}[/green]")
+            else:
+                console.print(f"[red]Failed to approve comment {comment_id}[/red]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -384,26 +360,22 @@ def approve_comment(comment_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            success = wp.comment_approve(comment_id)
-            if success:
-                console.print(f"[green]✓ Approved comment {comment_id}[/green]")
-            else:
-                console.print(f"[red]✗ Failed to approve comment {comment_id}[/red]")
-                raise click.ClickException(f"Comment approval failed for {comment_id}")
+        success = wp.comment_approve(comment_id)
+        if success:
+            console.print(f"[green]✓ Approved comment {comment_id}[/green]")
+        else:
+            console.print(f"[red]✗ Failed to approve comment {comment_id}[/red]")
+            raise click.ClickException(f"Comment approval failed for {comment_id}")
 
     except click.ClickException:
         raise
@@ -429,26 +401,22 @@ def unapprove_comment(comment_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            success = wp.comment_unapprove(comment_id)
-            if success:
-                console.print(f"[green]✓ Unapproved comment {comment_id}[/green]")
-            else:
-                console.print(f"[red]✗ Failed to unapprove comment {comment_id}[/red]")
-                raise click.ClickException(f"Comment unapproval failed for {comment_id}")
+        success = wp.comment_unapprove(comment_id)
+        if success:
+            console.print(f"[green]✓ Unapproved comment {comment_id}[/green]")
+        else:
+            console.print(f"[red]✗ Failed to unapprove comment {comment_id}[/red]")
+            raise click.ClickException(f"Comment unapproval failed for {comment_id}")
 
     except click.ClickException:
         raise
@@ -474,26 +442,22 @@ def spam_comment(comment_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            success = wp.comment_spam(comment_id)
-            if success:
-                console.print(f"[green]✓ Marked comment {comment_id} as spam[/green]")
-            else:
-                console.print(f"[red]✗ Failed to mark comment {comment_id} as spam[/red]")
-                raise click.ClickException(f"Comment spam marking failed for {comment_id}")
+        success = wp.comment_spam(comment_id)
+        if success:
+            console.print(f"[green]✓ Marked comment {comment_id} as spam[/green]")
+        else:
+            console.print(f"[red]✗ Failed to mark comment {comment_id} as spam[/red]")
+            raise click.ClickException(f"Comment spam marking failed for {comment_id}")
 
     except click.ClickException:
         raise
@@ -519,26 +483,22 @@ def trash_comment(comment_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            success = wp.comment_trash(comment_id)
-            if success:
-                console.print(f"[green]✓ Moved comment {comment_id} to trash[/green]")
-            else:
-                console.print(f"[red]✗ Failed to move comment {comment_id} to trash[/red]")
-                raise click.ClickException(f"Comment trash failed for {comment_id}")
+        success = wp.comment_trash(comment_id)
+        if success:
+            console.print(f"[green]✓ Moved comment {comment_id} to trash[/green]")
+        else:
+            console.print(f"[red]✗ Failed to move comment {comment_id} to trash[/red]")
+            raise click.ClickException(f"Comment trash failed for {comment_id}")
 
     except click.ClickException:
         raise

@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.ai_formatter import AIFormatter
 from praisonaiwp.utils.logger import get_logger
@@ -52,8 +52,14 @@ def flush_cache(ctx, cache_type, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Flush cache
         success = client.cache_flush(cache_type)
@@ -122,8 +128,14 @@ def add_cache(ctx, key, value, group, expire, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Add cache item
         success = client.cache_add(key, value, group, expire)
@@ -193,8 +205,14 @@ def get_cache(ctx, key, group, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Get cache item
         value = client.cache_get(key, group)
@@ -269,8 +287,14 @@ def delete_cache(ctx, key, group, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Delete cache item
         success = client.cache_delete(key, group)
@@ -336,8 +360,14 @@ def list_cache(ctx, group, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # List cache items
         result = client.cache_list(group)

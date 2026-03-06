@@ -8,7 +8,6 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
 from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
@@ -146,26 +145,21 @@ def get_media(attachment_id, field, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
+        result = wp.get_media_info(attachment_id, field=field)
 
-            result = wp.get_media_info(attachment_id, field=field)
-
-            if field:
-                console.print(result)
-            else:
-                console.print_json(json.dumps(result, indent=2))
+        if field:
+            console.print(result)
+        else:
+            console.print_json(json.dumps(result, indent=2))
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -189,22 +183,17 @@ def get_url(attachment_id, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
-
-            url = wp.get_media_url(attachment_id)
-            console.print(url)
+        url = wp.get_media_url(attachment_id)
+        console.print(url)
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -235,47 +224,42 @@ def list_media(post_id, mime_type, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
+        filters = {}
+        if mime_type:
+            filters['post_mime_type'] = mime_type
+
+        attachments = wp.list_media(post_id=post_id, **filters)
+
+        if not attachments:
+            console.print("[yellow]No attachments found[/yellow]")
+            return
+
+        # Create table
+        table = Table(title="Media Attachments")
+        table.add_column("ID", style="cyan")
+        table.add_column("Title", style="green")
+        table.add_column("Type", style="yellow")
+        table.add_column("URL", style="blue")
+
+        for att in attachments:
+            table.add_row(
+                str(att.get('ID', '')),
+                att.get('post_title', ''),
+                att.get('post_mime_type', ''),
+                att.get('guid', '')
             )
 
-            filters = {}
-            if mime_type:
-                filters['post_mime_type'] = mime_type
-
-            attachments = wp.list_media(post_id=post_id, **filters)
-
-            if not attachments:
-                console.print("[yellow]No attachments found[/yellow]")
-                return
-
-            # Create table
-            table = Table(title="Media Attachments")
-            table.add_column("ID", style="cyan")
-            table.add_column("Title", style="green")
-            table.add_column("Type", style="yellow")
-            table.add_column("URL", style="blue")
-
-            for att in attachments:
-                table.add_row(
-                    str(att.get('ID', '')),
-                    att.get('post_title', ''),
-                    att.get('post_mime_type', ''),
-                    att.get('guid', '')
-                )
-
-            console.print(table)
-            console.print(f"\n[dim]Total: {len(attachments)} attachment(s)[/dim]")
+        console.print(table)
+        console.print(f"\n[dim]Total: {len(attachments)} attachment(s)[/dim]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

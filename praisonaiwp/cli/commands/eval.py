@@ -4,7 +4,7 @@ import click
 from rich.console import Console
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -80,29 +80,25 @@ def eval_code(php_code, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            console.print("Executing PHP code...")
-            result = wp.eval_code(php_code)
+        console.print("Executing PHP code...")
+        result = wp.eval_code(php_code)
 
-            if result is not None:
-                console.print("[green]✓ PHP code executed successfully[/green]")
-                console.print(f"Output: {result}")
-            else:
-                console.print("[red]✗ Failed to execute PHP code[/red]")
-                raise click.ClickException("PHP code execution failed")
+        if result is not None:
+            console.print("[green]✓ PHP code executed successfully[/green]")
+            console.print(f"Output: {result}")
+        else:
+            console.print("[red]✗ Failed to execute PHP code[/red]")
+            raise click.ClickException("PHP code execution failed")
 
     except click.ClickException:
         raise
@@ -165,29 +161,25 @@ def eval_file(file_path, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config.get('key_filename'),
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
-            )
 
-            console.print(f"Executing PHP file: {file_path}...")
-            result = wp.eval_file(file_path)
+        console.print(f"Executing PHP file: {file_path}...")
+        result = wp.eval_file(file_path)
 
-            if result is not None:
-                console.print("[green]✓ PHP file executed successfully[/green]")
-                console.print(f"Output: {result}")
-            else:
-                console.print("[red]✗ Failed to execute PHP file[/red]")
-                raise click.ClickException(f"PHP file execution failed: {file_path}")
+        if result is not None:
+            console.print("[green]✓ PHP file executed successfully[/green]")
+            console.print(f"Output: {result}")
+        else:
+            console.print("[red]✗ Failed to execute PHP file[/red]")
+            raise click.ClickException(f"PHP file execution failed: {file_path}")
 
     except click.ClickException:
         raise

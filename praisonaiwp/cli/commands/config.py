@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -44,8 +44,14 @@ def get_config(param, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         value = client.get_config_param(param)
 
@@ -86,8 +92,14 @@ def set_config(param, value, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         success = client.set_config_param(param, value)
 
@@ -128,8 +140,14 @@ def list_config(search, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         config_data = client.get_all_config()
 
@@ -197,8 +215,14 @@ def create_config(dbhost, dbname, dbuser, dbpass, dbprefix, dbcharset, dbscollat
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Prepare config parameters
         config_params = {
@@ -250,8 +274,14 @@ def config_path(server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         config_path = client.get_config_path()
 

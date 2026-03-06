@@ -1,7 +1,7 @@
 """Ability management commands"""
 import click
 
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.config import Config
 from praisonaiwp.core.wp_client import WPClient
 
@@ -18,7 +18,8 @@ def ability():
 def list(user_id, server):
     """List user capabilities."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'ability list {user_id}')
@@ -34,7 +35,8 @@ def list(user_id, server):
 def add(user_id, capability, grant, deny, server):
     """Add or remove user capability."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     if grant:
@@ -54,7 +56,8 @@ def add(user_id, capability, grant, deny, server):
 def remove(user_id, capability, server):
     """Remove user capability."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'capability remove {user_id} {capability}')
@@ -67,7 +70,8 @@ def remove(user_id, capability, server):
 def check(capability, server):
     """Check if current user has capability."""
     config = Config()
-    ssh = SSHManager.from_config(config, server) if server else None
+    transport = get_transport(config, server)
+    transport.connect()
     client = WPClient(ssh, config.get_server(server)['wp_path'] if server else None)
     
     result = client.cli(f'capability check {capability}')

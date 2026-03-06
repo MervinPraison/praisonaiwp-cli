@@ -4,7 +4,7 @@ import click
 from rich.console import Console
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -47,8 +47,14 @@ def scaffold_post_type(slug, label, public, has_archive, supports, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         success = client.scaffold_post_type(slug, label, public, has_archive, supports)
 
@@ -101,8 +107,14 @@ def scaffold_taxonomy(slug, label, public, hierarchical, post_types, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         success = client.scaffold_taxonomy(slug, label, public, hierarchical, post_types)
 
@@ -154,8 +166,14 @@ def scaffold_plugin(slug, plugin_name, plugin_uri, author, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         success = client.scaffold_plugin(slug, plugin_name, plugin_uri, author)
 
@@ -206,8 +224,14 @@ def scaffold_theme(slug, theme_name, theme_uri, author, author_uri, server):
             console.print(f"[red]Server '{server}' not found in configuration[/red]")
             return
 
-        ssh = SSHManager.from_config(config, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         success = client.scaffold_theme(slug, theme_name, theme_uri, author, author_uri)
 

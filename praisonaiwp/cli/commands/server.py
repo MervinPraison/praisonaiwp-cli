@@ -7,7 +7,7 @@ from rich.panel import Panel
 from rich.text import Text
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.ai_formatter import AIFormatter
 from praisonaiwp.utils.logger import get_logger
@@ -60,8 +60,14 @@ def start_server(ctx, host, port, config, docroot, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Start the server
         server_url = client.start_server(host, port, config, docroot)
@@ -151,8 +157,14 @@ def open_shell(ctx, server, json_output):
                 console.print(f"[red]{error_msg}[/red]")
             return
 
-        ssh = SSHManager.from_config(config_manager, server_config.get('hostname', server))
-        client = WPClient(ssh, server_config['wp_path'])
+        transport = get_transport(config_manager, server)
+        transport.connect()
+        client = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
         # Open the shell
         shell_prompt = client.open_shell()

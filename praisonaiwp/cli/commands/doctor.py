@@ -7,7 +7,7 @@ from rich.table import Table
 from rich.panel import Panel
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.utils.logger import get_logger
 
 console = Console()
@@ -126,24 +126,20 @@ def doctor(server, verbose):
                 console.print("  [yellow]⚠ Kubernetes transport - skipping SSH test[/yellow]")
                 console.print(f"  [dim]Use 'kubectl get pods -l {server_config.get('pod_selector', '')}' to verify[/dim]")
             else:
-                with SSHManager(
-                    server_config['hostname'],
-                    server_config['username'],
-                    server_config['key_file'],
-                    server_config.get('port', 22)
-                ) as ssh:
-                    # Test WP-CLI
-                    wp_cli = server_config.get('wp_cli', '/usr/local/bin/wp')
-                    wp_path = server_config.get('wp_path', '')
-                    result = ssh.execute(f"cd {wp_path} && {wp_cli} --info 2>/dev/null | head -1")
+                transport = get_transport(config, server)
+                transport.connect()
+                # Test WP-CLI
+                wp_cli = server_config.get('wp_cli', '/usr/local/bin/wp')
+                wp_path = server_config.get('wp_path', '')
+                result = transport.execute(f"cd {wp_path} && {wp_cli} --info 2>/dev/null | head -1")
+                
+                if result and 'WP-CLI' in result:
+                    console.print(f"  [green]✓ SSH connection successful[/green]")
+                    console.print(f"  [green]✓ WP-CLI available: {result.strip()}[/green]")
+                else:
+                    console.print(f"  [green]✓ SSH connection successful[/green]")
+                    console.print(f"  [yellow]⚠ WP-CLI check inconclusive[/yellow]")
                     
-                    if result and 'WP-CLI' in result:
-                        console.print(f"  [green]✓ SSH connection successful[/green]")
-                        console.print(f"  [green]✓ WP-CLI available: {result.strip()}[/green]")
-                    else:
-                        console.print(f"  [green]✓ SSH connection successful[/green]")
-                        console.print(f"  [yellow]⚠ WP-CLI check inconclusive[/yellow]")
-                        
         except Exception as e:
             console.print(f"  [red]✗ Connection failed: {e}[/red]")
     

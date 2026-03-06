@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -41,47 +41,43 @@ def db_query(sql_query, server):
         config = Config()
         server_config = config.get_server(server)
 
-        with SSHManager(
-            server_config["hostname"],
-            server_config["username"],
-            server_config.get("key_filename"),
-            server_config.get("port", 22),
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config["wp_path"],
-                server_config.get("php_bin", "php"),
-                server_config.get("wp_cli", "/usr/local/bin/wp"),
-            )
 
-            results = wp.db_query(sql_query)
+        results = wp.db_query(sql_query)
 
-            if results:
-                if isinstance(results, list) and len(results) > 0:
-                    # Display results in table format
-                    if isinstance(results[0], dict):
-                        table = Table(title=f"Query Results ({len(results)} rows)")
+        if results:
+            if isinstance(results, list) and len(results) > 0:
+                # Display results in table format
+                if isinstance(results[0], dict):
+                    table = Table(title=f"Query Results ({len(results)} rows)")
 
-                        # Add columns from first row
-                        for column in results[0].keys():
-                            table.add_column(column, style="cyan")
+                    # Add columns from first row
+                    for column in results[0].keys():
+                        table.add_column(column, style="cyan")
 
-                        # Add rows
-                        for row in results:
-                            table.add_row(*[str(value) for value in row.values()])
+                    # Add rows
+                    for row in results:
+                        table.add_row(*[str(value) for value in row.values()])
 
-                        console.print(table)
-                    else:
-                        # Simple list of values
-                        console.print(f"[cyan]Results ({len(results)}):[/cyan]")
-                        for i, result in enumerate(results, 1):
-                            console.print(f"  {i}. {result}")
+                    console.print(table)
                 else:
-                    # Single result
-                    console.print(f"[cyan]Result:[/cyan] {results}")
+                    # Simple list of values
+                    console.print(f"[cyan]Results ({len(results)}):[/cyan]")
+                    for i, result in enumerate(results, 1):
+                        console.print(f"  {i}. {result}")
             else:
-                console.print("[yellow]No results returned[/yellow]")
+                # Single result
+                console.print(f"[cyan]Result:[/cyan] {results}")
+        else:
+            console.print("[yellow]No results returned[/yellow]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

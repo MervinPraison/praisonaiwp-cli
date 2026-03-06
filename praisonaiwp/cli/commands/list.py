@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -45,55 +45,51 @@ def list_command(post_type, status, limit, search, server):
 
         console.print(f"\n[yellow]Fetching {post_type}s...[/yellow]\n")
 
-        with SSHManager(
-            server_config['hostname'],
-            server_config['username'],
-            server_config['key_file'],
-            server_config.get('port', 22)
-        ) as ssh:
+        transport = get_transport(config, server)
+        transport.connect()
+        wp = WPClient(
+            transport,
+            server_config['wp_path'],
+            server_config.get('php_bin', 'php'),
+            server_config.get('wp_cli', '/usr/local/bin/wp')
+        )
 
-            wp = WPClient(
-                ssh,
-                server_config['wp_path'],
-                server_config.get('php_bin', 'php'),
-                server_config.get('wp_cli', '/usr/local/bin/wp')
+
+        # Build filters
+        filters = {}
+        if status != 'all':
+            filters['post_status'] = status
+        if limit:
+            filters['posts_per_page'] = limit
+        if search:
+            filters['s'] = search
+            console.print(f"[cyan]Searching for: {search}[/cyan]\n")
+
+        # Get posts
+        posts = wp.list_posts(post_type=post_type, **filters)
+
+        if not posts:
+            console.print(f"[yellow]No {post_type}s found[/yellow]")
+            return
+
+        # Display results in table
+        table = Table(title=f"{post_type.capitalize()}s ({len(posts)})")
+
+        table.add_column("ID", style="cyan", no_wrap=True)
+        table.add_column("Title", style="white")
+        table.add_column("Status", style="green")
+        table.add_column("Modified", style="dim")
+
+        for post in posts:
+            table.add_row(
+                str(post['ID']),
+                post['post_title'][:50] + ('...' if len(post['post_title']) > 50 else ''),
+                post['post_status'],
+                post.get('post_modified', 'N/A')
             )
 
-            # Build filters
-            filters = {}
-            if status != 'all':
-                filters['post_status'] = status
-            if limit:
-                filters['posts_per_page'] = limit
-            if search:
-                filters['s'] = search
-                console.print(f"[cyan]Searching for: {search}[/cyan]\n")
-
-            # Get posts
-            posts = wp.list_posts(post_type=post_type, **filters)
-
-            if not posts:
-                console.print(f"[yellow]No {post_type}s found[/yellow]")
-                return
-
-            # Display results in table
-            table = Table(title=f"{post_type.capitalize()}s ({len(posts)})")
-
-            table.add_column("ID", style="cyan", no_wrap=True)
-            table.add_column("Title", style="white")
-            table.add_column("Status", style="green")
-            table.add_column("Modified", style="dim")
-
-            for post in posts:
-                table.add_row(
-                    str(post['ID']),
-                    post['post_title'][:50] + ('...' if len(post['post_title']) > 50 else ''),
-                    post['post_status'],
-                    post.get('post_modified', 'N/A')
-                )
-
-            console.print(table)
-            console.print()
+        console.print(table)
+        console.print()
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
