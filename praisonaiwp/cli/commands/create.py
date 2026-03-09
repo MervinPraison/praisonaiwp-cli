@@ -164,7 +164,9 @@ def create_command(title_or_file, content, status, post_type, category, category
                 meta,
                 comment_status,
                 no_block_conversion,
-                server_config
+                server_config,
+                config,
+                server
             )
 
     except Exception as e:
@@ -174,7 +176,8 @@ def create_command(title_or_file, content, status, post_type, category, category
 
 
 def _create_single_post(title, content, status, post_type, category, category_id, author,
-                        excerpt, date, tags, meta, comment_status, no_block_conversion, server_config):
+                        excerpt, date, tags, meta, comment_status, no_block_conversion, server_config,
+                        config=None, server=None):
     """Create a single post"""
 
     if not content:
@@ -183,6 +186,8 @@ def _create_single_post(title, content, status, post_type, category, category_id
 
     console.print(f"\n[yellow]Creating {post_type}...[/yellow]")
 
+    if config is None:
+        config = Config()
     transport = get_transport(config, server)
     transport.connect()
     wp = WPClient(
@@ -286,7 +291,7 @@ def _create_from_file(file_path, server_config, config):
         console.print("[yellow]Note: Parallel mode not yet implemented, using sequential[/yellow]")
 
     # Create posts sequentially
-    transport = get_transport(config, server)
+    transport = get_transport(config)
     transport.connect()
     wp = WPClient(
         transport,
