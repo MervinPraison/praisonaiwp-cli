@@ -15,7 +15,7 @@ except ImportError:
     FastMCP = None
 
 from praisonaiwp.core.config import Config
-from praisonaiwp.core.ssh_manager import SSHManager
+from praisonaiwp.core.transport import get_transport
 from praisonaiwp.core.wp_client import WPClient
 from praisonaiwp.utils.logger import get_logger
 
@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 
 # Global WP client cache
 _wp_client: Optional[WPClient] = None
-_ssh_manager: Optional[SSHManager] = None
+_transport = None
 
 
 def get_wp_client(server_name: Optional[str] = None) -> WPClient:
@@ -36,27 +36,23 @@ def get_wp_client(server_name: Optional[str] = None) -> WPClient:
     Returns:
         WPClient instance
     """
-    global _wp_client, _ssh_manager
+    global _wp_client, _transport
 
     if _wp_client is not None:
         return _wp_client
 
     # Load configuration
     config = Config()
-    server_config = config.get_server(server_name or os.environ.get('PRAISONAIWP_SERVER'))
+    resolved_server = server_name or os.environ.get('PRAISONAIWP_SERVER')
+    server_config = config.get_server(resolved_server)
 
-    # Create SSH connection
-    _ssh_manager = SSHManager(
-        hostname=server_config.get('hostname'),
-        username=server_config.get('username'),
-        key_file=server_config.get('key_file'),
-        port=server_config.get('port', 22)
-    )
-    _ssh_manager.connect()  # Establish SSH connection
+    # Create transport (SSH or Kubernetes) via factory
+    _transport = get_transport(config, resolved_server)
+    _transport.connect()
 
     # Create WP client
     _wp_client = WPClient(
-        ssh=_ssh_manager,
+        ssh=_transport,
         wp_path=server_config.get('wp_path'),
         php_bin=server_config.get('php_bin', 'php'),
         wp_cli=server_config.get('wp_cli', '/usr/local/bin/wp'),
@@ -68,14 +64,14 @@ def get_wp_client(server_name: Optional[str] = None) -> WPClient:
 
 def cleanup():
     """Cleanup resources on shutdown"""
-    global _wp_client, _ssh_manager
+    global _wp_client, _transport
 
-    if _ssh_manager is not None:
+    if _transport is not None:
         try:
-            _ssh_manager.close()
+            _transport.close()
         except Exception:
             pass
-        _ssh_manager = None
+        _transport = None
 
     _wp_client = None
 
