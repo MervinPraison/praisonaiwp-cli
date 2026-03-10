@@ -59,7 +59,13 @@ def get_transport(config, server_name: Optional[str] = None):
         from praisonaiwp.core.ssh_manager import SSHManager
         
         logger.debug(f"Using SSH transport for server: {server_name or 'default'}")
-        return SSHManager.from_config(config, server_config.get('hostname', server_name))
+        return SSHManager(
+            hostname=server_config.get('hostname'),
+            username=server_config.get('username'),
+            key_file=server_config.get('key_filename') or server_config.get('key_file'),
+            port=server_config.get('port', 22),
+            timeout=server_config.get('timeout', 30),
+        )
 
 
 # Type alias for transport managers

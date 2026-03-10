@@ -19,6 +19,7 @@ default_server: production
 
 # Servers
 servers:
+  # SSH transport (default)
   production:
     hostname: example.com
     username: ubuntu
@@ -32,11 +33,15 @@ servers:
     port: 22
     key_file: ~/.ssh/id_rsa
     wp_path: /var/www/staging
-    
-  local:
-    hostname: localhost
-    username: user
-    wp_path: /Users/user/Sites/wordpress
+
+  # Kubernetes transport
+  k8s-site:
+    transport: kubernetes
+    namespace: default
+    pod_selector: app=php
+    container: php-fpm
+    wp_path: /var/www/html
+    website: https://example.com
 
 # WordPress defaults
 wordpress:
@@ -54,11 +59,24 @@ output:
 
 ## Server Configuration
 
+### Transport Types
+
+PraisonAIWP supports two transport methods for connecting to WordPress servers:
+
+| Transport | Use Case | Config Key |
+|-----------|----------|------------|
+| **ssh** (default) | Traditional VPS/VM servers | `transport: ssh` |
+| **kubernetes** | K8s-deployed WordPress pods | `transport: kubernetes` |
+
+The `transport` field is optional — if omitted, SSH is used by default. All commands work identically regardless of transport type.
+
 ### SSH Connection
 
 ```yaml
 servers:
   myserver:
+    # transport: ssh  (default, can be omitted)
+    
     # Required
     hostname: example.com
     username: ubuntu
@@ -70,8 +88,55 @@ servers:
     password: null  # Use key_file instead
     timeout: 30
     
-    # WP-CLI path (if not in PATH)
-    wp_cli_path: /usr/local/bin/wp
+    # WP-CLI paths
+    wp_cli: /usr/local/bin/wp
+    php_bin: php
+```
+
+### Kubernetes Connection
+
+```yaml
+servers:
+  my-k8s-site:
+    transport: kubernetes
+    
+    # Required
+    namespace: default           # K8s namespace
+    pod_selector: app=php        # Label selector to find the pod
+    wp_path: /var/www/html       # WordPress path inside the container
+    
+    # Optional
+    container: php-fpm           # Container name (if pod has multiple)
+    website: https://example.com # Site URL for display
+    wp_cli: /usr/local/bin/wp    # WP-CLI path inside the container
+    php_bin: php                 # PHP binary inside the container
+```
+
+> **Note:** Kubernetes transport uses `kubectl exec` under the hood.
+> Make sure `kubectl` is configured and your kubeconfig has access to the target namespace.
+
+#### Kubernetes Example (Real-World)
+
+```yaml
+servers:
+  tamilchristiansongs:
+    transport: kubernetes
+    namespace: default
+    pod_selector: app=php
+    container: php-fpm
+    wp_path: /var/www/tcs
+    website: https://tamilchristiansongs.in
+    wp_cli: /usr/local/bin/wp
+    php_bin: php
+```
+
+Then use any command as normal:
+
+```bash
+# All commands work with K8s transport
+praisonaiwp list --server tamilchristiansongs
+praisonaiwp plugin list --server tamilchristiansongs
+praisonaiwp doctor --server tamilchristiansongs
 ```
 
 ### Multiple Servers
