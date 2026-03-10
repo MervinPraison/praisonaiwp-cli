@@ -115,17 +115,17 @@ servers:
 > **Note:** Kubernetes transport uses `kubectl exec` under the hood.
 > Make sure `kubectl` is configured and your kubeconfig has access to the target namespace.
 
-#### Kubernetes Example (Real-World)
+#### Kubernetes Example
 
 ```yaml
 servers:
-  tamilchristiansongs:
+  my-blog:
     transport: kubernetes
-    namespace: default
-    pod_selector: app=php
+    namespace: wordpress
+    pod_selector: app=wordpress
     container: php-fpm
-    wp_path: /var/www/tcs
-    website: https://tamilchristiansongs.in
+    wp_path: /var/www/html
+    website: https://my-blog.example.com
     wp_cli: /usr/local/bin/wp
     php_bin: php
 ```
@@ -134,9 +134,9 @@ Then use any command as normal:
 
 ```bash
 # All commands work with K8s transport
-praisonaiwp list --server tamilchristiansongs
-praisonaiwp plugin list --server tamilchristiansongs
-praisonaiwp doctor --server tamilchristiansongs
+praisonaiwp list --server my-blog
+praisonaiwp plugin list --server my-blog
+praisonaiwp doctor --server my-blog
 ```
 
 ### Multiple Servers
