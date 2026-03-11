@@ -43,6 +43,7 @@ from praisonaiwp.cli.commands.update import update_command
 from praisonaiwp.cli.commands.user import user_command
 from praisonaiwp.cli.commands.widget import widget_command
 from praisonaiwp.cli.commands.doctor import doctor
+from praisonaiwp.cli.commands.commit import commit_command
 
 # New WP-CLI commands
 from praisonaiwp.cli.commands.ability import ability
@@ -325,6 +326,9 @@ if MCP_COMMANDS_AVAILABLE:
 
 # Register doctor command
 cli.add_command(doctor, name='doctor')
+
+# Register commit command (remote git, same interface as praisonai commit)
+cli.add_command(commit_command, name='commit')
 
 # Register duplicate detection command (AI feature)
 try:

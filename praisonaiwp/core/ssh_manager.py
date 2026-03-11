@@ -145,8 +145,8 @@ class SSHManager:
 
             stdin, stdout, stderr = self.client.exec_command(command)
 
-            stdout_str = stdout.read().decode('utf-8')
-            stderr_str = stderr.read().decode('utf-8')
+            stdout_str = stdout.read().decode('utf-8', errors='replace')
+            stderr_str = stderr.read().decode('utf-8', errors='replace')
 
             if stderr_str and 'Error:' in stderr_str:
                 # Don't warn about "Term doesn't exist" - it's expected when looking up categories by name
