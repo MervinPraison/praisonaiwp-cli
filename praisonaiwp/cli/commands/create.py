@@ -194,7 +194,8 @@ def _create_single_post(title, content, status, post_type, category, category_id
         transport,
         server_config['wp_path'],
         server_config.get('php_bin', 'php'),
-        server_config.get('wp_cli', '/usr/local/bin/wp')
+        server_config.get('wp_cli', '/usr/local/bin/wp'),
+        allow_root=server_config.get('allow_root', False)
     )
 
 
@@ -297,7 +298,8 @@ def _create_from_file(file_path, server_config, config):
         transport,
         server_config['wp_path'],
         server_config.get('php_bin', 'php'),
-        server_config.get('wp_cli', '/usr/local/bin/wp')
+        server_config.get('wp_cli', '/usr/local/bin/wp'),
+        allow_root=server_config.get('allow_root', False)
     )
 
 

@@ -38,11 +38,19 @@ class WPClient:
         self.php_bin = php_bin
         self.wp_cli = wp_cli
         
-        # Auto-detect allow_root for Kubernetes transport
+        # Auto-detect allow_root for Kubernetes transport or SSH running as root
         if hasattr(ssh, '__class__') and 'Kubernetes' in ssh.__class__.__name__:
             self.allow_root = True
+        elif allow_root:
+            self.allow_root = True
         else:
-            self.allow_root = allow_root
+            # Auto-detect: if SSH user is root, set allow_root automatically
+            try:
+                import os
+                self.allow_root = (os.getenv('USER', '') == 'root' or
+                                   (hasattr(ssh, 'username') and ssh.username == 'root'))
+            except Exception:
+                self.allow_root = allow_root
 
         logger.debug(f"Initialized WPClient for {wp_path} (allow_root={self.allow_root})")
 
@@ -1036,13 +1044,16 @@ class WPClient:
         except Exception:
             return False
 
-    def import_media(self, file_path: str, post_id: int = None, **kwargs) -> int:
+    def import_media(self, file_path: str, post_id: int = None, user: str = None, **kwargs) -> int:
         """
         Import media file to WordPress
 
         Args:
             file_path: Path to media file
             post_id: Post ID to attach to (optional)
+            user: WordPress user login or ID to run the import as (optional).
+                  Required for SVG uploads when Safe SVG plugin is active — the
+                  plugin checks upload capability against the current WP user.
             **kwargs: Additional options (title, caption, alt, desc, etc.)
 
         Returns:
@@ -1052,6 +1063,9 @@ class WPClient:
 
         if post_id is not None:
             args.append(f"--post_id={post_id}")
+
+        if user is not None:
+            args.append(f"--user={user}")
 
         for key, value in kwargs.items():
             escaped_value = str(value).replace("'", "'\\''")

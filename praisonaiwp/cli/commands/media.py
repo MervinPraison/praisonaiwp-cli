@@ -29,8 +29,9 @@ def media_command():
 @click.option('--caption', help='Media caption')
 @click.option('--alt', help='Alt text for images')
 @click.option('--desc', help='Media description')
+@click.option('--user', default=None, help='WordPress user login or ID to run import as (required for SVG uploads with Safe SVG plugin)')
 @click.option('--server', default=None, help='Server name from config')
-def upload_media(file_path, post_id, title, caption, alt, desc, server):
+def upload_media(file_path, post_id, title, caption, alt, desc, user, server):
     """
     Upload media to WordPress
 
@@ -65,7 +66,8 @@ def upload_media(file_path, post_id, title, caption, alt, desc, server):
                 server_config['wp_path'],
                 server_config.get('php_bin', 'php'),
                 server_config.get('wp_cli', '/usr/local/bin/wp'),
-                verify_installation=False
+                verify_installation=False,
+                allow_root=True
             )
 
             # Determine if file_path is local or URL
@@ -100,7 +102,7 @@ def upload_media(file_path, post_id, title, caption, alt, desc, server):
                 kwargs['desc'] = desc
 
             console.print("[yellow]Importing to WordPress media library...[/yellow]")
-            attachment_id = wp.import_media(remote_file_path, post_id=post_id, **kwargs)
+            attachment_id = wp.import_media(remote_file_path, post_id=post_id, user=user, **kwargs)
 
             # Clean up temp file if we uploaded it
             if is_local_file:

@@ -1,1 +1,6 @@
-__version__ = "1.11.7"
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("praisonaiwp")
+except PackageNotFoundError:
+    __version__ = "unknown"

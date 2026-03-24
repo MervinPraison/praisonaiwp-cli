@@ -131,7 +131,9 @@ def doctor(server, verbose):
                 # Test WP-CLI
                 wp_cli = server_config.get('wp_cli', '/usr/local/bin/wp')
                 wp_path = server_config.get('wp_path', '')
-                result = transport.execute(f"cd {wp_path} && {wp_cli} --info 2>/dev/null | head -1")
+                allow_root = server_config.get('allow_root', False)
+                root_flag = ' --allow-root' if allow_root else ''
+                result = transport.execute(f"cd {wp_path} && {wp_cli}{root_flag} --info 2>/dev/null | head -1")
                 
                 if result and 'WP-CLI' in result:
                     console.print(f"  [green]✓ SSH connection successful[/green]")
