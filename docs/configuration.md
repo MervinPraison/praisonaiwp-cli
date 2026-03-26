@@ -61,14 +61,15 @@ output:
 
 ### Transport Types
 
-PraisonAIWP supports two transport methods for connecting to WordPress servers:
+PraisonAIWP supports three transport methods for connecting to WordPress servers:
 
 | Transport | Use Case | Config Key |
 |-----------|----------|------------|
 | **ssh** (default) | Traditional VPS/VM servers | `transport: ssh` |
 | **kubernetes** | K8s-deployed WordPress pods | `transport: kubernetes` |
+| **local** | Same server as WordPress | `transport: local` |
 
-The `transport` field is optional — if omitted, SSH is used by default. All commands work identically regardless of transport type.
+The `transport` field is optional — if omitted, SSH is used by default. If `hostname` is missing, `localhost`, or `127.0.0.1`, local transport is auto-detected. All commands work identically regardless of transport type.
 
 ### SSH Connection
 
@@ -91,6 +92,28 @@ servers:
     # WP-CLI paths
     wp_cli: /usr/local/bin/wp
     php_bin: php
+```
+
+### Local Connection
+
+For running on the **same server** as WordPress — no SSH needed:
+
+```yaml
+servers:
+  local-site:
+    transport: local
+    wp_path: /var/www/html
+    wp_cli: /usr/local/bin/wp
+    allow_root: true       # Optional, auto-detected if running as root
+```
+
+**Auto-detection:** If you omit `transport` and the hostname is missing, `localhost`, or `127.0.0.1`, local mode is used automatically:
+
+```yaml
+servers:
+  # This will auto-detect as local (no hostname)
+  my-site:
+    wp_path: /var/www/html
 ```
 
 ### Kubernetes Connection

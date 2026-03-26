@@ -38,8 +38,9 @@ class WPClient:
         self.php_bin = php_bin
         self.wp_cli = wp_cli
         
-        # Auto-detect allow_root for Kubernetes transport or SSH running as root
-        if hasattr(ssh, '__class__') and 'Kubernetes' in ssh.__class__.__name__:
+        # Auto-detect allow_root for Kubernetes/Local transport or SSH running as root
+        cls_name = ssh.__class__.__name__ if hasattr(ssh, '__class__') else ''
+        if 'Kubernetes' in cls_name or 'Local' in cls_name:
             self.allow_root = True
         elif allow_root:
             self.allow_root = True
