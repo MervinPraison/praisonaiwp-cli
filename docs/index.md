@@ -28,11 +28,13 @@ PraisonAIWP is a comprehensive command-line interface for WordPress management t
 - **Media management** (upload, organize, delete)
 - **Database operations** (backup, restore, optimization)
 
-### 🌐 Remote Server Support
-- **SSH-based remote management** for multiple WordPress sites
+### 🌐 Multi-Transport Connectivity
+- **SSH** for remote VPS/VM servers
+- **Kubernetes** for K8s-deployed WordPress pods
+- **Local execution** for same-server deployments (no SSH needed)
+- **Auto-detection** of local mode from config
 - **Multi-server configuration** with secure authentication
 - **Batch operations** across multiple installations
-- **Centralized control** from a single interface
 
 ### 📊 Enterprise Features
 - **Multisite management** for WordPress networks
@@ -81,15 +83,16 @@ praisonaiwp user create john john@example.com --role editor
 
 - [Installation Guide]({{ '/installation/' | relative_url }})
 - [Quick Start Tutorial]({{ '/quickstart/' | relative_url }})
+- [Transport Layer]({{ '/transport/' | relative_url }}) — SSH, Kubernetes, and Local
+- [Configuration Reference]({{ '/configuration/' | relative_url }})
 - [Command Reference]({{ '/commands/' | relative_url }})
-- [API Documentation]({{ '/api/' | relative_url }})
 
 ## 🏗️ Architecture
 
 PraisonAIWP is built with a modular architecture:
 
 - **Core Engine**: WPClient class for WordPress API interactions
-- **SSH Manager**: Secure remote server connections
+- **Transport Layer**: Pluggable SSH, Kubernetes, and Local transports
 - **Configuration System**: Flexible multi-server management
 - **AI Integration**: OpenAI-powered content generation
 - **CLI Interface**: Human-friendly command structure
@@ -97,8 +100,8 @@ PraisonAIWP is built with a modular architecture:
 ## 🔧 Requirements
 
 - Python 3.8+
-- WP-CLI installed on target servers
-- SSH access to WordPress servers
+- WP-CLI installed on target servers (auto-installed if missing)
+- SSH access (for remote servers), or `kubectl` (for Kubernetes), or local access
 - OpenAI API key (for AI features)
 
 ## 📄 License
