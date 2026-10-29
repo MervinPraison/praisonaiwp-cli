@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install mkdocs-material mkdocstrings mkdocstrings-python pymdown-extensions
+          pip install 'mkdocs-material==9.8.0' 'mkdocstrings==1.0.8' 'mkdocstrings-python==2.0.10' 'pymdown-extensions==12.3'
 
       - name: Check out shared theme
         if: github.event_name != 'pull_request'
