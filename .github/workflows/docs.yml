@@ -16,6 +16,8 @@ on:
     paths:
       - 'mkdocs-docs/**'
       - 'mkdocs.yml'
+  schedule:
+    - cron: '23 4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -43,6 +45,19 @@ jobs:
         run: |
           pip install mkdocs-material mkdocstrings mkdocstrings-python pymdown-extensions
 
+      - name: Check out shared theme
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          repository: MervinPraison/praisonai-docs-theme
+          ssh-key: ${{ secrets.PRAISONAI_THEME_DEPLOY_KEY }}
+          persist-credentials: false
+          path: .praisonai-theme
+      - name: Install shared theme
+        if: github.event_name != 'pull_request'
+        run: |
+          pip install ./.praisonai-theme
+          echo "PRAISONAI_THEME=praisonai" >> "$GITHUB_ENV"
       - name: Build MkDocs site
         run: |
           mkdocs build --config-file mkdocs.yml --site-dir site
@@ -53,7 +68,7 @@ jobs:
           path: ./site
 
   deploy:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

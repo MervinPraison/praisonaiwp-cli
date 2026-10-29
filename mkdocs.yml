@@ -10,7 +10,7 @@ edit_uri: edit/main/mkdocs-docs/
 docs_dir: mkdocs-docs
 
 theme:
-  name: material
+  name: !ENV [PRAISONAI_THEME, material]
   palette:
     - scheme: default
       primary: deep purple
