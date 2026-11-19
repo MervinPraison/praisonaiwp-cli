@@ -1,4 +1,4 @@
-name: Deploy MkDocs to GitHub Pages
+name: Deploy docs to GitHub Pages
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
     paths:
       - 'mkdocs-docs/**'
       - 'mkdocs.yml'
+      - 'aiui.template.yaml'
       - '.github/workflows/docs.yml'
   pull_request:
     branches:
@@ -16,6 +17,7 @@ on:
     paths:
       - 'mkdocs-docs/**'
       - 'mkdocs.yml'
+      - 'aiui.template.yaml'
   schedule:
     - cron: '23 4 * * *'
   workflow_dispatch:
@@ -41,26 +43,15 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          pip install 'mkdocs-material==9.8.0' 'mkdocstrings==1.0.8' 'mkdocstrings-python==2.0.10' 'pymdown-extensions==12.3'
+      - name: Install PraisonAI UI
+        run: pip install aiui
 
-      - name: Check out shared theme
-        if: github.event_name != 'pull_request'
-        uses: actions/checkout@v4
-        with:
-          repository: MervinPraison/praisonai-docs-theme
-          ssh-key: ${{ secrets.PRAISONAI_THEME_DEPLOY_KEY }}
-          persist-credentials: false
-          path: .praisonai-theme
-      - name: Install shared theme
-        if: github.event_name != 'pull_request'
+      - name: Build docs
         run: |
-          pip install ./.praisonai-theme
-          echo "PRAISONAI_THEME=praisonai" >> "$GITHUB_ENV"
-      - name: Build MkDocs site
-        run: |
-          mkdocs build --config-file mkdocs.yml --site-dir site
+          aiui build --config aiui.template.yaml --output site --minify
+          if [ -f CNAME ]; then cp CNAME site/CNAME; fi
+          if [ -f docs/CNAME ]; then cp docs/CNAME site/CNAME; fi
+          if [ -f mkdocs-docs/CNAME ]; then cp mkdocs-docs/CNAME site/CNAME; fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
