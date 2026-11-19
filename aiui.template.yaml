@@ -12,8 +12,9 @@ site:
   title: PraisonAIWP
   ui: shadcn
   theme:
-    preset: purple
-    darkMode: true
+    preset: paper
+    radius: md
+    mode: system
   description: AI-powered WordPress content management via WP-CLI over SSH
 seo:
   siteUrl: https://wpcli.praison.ai
