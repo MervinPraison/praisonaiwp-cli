@@ -20,13 +20,14 @@ seo:
   siteUrl: https://wpcli.praison.ai
 navigation:
   tabs:
-  - tab: Home
+  - tab: Docs
     groups:
-    - group: Home
+    - group: Get started
       pages:
       - index
-  - tab: Getting Started
-    groups:
+      - examples
+      - api
+      icon: rocket
     - group: Getting Started
       pages:
       - getting-started/index
@@ -34,15 +35,15 @@ navigation:
       - getting-started/quickstart
       - getting-started/configuration
       - getting-started/kubernetes
+      icon: rocket
       prefix: getting-started
-  - tab: Commands
-    groups:
     - group: Commands
       pages:
       - commands/index
       - commands/doctor
       - commands/init
       - commands/help
+      icon: terminal
       prefix: commands
     - group: Content Management
       pages:
@@ -51,6 +52,7 @@ navigation:
       - commands/list
       - commands/find
       - commands/post
+      icon: book-open
       prefix: commands
     - group: AI Features
       pages:
@@ -69,6 +71,7 @@ navigation:
       - commands/ai-workflow
       - commands/ai-bulk
       - commands/duplicate
+      icon: book-open
       prefix: commands
     - group: Media & Taxonomy
       pages:
@@ -76,6 +79,7 @@ navigation:
       - commands/category
       - commands/term
       - commands/taxonomy
+      icon: book-open
       prefix: commands
     - group: Administration
       pages:
@@ -89,6 +93,7 @@ navigation:
       - commands/role
       - commands/widget
       - commands/sidebar
+      icon: book-open
       prefix: commands
     - group: Database
       pages:
@@ -96,6 +101,7 @@ navigation:
       - commands/backup
       - commands/export
       - commands/search-replace
+      icon: book-open
       prefix: commands
     - group: System
       pages:
@@ -104,6 +110,7 @@ navigation:
       - commands/transient
       - commands/cron
       - commands/maintenance-mode
+      icon: book-open
       prefix: commands
     - group: WP-CLI
       pages:
@@ -115,12 +122,14 @@ navigation:
       - commands/profile
       - commands/install-wp-cli
       - commands/find-wordpress
+      icon: book-open
       prefix: commands
     - group: Multisite
       pages:
       - commands/network
       - commands/site
       - commands/super-admin
+      icon: book-open
       prefix: commands
     - group: Development
       pages:
@@ -132,6 +141,7 @@ navigation:
       - commands/language
       - commands/package
       - commands/dist-archive
+      icon: book-open
       prefix: commands
     - group: Advanced
       pages:
@@ -142,18 +152,13 @@ navigation:
       - commands/admin
       - commands/cap
       - commands/embed
+      icon: book-open
       prefix: commands
-  - tab: Examples
-    groups:
-    - group: Examples
-      pages:
-      - examples
-  - tab: API Reference
-    groups:
-    - group: API Reference
-      pages:
-      - api
 navbar:
+  primary:
+    type: button
+    label: Quick start
+    href: /docs/getting-started/installation
   links:
   - label: GitHub
     href: https://github.com/MervinPraison/PraisonAI-WPcli
@@ -170,6 +175,8 @@ content:
     include:
     - '**/*.md'
     - '**/*.mdx'
+    nav:
+      mode: manual
 templates:
   docs:
     layout: ThreeColumnLayout

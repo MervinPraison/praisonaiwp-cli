@@ -1,3 +1,18 @@
+---
+layout: home
+title: PraisonAIWP
+description: AI-powered WordPress content management via WP-CLI over SSH
+hero:
+  name: PraisonAIWP
+  text: PraisonAIWP
+  tagline: AI-powered WordPress content management via WP-CLI over SSH
+  actions:
+  - text: Quick start
+    link: getting-started/installation.md
+  - text: View on GitHub
+    link: https://github.com/MervinPraison/PraisonAI-WPcli
+    theme: alt
+---
 # PraisonAIWP
 
 **AI-powered WordPress content management** via WP-CLI over SSH and Kubernetes.
